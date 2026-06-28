@@ -1,0 +1,14 @@
+{
+  "nav.about": "關於",
+  "nav.solutions": "解決方案",
+  "nav.technology": "技術",
+  "nav.methodology": "方法論",
+  "nav.careers": "招募",
+  "cta.consult": "預約諮詢",
+  "cta.viewArchitecture": "查看系統架構",
+  "aria.skipToContent": "跳至主要內容",
+  "aria.openMenu": "開啟選單",
+  "aria.closeMenu": "關閉選單",
+  "aria.languageSelector": "語言選擇",
+  "aria.primaryNav": "主導覽"
+}
