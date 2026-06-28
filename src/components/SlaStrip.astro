@@ -12,11 +12,7 @@ const slas = (await getCollection('slas')).sort((a, b) => a.data.order - b.data.
           data-to={s.data.value}
           data-prefix={s.data.prefix}
           data-suffix={s.data.suffix}
-        >
-          {s.data.prefix}
-          {s.data.value}
-          {s.data.suffix}
-        </span>
+        >{`${s.data.prefix ?? ''}${s.data.value}${s.data.suffix ?? ''}`}</span>
         <span class="sla__label">{s.data.label}</span>
         <span class="sla__sub">{s.data.sub}</span>
       </div>
