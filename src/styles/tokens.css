@@ -10,6 +10,9 @@
   --ink-muted: #a9988a;
   --ink-faint: #6e6157;
 
+  /* Ghost numeral watermark — minimum to pass 3:1 on --bg-deep (#0E0B08) */
+  --numeral-ghost: #6d5f52;
+
   /* Accents (semantic) */
   --clay: #e07a5f;
   --clay-deep: #b0492a;
