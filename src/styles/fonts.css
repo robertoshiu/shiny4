@@ -1,0 +1,8 @@
+/* Font family stacks. Actual font files load via the Google Fonts <link> in
+   BaseLayout.astro (Plan 4 may self-host). */
+:root {
+  --font-display: 'Fraunces', 'Noto Serif TC', Georgia, serif;
+  --font-serif-tc: 'Noto Serif TC', serif;
+  --font-mono: 'Spline Sans Mono', ui-monospace, 'SFMono-Regular', monospace;
+  --font-body: 'Nunito Sans', 'Noto Sans TC', system-ui, sans-serif;
+}
