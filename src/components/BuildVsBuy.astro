@@ -1,6 +1,11 @@
 ---
 import SectionHeader from './SectionHeader.astro';
 
+interface Props {
+  index?: string;
+}
+const { index = '07' } = Astro.props;
+
 const pillars = [
   {
     accent: 'gold',
@@ -37,7 +42,7 @@ const pillars = [
 
 <section class="bvb" aria-labelledby="heading-07">
   <div class="bvb__inner">
-    <SectionHeader index="07" zh="為何外包勝過自建" en="BUILD vs. BUY" />
+    <SectionHeader index={index} zh="為何外包勝過自建" en="BUILD vs. BUY" />
 
     <p class="bvb__lead">
       競爭基準：晶圓廠自有 IT 團隊。<br />
