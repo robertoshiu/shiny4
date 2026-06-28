@@ -11,19 +11,19 @@ import HudCoordinate from '../HudCoordinate.astro';
   >
     <defs>
       <!--
-        Tamed central bloom: inner stop reduced from 0.22→0.12 and the
-        mid-stop at 40% carries the clay warmth so the core reads
-        "foundry ember" rather than a piercing LED hotspot.
+        Central bloom: gold core → clay mid-ring → espresso fade.
+        Higher opacities vs original (0.24/0.20) to anchor the wafer
+        visually; gradient centered at true vertical midpoint (cy=50%).
       -->
-      <radialGradient id="emberGrad" cx="50%" cy="46%" r="62%">
-        <stop offset="0%"   stop-color="#E9C46A" stop-opacity="0.12"></stop>
-        <stop offset="40%"  stop-color="#E07A5F" stop-opacity="0.14"></stop>
+      <radialGradient id="emberGrad" cx="50%" cy="50%" r="66%">
+        <stop offset="0%"   stop-color="#E9C46A" stop-opacity="0.24"></stop>
+        <stop offset="45%"  stop-color="#E07A5F" stop-opacity="0.20"></stop>
         <stop offset="100%" stop-color="#14100D" stop-opacity="0"></stop>
       </radialGradient>
 
       <!-- Dot-matrix tile (gold base; diagonal mask drives the fade) -->
-      <pattern id="dotMatrix" width="34" height="34" patternUnits="userSpaceOnUse">
-        <circle cx="2" cy="2" r="1.4" fill="#E9C46A" fill-opacity="0.18"></circle>
+      <pattern id="dotMatrix" width="27" height="27" patternUnits="userSpaceOnUse">
+        <circle cx="2" cy="2" r="1.7" fill="#E9C46A" fill-opacity="0.28"></circle>
       </pattern>
 
       <!--
@@ -32,8 +32,8 @@ import HudCoordinate from '../HudCoordinate.astro';
         SVG y=0 is top, so bottom-left = x1="0%" y1="100%".
       -->
       <linearGradient id="dotFade" x1="0%" y1="100%" x2="100%" y2="0%">
-        <stop offset="0%"   stop-color="white" stop-opacity="0.88"></stop>
-        <stop offset="100%" stop-color="white" stop-opacity="0.10"></stop>
+        <stop offset="0%"   stop-color="white" stop-opacity="0.95"></stop>
+        <stop offset="100%" stop-color="white" stop-opacity="0.22"></stop>
       </linearGradient>
       <mask id="dotFadeMask">
         <rect width="1440" height="900" fill="url(#dotFade)"></rect>
@@ -41,7 +41,7 @@ import HudCoordinate from '../HudCoordinate.astro';
 
       <!--
         Subtle ring-glow filter (static fallback only — no cost concern).
-        Each ring gets a soft halo that mimics the shader's pow(rings, 2.8)
+        Each ring gets a soft halo that mimics the shader's pow(rings, 2.0)
         soft-peak shape.
       -->
       <filter id="ringGlow" x="-12%" y="-12%" width="124%" height="124%">
@@ -59,22 +59,24 @@ import HudCoordinate from '../HudCoordinate.astro';
     <!-- Ember dot-matrix with diagonal fade mask -->
     <rect width="1440" height="900" fill="url(#dotMatrix)" mask="url(#dotFadeMask)"></rect>
 
-    <!-- Central ember bloom (tamed) -->
-    <circle cx="720" cy="414" r="360" fill="url(#emberGrad)"></circle>
+    <!-- Central ember bloom — centered at true vertical midpoint -->
+    <circle cx="720" cy="450" r="390" fill="url(#emberGrad)"></circle>
 
     <!--
       Diffraction rings: non-uniform spacing + depth-based opacity.
-      Gaps: 68, 76, 84, 96 px — progressively wider outward, matching
-      the shader's quadratic rr = r*46 - r²*28 character.
-      Opacity peaks at the mid-annulus (r=224) and falls toward both edges.
-      Inner-most ring uses gold; outer rings shade toward clay.
+      Centered at true vertical midpoint (cy=450). Spacing follows the
+      shader's quadratic rr = r*52 - r²*32 character (denser inner rings).
+      Opacity peaks at the mid-annulus and falls toward both edges.
+      Inner rings: gold. Outer rings: clay. Widened from original.
     -->
     <g fill="none" filter="url(#ringGlow)">
-      <circle cx="720" cy="414" r="80"  stroke="#E9C46A" stroke-opacity="0.08" stroke-width="0.8"></circle>
-      <circle cx="720" cy="414" r="148" stroke="#E9C46A" stroke-opacity="0.16" stroke-width="1.0"></circle>
-      <circle cx="720" cy="414" r="224" stroke="#E9C46A" stroke-opacity="0.18" stroke-width="1.2"></circle>
-      <circle cx="720" cy="414" r="308" stroke="#E07A5F" stroke-opacity="0.12" stroke-width="1.0"></circle>
-      <circle cx="720" cy="414" r="404" stroke="#E07A5F" stroke-opacity="0.07" stroke-width="0.8"></circle>
+      <circle cx="720" cy="450" r="52"  stroke="#E9C46A" stroke-opacity="0.09" stroke-width="0.8"></circle>
+      <circle cx="720" cy="450" r="96"  stroke="#E9C46A" stroke-opacity="0.18" stroke-width="1.0"></circle>
+      <circle cx="720" cy="450" r="150" stroke="#E9C46A" stroke-opacity="0.26" stroke-width="1.2"></circle>
+      <circle cx="720" cy="450" r="213" stroke="#E9C46A" stroke-opacity="0.30" stroke-width="1.4"></circle>
+      <circle cx="720" cy="450" r="284" stroke="#E07A5F" stroke-opacity="0.22" stroke-width="1.2"></circle>
+      <circle cx="720" cy="450" r="362" stroke="#E07A5F" stroke-opacity="0.14" stroke-width="1.0"></circle>
+      <circle cx="720" cy="450" r="446" stroke="#E07A5F" stroke-opacity="0.07" stroke-width="0.8"></circle>
     </g>
   </svg>
   <span class="hero-poster__hud">

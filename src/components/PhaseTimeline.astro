@@ -67,7 +67,7 @@ function moreLabel(n: number): string {
       const pDelivs = localized(p.data, 'deliverables', locale) as string[];
       const dots = gateCount(pGate);
       return (
-        <article
+        <div
           class={`phase-card phase-card--${accent}`}
           role="listitem"
           aria-label={`${p.data.code} ${pName}`}
@@ -104,7 +104,7 @@ function moreLabel(n: number): string {
               </li>
             )}
           </ul>
-        </article>
+        </div>
       );
     })}
   </div>
@@ -250,7 +250,7 @@ function moreLabel(n: number): string {
     font-family: var(--font-mono);
     font-size: 0.7rem;
     letter-spacing: 0.16em;
-    color: var(--ink-faint);
+    color: var(--ink-muted); /* promoted from --ink-faint: 2.87:1 → ≥4.5:1 AA */
     margin: 0;
   }
 
@@ -346,7 +346,7 @@ function moreLabel(n: number): string {
     font-family: var(--font-mono);
     font-size: 0.7rem;
     letter-spacing: 0.08em;
-    color: var(--ink-faint);
+    color: var(--ink-muted); /* promoted from --ink-faint: 2.87:1 → ≥4.5:1 AA */
   }
 
   .phase-card__deliverable--more::before {

@@ -12,10 +12,11 @@ const { locale } = Astro.props;
 
 <header class="site-header" data-header>
   <div class="site-header__inner">
-    <a class="brand" href="/" aria-label="SHINYLOGIC 顯藝科技 首頁">
+    <a class="brand" href="/">
       <span class="brand__name">SHINYLOGIC</span>
       <span class="brand__zh">顯藝科技</span>
       <span class="brand__sub" aria-hidden="true">INTELLIGENT WAFER FAB SYSTEMS</span>
+      <span class="sr-only">首頁</span>
     </a>
     <div class="site-header__desktop">
       <Nav locale={locale} />

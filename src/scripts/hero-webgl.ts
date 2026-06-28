@@ -44,34 +44,42 @@ void main() {
   // Non-uniform spacing: quadratic subtraction compresses angular frequency at
   // large r, giving inner rings denser packing and outer rings sparser — the
   // character of silicon-wafer interference patterns.
-  float rr    = r * 46.0 - r * r * 28.0;
+  float rr    = r * 52.0 - r * r * 32.0;
   float rings = 0.5 + 0.5 * sin(rr - u_time * 1.1);
-  rings       = pow(rings, 2.8);
+  rings       = pow(rings, 2.0);
 
   // Disc mask with ring-depth glow falloff:
   // Suppress the dead center (< r≈0.10) and attenuate toward the rim.
   // This peaks brightness at the mid-annulus, giving rings a sense of depth.
-  float disc      = smoothstep(0.63, 0.56, r);
-  float ringDepth = smoothstep(0.0, 0.10, r)
-                  * smoothstep(0.62, 0.28, r);
-  rings = rings * disc * (0.35 + 0.65 * ringDepth);
+  float disc      = smoothstep(0.72, 0.52, r);
+  float ringDepth = smoothstep(0.0, 0.12, r)
+                  * smoothstep(0.68, 0.18, r);
+  rings = rings * disc * (0.28 + 0.72 * ringDepth);
+
+  // Warm central bloom — radiates from the disc core to anchor the wafer
+  // visually and prevent the composition reading as "pushed top-right".
+  float bloom = exp(-r * r * 5.0) * 0.22;
 
   // ── Ember dot-matrix ──────────────────────────────────────────────────────
   float gridN   = 42.0;
   vec2  g       = uv * gridN;
   vec2  cell    = floor(g);
   vec2  f       = fract(g) - 0.5;
-  float dotMask = smoothstep(0.17, 0.09, length(f));
+  float dotMask = smoothstep(0.22, 0.10, length(f));
   float flicker = 0.55 + 0.45 * sin(u_time * 1.9 + hash(cell) * 6.2831);
-  // Diagonal fade: dense bottom-left (foundry floor), sparse top-right.
-  float diagFade = clamp(1.0 - (uv.x * 0.55 + uv.y * 0.45), 0.0, 1.0);
-  // Sparse inside the wafer center where rings dominate; bloom out from r≈0.28.
-  float emberRim = smoothstep(0.0, 0.28, r);
-  float ember    = dotMask * flicker * diagFade * emberRim * 0.60 * u_density;
+  // Diagonal fade: dense bottom-left (foundry floor), lighter top-right.
+  // Reduced weights vs original (0.55/0.45) so the top-right quadrant of the
+  // disc still receives embers — preventing the wafer from reading as "pushed."
+  float diagFade = clamp(1.0 - (uv.x * 0.40 + uv.y * 0.26), 0.0, 1.0);
+  // Sparse inside the wafer center where rings dominate; bloom out from r≈0.20.
+  float emberRim = smoothstep(0.0, 0.20, r);
+  float ember    = dotMask * flicker * diagFade * emberRim * 0.82 * u_density;
 
   // ── Color & central-bloom taming ──────────────────────────────────────────
   // Gold → Clay gradient based on radius.
-  float ramp  = clamp(r * 1.8, 0.0, 1.0);
+  // Reduced multiplier (1.2 vs 1.8) so gold persists through the mid-disc
+  // where embers are most visible — richer gold→clay character.
+  float ramp  = clamp(r * 1.2, 0.0, 1.0);
   vec3 accent = mix(GOLD, CLAY, ramp);
 
   // Near center, replace accent with a low-saturation warm umber so the core
@@ -81,7 +89,7 @@ void main() {
   vec3  mudAmber  = ESPRESSO + vec3(0.17, 0.08, 0.03);
   vec3  baseColor = mix(mudAmber, accent, coreBlend);
 
-  float intensity = clamp(rings * 0.66 + ember, 0.0, 1.0);
+  float intensity = clamp(rings * 0.90 + ember + bloom, 0.0, 1.0);
   vec3  color     = ESPRESSO + baseColor * intensity;
 
   gl_FragColor = vec4(color, 1.0);
@@ -238,9 +246,10 @@ function init2DFallback(canvas: HTMLCanvasElement, density: number): HeroHandle 
   resize();
 
   // Non-uniform ring radii (fractions of maxR): inner tighter, outer sparser.
-  const RING_FRACS   = [0.14, 0.24, 0.35, 0.47, 0.60, 0.74, 0.88];
-  // Ring depth opacity: dim at extremes, peaks at mid-annulus (index 3-4).
-  const RING_OPACITY = [0.03, 0.06, 0.09, 0.10, 0.08, 0.05, 0.03];
+  const RING_FRACS   = [0.10, 0.18, 0.27, 0.37, 0.48, 0.60, 0.73, 0.87];
+  // Ring depth opacity: dim at extremes, peaks at mid-annulus — increased for
+  // luminosity (matches brightened WebGL pow 2.0 / 0.90 multiplier).
+  const RING_OPACITY = [0.04, 0.09, 0.14, 0.18, 0.16, 0.11, 0.07, 0.04];
 
   function draw(now: number) {
     if (!running) return;
@@ -273,15 +282,16 @@ function init2DFallback(canvas: HTMLCanvasElement, density: number): HeroHandle 
     const step = Math.max(18, Math.floor(w / 42));
     for (let y = 0; y < h; y += step) {
       for (let x = 0; x < w; x += step) {
-        // Diagonal fade: dense bottom-left (uv.y=0 → y=h), sparse top-right.
+        // Diagonal fade: dense bottom-left, lighter top-right.
+        // Reduced weights so top-right quadrant of the disc gets coverage.
         const ux   = x / w;
         const uy   = 1 - y / h; // flip: 0 at top in canvas
-        const diag = Math.max(0, 1 - (ux * 0.55 + uy * 0.45));
+        const diag = Math.max(0, 1 - (ux * 0.40 + uy * 0.26));
         const flick = 0.55 + 0.45 * Math.sin(t * 1.9 + (x * 0.7 + y * 0.3));
-        // Keep field sparse inside wafer center.
+        // Keep field sparse inside wafer center (reduced exclusion zone).
         const dist     = Math.hypot(x - cx, y - cy);
-        const emberRim = Math.min(1, Math.max(0, dist / (maxR * 0.28)));
-        const a = Math.max(0, diag * flick * 0.55 * density * emberRim);
+        const emberRim = Math.min(1, Math.max(0, dist / (maxR * 0.20)));
+        const a = Math.max(0, diag * flick * 0.78 * density * emberRim);
         if (a <= 0.02) continue;
         const ramp = Math.min(1, (dist / maxR) * 1.8);
         const col  = ramp < 0.5 ? '233,196,106' : '224,122,95';

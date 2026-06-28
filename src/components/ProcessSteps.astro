@@ -37,7 +37,7 @@ function pad(n: number) {
     const stepDescription= localized(step.data, 'description', locale) as string;
     return (
       <div class="process-steps__item-wrap">
-        <article
+        <div
           class={`ps-card${accent ? ` ps-card--${accent}` : ''}`}
           role="listitem"
           aria-label={`Step ${pad(step.data.order)}: ${stepZhName}`}
@@ -62,7 +62,7 @@ function pad(n: number) {
 
           {/* Description (localized) */}
           <p class="ps-card__desc">{stepDescription}</p>
-        </article>
+        </div>
 
         {/* Connector arrow between steps — hidden on last */}
         {!isLast && (

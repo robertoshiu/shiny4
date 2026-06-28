@@ -38,7 +38,7 @@ const chips = [
     <HeroCanvas />
     <div class="hero__content">
       <p class="hero__eyebrow" aria-hidden="true">WHO WE ARE // SYSTEMS INTEGRATOR</p>
-      <h1 class="hero__title">
+      <h1 class="hero__title" data-locale={locale}>
         <span class="hero__line">{t('home.hero.titleLine1', locale)}</span>
         <span class="hero__line"
           >{t('home.hero.titleLine2', locale)}<span class="hero__nowrap"
@@ -158,7 +158,21 @@ const chips = [
   .hero__line {
     display: block;
   }
-  /* Prevents trailing single glyph orphan on the closing clause */
+  /*
+   * Hero headline line-break control (§14 design spec).
+   *
+   * EN  — titleLine2 ends with a trailing space before the nowrap span, so
+   *        "actionable" and "decisions." are always separated by a real space
+   *        and can never be space-collapsed by the renderer.
+   *
+   * 繁中 — titleLine2 = "鍛造成可"  +  nowrap("決策的智能。")
+   * 简体 — titleLine2 = "锻造成可"  +  nowrap("决策的智能。")
+   *        Moving "決策/决策" into the nowrap span ensures the compound is
+   *        never severed across a line break, at any viewport width.
+   *
+   * The data-locale attribute on <h1> is available for future locale-specific
+   * CSS overrides without touching global.css.
+   */
   .hero__nowrap {
     white-space: nowrap;
   }

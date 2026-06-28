@@ -32,6 +32,25 @@ Color carries meaning, never decoration; every coded element ALSO has a text lab
 - **Clay CTA uses DARK ink (`--bg`)** — cream-on-clay ≈ 2.3:1 fails. Never cream on clay.
 - Focus-visible ring = `--sun` 2px, offset 3px, ≥ 3:1 on all surfaces.
 - Risk/level encodings are always text + icon, never color-only.
+- **`--ink-faint` (#6E6157) is DECORATION ONLY** — use for aria-hidden HUD/hairlines. Never for live body text at any size.
+- Small mono labels (≤ 13px) must use `--ink-muted` or higher; `--ink-faint` at small sizes fails 4.5:1.
+
+## Contrast matrix (key pairings, post-audit)
+| Foreground | Background | Ratio | Use / status |
+|---|---|---|---|
+| `--ink` `#F2E9DE` | `--bg` `#14100D` | ~16:1 | Body text — AAA ✓ |
+| `--ink` `#F2E9DE` | `--surface` `#211A14` | ~14:1 | Card body — AAA ✓ |
+| `--ink-muted` `#A9988A` | `--bg` `#14100D` | ~5.5:1 | Secondary text, footer nav — AA ✓ |
+| `--ink-muted` `#A9988A` | `--surface` `#211A14` | ~4.8:1 | Card secondary / phase months — AA ✓ |
+| `--ink-muted` `#A9988A` | `--bg-deep` `#0E0B08` | ~6.3:1 | Footer headings / legal — AA ✓ |
+| `--ink-faint` `#6E6157` | `--bg` `#14100D` | ~2.9:1 | FAIL at small size — decoration/aria-hidden only |
+| `--ink-faint` `#6E6157` | `--surface` `#211A14` | ~2.9:1 | FAIL at small size — decoration/aria-hidden only |
+| `--ink-faint` `#6E6157` | `--bg-deep` `#0E0B08` | ~3.3:1 | FAIL at small size — decoration/aria-hidden only |
+| `--sun` `#E9C46A` | `--bg` `#14100D` | ~12:1 | Focus ring, accent labels — AAA ✓ |
+| `--sun` `#E9C46A` | `--surface` `#211A14` | ~10.5:1 | Focus ring on cards — AAA ✓ |
+| `--clay` `#E07A5F` | `--bg` `#14100D` (as text) | ~3.4:1 | Clay accent labels — AA large ✓ |
+| `--bg` `#14100D` | `--clay` `#E07A5F` (CTA bg) | ~3.4:1 | CTA button text (dark-on-clay) — AA large ✓ |
+| `--sage` `#81A684` | `--bg` `#14100D` | ~5.0:1 | Sage accent labels — AA ✓ |
 
 ## Type
 - Display: **Fraunces** (optical sizing, 64–120px), Chinese display fallback **Noto Serif TC**.

@@ -39,7 +39,7 @@ const ACCENT_LABEL: Record<string, string> = {
     const total  = layers.length;
     const name   = localized(layer.data, 'zhName', locale) as string;
     return (
-      <article
+      <div
         class={`layer-chapter${accent ? ` layer-chapter--${accent}` : ''}`}
         role="listitem"
         aria-label={`${layer.data.num} ${name}`}
@@ -48,7 +48,7 @@ const ACCENT_LABEL: Record<string, string> = {
         <div class="layer-chapter__gutter" aria-hidden="true">
           <span class={`layer-chapter__dot${accent ? ` layer-chapter__dot--${accent}` : ''}`} />
           {i < total - 1 && <span class="layer-chapter__line" />}
-          <span class="layer-chapter__idx">{i + 1}<em>/{total}</em></span>
+          <span class="layer-chapter__idx" aria-hidden="true">{i + 1}<em>/{total}</em></span>
         </div>
 
         {/* Content */}
@@ -68,7 +68,7 @@ const ACCENT_LABEL: Record<string, string> = {
 
         {/* Ghost numeral — background decoration only */}
         <span class="layer-chapter__ghost" aria-hidden="true">{layer.data.num}</span>
-      </article>
+      </div>
     );
   })}
 </div>
