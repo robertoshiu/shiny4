@@ -1,7 +1,15 @@
 {
   "id": "T3",
   "zhName": "AI/MLOps",
+  "zhName_en": "AI/MLOps",
+  "zhName_zh-Hans": "AI/MLOps",
   "enLabel": "AI & MLOPS",
+  "enLabel_en": "AI & MLOPS",
+  "enLabel_zh-Hans": "AI & MLOPS",
   "description": "模型訓練與部署平台（基於GB300 AI Fabric）、Agentic RAG開發、Digital Twin算力供給與MLOps流水線。",
-  "tags": ["GB300 NVL72", "Agentic RAG", "Omniverse"]
+  "description_en": "Model training and deployment platform (built on GB300 AI Fabric), Agentic RAG development, Digital Twin compute provisioning, and MLOps pipelines.",
+  "description_zh-Hans": "模型训练与部署平台（基于GB300 AI Fabric）、Agentic RAG开发、Digital Twin算力供给与MLOps流水线。",
+  "tags": ["GB300 NVL72", "Agentic RAG", "Omniverse"],
+  "tags_en": ["GB300 NVL72", "Agentic RAG", "Omniverse"],
+  "tags_zh-Hans": ["GB300 NVL72", "Agentic RAG", "Omniverse"]
 }

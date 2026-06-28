@@ -1,10 +1,22 @@
 {
   "id": "JD-002",
   "zhTitle": "MES資深工程師（FAB300）",
+  "zhTitle_en": "Sr. MES Engineer (FAB300)",
+  "zhTitle_zh-Hans": "MES资深工程师（FAB300）",
   "enTitle": "SR. MES ENGINEER — FAB300",
+  "enTitle_en": "SR. MES ENGINEER — FAB300",
+  "enTitle_zh-Hans": "SR. MES ENGINEER — FAB300",
   "functionTeam": "T2",
   "level": "中高級",
+  "level_en": "Mid-Senior",
+  "level_zh-Hans": "中高级",
   "priorityPhase": "裝機期優先",
+  "priorityPhase_en": "Installation Phase Priority",
+  "priorityPhase_zh-Hans": "装机期优先",
   "summary": "實施高量產MES平台（FAB300），負責SECS-GEM/GEM300機台聯調與APC R2R+FDC閉環。",
-  "tags": ["FAB300", "SECS-GEM", "APC FDC"]
+  "summary_en": "Implement the high-volume MES platform (FAB300); responsible for SECS-GEM/GEM300 equipment integration and APC R2R+FDC closed-loop control.",
+  "summary_zh-Hans": "实施高量产MES平台（FAB300），负责SECS-GEM/GEM300机台联调与APC R2R+FDC闭环。",
+  "tags": ["FAB300", "SECS-GEM", "APC FDC"],
+  "tags_en": ["FAB300", "SECS-GEM", "APC FDC"],
+  "tags_zh-Hans": ["FAB300", "SECS-GEM", "APC FDC"]
 }

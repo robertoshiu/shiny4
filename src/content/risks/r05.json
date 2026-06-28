@@ -1,5 +1,9 @@
 {
   "id": "R.05",
   "zhRisk": "系統整合風險 / INTEGRATION：六層架構跨越OT/IT邊界，SECS-GEM/GEM300聯調涉及8類機台廠商。",
-  "mitigation": "接口凍結於建廠期Gate 2，EAP聯調M5啟動"
+  "zhRisk_en": "Integration Risk / INTEGRATION: Six-layer architecture spans the OT/IT boundary; SECS-GEM/GEM300 integration involves 8 classes of equipment vendors.",
+  "zhRisk_zh-Hans": "系统整合风险 / INTEGRATION：六层架构跨越OT/IT边界，SECS-GEM/GEM300联调涉及8类机台厂商。",
+  "mitigation": "接口凍結於建廠期Gate 2，EAP聯調M5啟動",
+  "mitigation_en": "Interface freeze at Construction Phase Gate 2; EAP integration commences at M5",
+  "mitigation_zh-Hans": "接口冻结于建厂期Gate 2，EAP联调M5启动"
 }

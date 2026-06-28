@@ -2,7 +2,15 @@
   "order": 2,
   "id": "技術諮詢",
   "zhName": "技術諮詢",
+  "zhName_en": "Technical Advisory",
+  "zhName_zh-Hans": "技术咨询",
   "enLabel": "TECHNICAL ADVISORY",
+  "enLabel_en": "TECHNICAL ADVISORY",
+  "enLabel_zh-Hans": "TECHNICAL ADVISORY",
   "description": "針對AI算力（GB300/HGX B300）、MES（FAB300）、OT安全（IEC 62443）或DR架構的深度技術評估。",
-  "target": "架構評估、技術選型、POC規劃"
+  "description_en": "In-depth technical assessment of AI compute (GB300/HGX B300), MES (FAB300), OT security (IEC 62443), or DR architecture.",
+  "description_zh-Hans": "针对AI算力（GB300/HGX B300）、MES（FAB300）、OT安全（IEC 62443）或DR架构的深度技术评估。",
+  "target": "架構評估、技術選型、POC規劃",
+  "target_en": "Architecture assessment, technology selection, POC planning",
+  "target_zh-Hans": "架构评估、技术选型、POC规划"
 }

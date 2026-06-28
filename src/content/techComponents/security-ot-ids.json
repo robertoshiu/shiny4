@@ -2,5 +2,7 @@
   "id": "OT-IDS",
   "domain": "security",
   "zhName": "OT入侵偵測與資產可視化",
+  "zhName_en": "OT Intrusion Detection & Asset Visibility",
+  "zhName_zh-Hans": "OT入侵侦测与资产可视化",
   "spec": "OT域IDS · SECS-GEM/OPC UA監控 · 設備固件完整性驗證 · 全廠OT網段資產盤點"
 }

@@ -1,10 +1,22 @@
 {
   "id": "JD-006",
   "zhTitle": "DR/業務連續性工程師",
+  "zhTitle_en": "DR / Business Continuity Engineer",
+  "zhTitle_zh-Hans": "DR/业务连续性工程师",
   "enTitle": "DR & BUSINESS CONTINUITY ENGINEER",
+  "enTitle_en": "DR & BUSINESS CONTINUITY ENGINEER",
+  "enTitle_zh-Hans": "DR & BUSINESS CONTINUITY ENGINEER",
   "functionTeam": "T6",
   "level": "中高級",
+  "level_en": "Mid-Senior",
+  "level_zh-Hans": "中高级",
   "priorityPhase": "試產期優先",
+  "priorityPhase_en": "Pilot Production Phase Priority",
+  "priorityPhase_zh-Hans": "试产期优先",
   "summary": "建置溫備援跨區域架構、異步複製與SD-WAN雙ISP；保障RTO ≤ 4hr/RPO ≤ 15min，兼負ISA-95企業整合接口。",
-  "tags": ["RTO ≤ 4hr", "SD-WAN", "ISA-95"]
+  "summary_en": "Build warm-standby cross-region architecture, async replication, and SD-WAN dual-ISP; ensure RTO ≤ 4hr / RPO ≤ 15min; also responsible for ISA-95 enterprise integration interfaces.",
+  "summary_zh-Hans": "建置温备援跨区域架构、异步复制与SD-WAN双ISP；保障RTO ≤ 4hr/RPO ≤ 15min，兼负ISA-95企业整合接口。",
+  "tags": ["RTO ≤ 4hr", "SD-WAN", "ISA-95"],
+  "tags_en": ["RTO ≤ 4hr", "SD-WAN", "ISA-95"],
+  "tags_zh-Hans": ["RTO ≤ 4hr", "SD-WAN", "ISA-95"]
 }

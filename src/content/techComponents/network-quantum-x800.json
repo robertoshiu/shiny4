@@ -2,6 +2,10 @@
   "id": "Quantum-X800",
   "domain": "network",
   "zhName": "Quantum-X800",
+  "zhName_en": "Quantum-X800",
+  "zhName_zh-Hans": "Quantum-X800",
   "spec": "InfiniBand · 144-port · 800Gb/s XDR · 東西向AI計算互聯",
-  "note": "支撐高頻張量並行訓練與Digital Twin即時數據流。"
+  "note": "支撐高頻張量並行訓練與Digital Twin即時數據流。",
+  "note_en": "Supports high-frequency tensor parallel training and Digital Twin real-time data streams.",
+  "note_zh-Hans": "支撑高频张量并行训练与Digital Twin即时数据流。"
 }

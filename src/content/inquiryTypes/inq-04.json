@@ -2,7 +2,15 @@
   "order": 4,
   "id": "招募",
   "zhName": "招募",
+  "zhName_en": "Careers",
+  "zhName_zh-Hans": "招募",
   "enLabel": "CAREERS",
+  "enLabel_en": "CAREERS",
+  "enLabel_zh-Hans": "CAREERS",
   "description": "加入四階段建設團隊。",
-  "target": "工程師、顧問、專案管理"
+  "description_en": "Join our four-phase build team.",
+  "description_zh-Hans": "加入四阶段建设团队。",
+  "target": "工程師、顧問、專案管理",
+  "target_en": "Engineers, consultants, project management",
+  "target_zh-Hans": "工程师、顾问、专案管理"
 }

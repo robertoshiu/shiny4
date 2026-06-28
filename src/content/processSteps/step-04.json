@@ -1,6 +1,12 @@
 {
   "order": 4,
   "zhName": "交付+100%歸檔",
+  "zhName_en": "Deliver + Archive",
+  "zhName_zh-Hans": "交付+100%归档",
   "enLabel": "DELIVER + ARCHIVE",
-  "description": "依8道Gate交付全棧整合層，通過SLA驗收，並交還100%歸檔的跨廠範本供您未來擴廠重複套用。"
+  "enLabel_en": "DELIVER + ARCHIVE",
+  "enLabel_zh-Hans": "DELIVER + ARCHIVE",
+  "description": "依8道Gate交付全棧整合層，通過SLA驗收，並交還100%歸檔的跨廠範本供您未來擴廠重複套用。",
+  "description_en": "Deliver all six integration layers across 8 Gates, pass SLA acceptance, and hand over 100% archived cross-fab templates for future expansion.",
+  "description_zh-Hans": "依8道Gate交付全栈整合层，通过SLA验收，并交还100%归档的跨厂范本供您未来扩厂重复套用。"
 }

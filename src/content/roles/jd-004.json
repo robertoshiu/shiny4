@@ -1,10 +1,22 @@
 {
   "id": "JD-004",
   "zhTitle": "OT資安工程師/SOC分析師",
+  "zhTitle_en": "OT Security Engineer / SOC Analyst",
+  "zhTitle_zh-Hans": "OT资安工程师/SOC分析师",
   "enTitle": "OT SECURITY ENGINEER / SOC ANALYST",
+  "enTitle_en": "OT SECURITY ENGINEER / SOC ANALYST",
+  "enTitle_zh-Hans": "OT SECURITY ENGINEER / SOC ANALYST",
   "functionTeam": "T5",
   "level": "中級/Mid",
+  "level_en": "Mid-level / Mid",
+  "level_zh-Hans": "中级/Mid",
   "priorityPhase": "裝機期優先",
+  "priorityPhase_en": "Installation Phase Priority",
+  "priorityPhase_zh-Hans": "装机期优先",
   "summary": "維運OT入侵偵測與SOC 24×7 SIEM/SOAR，對齊IEC 62443與等保2.0三級合規要求。",
-  "tags": ["IEC 62443", "SIEM/SOAR", "等保2.0"]
+  "summary_en": "Operate OT intrusion detection and SOC 24×7 SIEM/SOAR; ensure alignment with IEC 62443 and 等保2.0三级 compliance requirements.",
+  "summary_zh-Hans": "维运OT入侵侦测与SOC 24×7 SIEM/SOAR，对齐IEC 62443与等保2.0三级合规要求。",
+  "tags": ["IEC 62443", "SIEM/SOAR", "等保2.0"],
+  "tags_en": ["IEC 62443", "SIEM/SOAR", "等保2.0"],
+  "tags_zh-Hans": ["IEC 62443", "SIEM/SOAR", "等保2.0"]
 }

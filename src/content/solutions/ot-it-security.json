@@ -1,9 +1,17 @@
 {
   "id": "資訊安全OT-IT",
   "zhName": "資訊安全OT/IT",
+  "zhName_en": "Security OT/IT",
+  "zhName_zh-Hans": "信息安全OT/IT",
   "enLabel": "SECURITY — OT & IT",
+  "enLabel_en": "SECURITY — OT & IT",
+  "enLabel_zh-Hans": "SECURITY — OT & IT",
   "problem": "OT與IT網絡邊界模糊，合規多軌並行。",
+  "problem_en": "The boundary between OT and IT networks is blurred, with multiple compliance tracks running in parallel.",
+  "problem_zh-Hans": "OT与IT网络边界模糊，合规多轨并行。",
   "scope": "OT入侵偵測與資產可視化，資產盤點與行為基線，覆蓋全廠OT網段；NGFW部署（OT/IT邊界防護）+ EDR端點防護 + IAM/PAM特權存取；SIEM/SOAR平台整合，CCC中控台統一告警管理；SOC 24×7服務（含OT事件響應SLA），對齊IEC 62443/SEMI E187/等保2.0三級",
+  "scope_en": "OT intrusion detection and asset visibility — asset inventory and behavioral baseline covering all plant OT segments; NGFW deployment (OT/IT boundary protection) + EDR endpoint protection + IAM/PAM privileged access; SIEM/SOAR platform integration with unified alert management via CCC console; SOC 24×7 service (including OT incident-response SLA), aligned to IEC 62443/SEMI E187/等保2.0三級",
+  "scope_zh-Hans": "OT入侵侦测与资产可视化，资产盘点与行为基线，覆盖全厂OT网段；NGFW部署（OT/IT边界防护）+ EDR端点防护 + IAM/PAM特权访问；SIEM/SOAR平台整合，CCC中控台统一告警管理；SOC 24×7服务（含OT事件响应SLA），对齐IEC 62443/SEMI E187/等保2.0三级",
   "keySpecs": [
     "OT可視化（OT入侵偵測與資產可視化）",
     "SOC（24×7 SIEM/SOAR驅動）",

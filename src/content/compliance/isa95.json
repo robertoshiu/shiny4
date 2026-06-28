@@ -1,1 +1,13 @@
-{ "order": 5, "name": "ISA-95", "fullName": "企業控制系統整合標準", "definition": "L3↔L4 整合架構依據，確保 MES 與 ERP/PLM 的資訊交換模型一致。", "domain": "IT / OT" }
+{
+  "order": 5,
+  "name": "ISA-95",
+  "fullName": "企業控制系統整合標準",
+  "fullName_en": "Enterprise-Control System Integration Standard",
+  "fullName_zh-Hans": "企业控制系统整合标准",
+  "definition": "L3↔L4 整合架構依據，確保 MES 與 ERP/PLM 的資訊交換模型一致。",
+  "definition_en": "L3↔L4 integration architecture basis, ensuring consistent information exchange models between MES and ERP/PLM.",
+  "definition_zh-Hans": "L3↔L4 整合架构依据，确保 MES 与 ERP/PLM 的信息交换模型一致。",
+  "domain": "IT / OT",
+  "domain_en": "IT / OT",
+  "domain_zh-Hans": "IT / OT"
+}

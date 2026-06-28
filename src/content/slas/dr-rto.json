@@ -1,1 +1,14 @@
-{ "order": 1, "code": "DR.01", "label": "DR RTO", "value": 4, "prefix": "≤", "suffix": "hr", "sub": "關鍵系統 · 溫備援跨區域", "accent": "clay" }
+{
+  "order": 1,
+  "code": "DR.01",
+  "label": "DR RTO",
+  "label_en": "DR RTO",
+  "label_zh-Hans": "DR RTO",
+  "value": 4,
+  "prefix": "≤",
+  "suffix": "hr",
+  "sub": "關鍵系統 · 溫備援跨區域",
+  "sub_en": "Critical Systems · Warm Standby Cross-Region",
+  "sub_zh-Hans": "关键系统 · 温备援跨区域",
+  "accent": "clay"
+}

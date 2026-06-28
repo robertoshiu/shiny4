@@ -1,9 +1,17 @@
 {
   "id": "製造執行MES",
   "zhName": "製造執行MES",
+  "zhName_en": "Manufacturing Execution MES",
+  "zhName_zh-Hans": "制造执行MES",
   "enLabel": "MANUFACTURING EXECUTION",
+  "enLabel_en": "MANUFACTURING EXECUTION",
+  "enLabel_zh-Hans": "MANUFACTURING EXECUTION",
   "problem": "製程知識分散在人腦與Excel，決策閉環耗時且無法規模化。",
+  "problem_en": "Process knowledge is scattered across human memory and spreadsheets — closing the decision loop is slow and cannot scale.",
+  "problem_zh-Hans": "制程知识分散在人脑与Excel，决策闭环耗时且无法规模化。",
   "scope": "高量產MES平台（FAB300）完整授權與實施；7核心模組全部上線：Dispatching、Genealogy、APC R2R+FDC、Recipe/RMS、Scheduling/APS、SPC/YMS、EAP/SECS-GEM；8大工藝機台SECS-GEM（GEM300）聯調與驗收；ISA-95 L3至L4數據流設計與企業ERP接口",
+  "scope_en": "Full license and implementation of the high-volume manufacturing MES platform (FAB300); all 7 core modules live: Dispatching, Genealogy, APC R2R+FDC, Recipe/RMS, Scheduling/APS, SPC/YMS, EAP/SECS-GEM; commissioning and acceptance of SECS-GEM (GEM300) on 8 key process tools; ISA-95 L3-to-L4 data-flow design and enterprise ERP interface",
+  "scope_zh-Hans": "高量产MES平台（FAB300）完整授权与实施；7核心模块全部上线：Dispatching、Genealogy、APC R2R+FDC、Recipe/RMS、Scheduling/APS、SPC/YMS、EAP/SECS-GEM；8大工艺机台SECS-GEM（GEM300）联调与验收；ISA-95 L3至L4数据流设计与企业ERP接口",
   "keySpecs": [
     "MES平台＝高量產MES平台（FAB300）",
     "產能驗證＝HVM高量產旗艦",

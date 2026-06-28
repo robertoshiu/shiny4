@@ -2,6 +2,10 @@
   "id": "Digital-Twin",
   "domain": "data-AI",
   "zhName": "Digital Twin（Omniverse）",
+  "zhName_en": "Digital Twin (Omniverse)",
+  "zhName_zh-Hans": "Digital Twin（Omniverse）",
   "spec": "NVIDIA Omniverse · 即時3D產線數位映像 · 機台狀態/WIP流/製程配方即時同步",
-  "note": "支援虛擬除錯與排程模擬。"
+  "note": "支援虛擬除錯與排程模擬。",
+  "note_en": "Supports virtual debugging and scheduling simulation.",
+  "note_zh-Hans": "支持虚拟除错与排程模拟。"
 }

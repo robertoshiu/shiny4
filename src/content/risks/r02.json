@@ -1,5 +1,9 @@
 {
   "id": "R.02",
   "zhRisk": "匯率風險 / FX RISK：高階設備多以美元計價。",
-  "mitigation": "遠期合約鎖匯 · 彈性採購緩衝"
+  "zhRisk_en": "FX Risk / FX RISK: High-end equipment is predominantly USD-denominated.",
+  "zhRisk_zh-Hans": "汇率风险 / FX RISK：高阶设备多以美元计价。",
+  "mitigation": "遠期合約鎖匯 · 彈性採購緩衝",
+  "mitigation_en": "Forward contracts for FX hedging · Flexible procurement buffer",
+  "mitigation_zh-Hans": "远期合约锁汇 · 弹性采购缓冲"
 }

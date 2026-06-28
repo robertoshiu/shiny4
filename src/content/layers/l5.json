@@ -1,1 +1,14 @@
-{ "order": 5, "num": "L5", "zhName": "治理層", "enLabel": "GOVERNANCE LAYER", "scope": "CCC 中控台 · SOC 24×7 · OT 入侵偵測與資產可視化 · 合規底座", "href": "/solutions/" }
+{
+  "order": 5,
+  "num": "L5",
+  "zhName": "治理層",
+  "zhName_en": "Governance Layer",
+  "zhName_zh-Hans": "治理层",
+  "enLabel": "GOVERNANCE LAYER",
+  "enLabel_en": "GOVERNANCE LAYER",
+  "enLabel_zh-Hans": "治理层",
+  "scope": "CCC 中控台 · SOC 24×7 · OT 入侵偵測與資產可視化 · 合規底座",
+  "scope_en": "CCC Control Console · SOC 24×7 · OT Intrusion Detection & Asset Visibility · Compliance Foundation",
+  "scope_zh-Hans": "CCC 中控台 · SOC 24×7 · OT 入侵侦测与资产可视化 · 合规底座",
+  "href": "/solutions/"
+}

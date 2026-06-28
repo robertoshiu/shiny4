@@ -1,7 +1,15 @@
 {
   "id": "T1",
   "zhName": "架構治理",
+  "zhName_en": "Architecture Governance",
+  "zhName_zh-Hans": "架构治理",
   "enLabel": "ARCHITECTURE & GOVERNANCE",
+  "enLabel_en": "ARCHITECTURE & GOVERNANCE",
+  "enLabel_zh-Hans": "ARCHITECTURE & GOVERNANCE",
   "description": "制定IT/OT六層技術堆疊藍圖、標準與Gate審查流程；RACI管理與跨廠知識模板歸檔。",
-  "tags": ["企業架構", "RACI", "Gate Review"]
+  "description_en": "Define the IT/OT six-layer stack blueprint, standards, and Gate review process; manage RACI accountability and cross-fab knowledge template archiving.",
+  "description_zh-Hans": "制定IT/OT六层技术堆栈蓝图、标准与Gate审查流程；RACI管理与跨厂知识模板归档。",
+  "tags": ["企業架構", "RACI", "Gate Review"],
+  "tags_en": ["Enterprise Architecture", "RACI", "Gate Review"],
+  "tags_zh-Hans": ["企业架构", "RACI", "Gate Review"]
 }

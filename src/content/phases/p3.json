@@ -1,1 +1,17 @@
-{ "order": 3, "code": "P3", "zhName": "試產期", "months": "M16–M21", "gate": "Gate 6–7", "milestone": "試產里程碑", "deliverables": ["高量產 MES / AI 聯調、良率爬坡", "DR 首輪演練"] }
+{
+  "order": 3,
+  "code": "P3",
+  "zhName": "試產期",
+  "zhName_en": "Pilot Production Phase",
+  "zhName_zh-Hans": "试产期",
+  "months": "M16–M21",
+  "gate": "Gate 6–7",
+  "gate_en": "Gate 6–7",
+  "gate_zh-Hans": "Gate 6–7",
+  "milestone": "試產里程碑",
+  "milestone_en": "Pilot Production Milestone",
+  "milestone_zh-Hans": "试产里程碑",
+  "deliverables": ["高量產 MES / AI 聯調、良率爬坡", "DR 首輪演練"],
+  "deliverables_en": ["High-Volume MES / AI Integration & Yield Ramp", "DR First-Round Drill"],
+  "deliverables_zh-Hans": ["高量产 MES / AI 联调、良率爬坡", "DR 首轮演练"]
+}

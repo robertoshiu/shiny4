@@ -1,1 +1,17 @@
-{ "order": 4, "code": "P4", "zhName": "量產期", "months": "M22+", "gate": "Gate 8", "milestone": "量產里程碑", "deliverables": ["全速量產；SLO ≥ 95% 持續監控", "DR 季度演練固化"] }
+{
+  "order": 4,
+  "code": "P4",
+  "zhName": "量產期",
+  "zhName_en": "Mass Production Phase",
+  "zhName_zh-Hans": "量产期",
+  "months": "M22+",
+  "gate": "Gate 8",
+  "gate_en": "Gate 8",
+  "gate_zh-Hans": "Gate 8",
+  "milestone": "量產里程碑",
+  "milestone_en": "Mass Production Milestone",
+  "milestone_zh-Hans": "量产里程碑",
+  "deliverables": ["全速量產；SLO ≥ 95% 持續監控", "DR 季度演練固化"],
+  "deliverables_en": ["Full-Speed Mass Production; SLO ≥ 95% Continuous Monitoring", "DR Quarterly Drill Consolidation"],
+  "deliverables_zh-Hans": ["全速量产；SLO ≥ 95% 持续监控", "DR 季度演练固化"]
+}

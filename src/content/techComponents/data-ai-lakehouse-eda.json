@@ -2,5 +2,7 @@
   "id": "Lakehouse-EDA",
   "domain": "data-AI",
   "zhName": "Lakehouse EDA",
+  "zhName_en": "Lakehouse EDA",
+  "zhName_zh-Hans": "Lakehouse EDA",
   "spec": "Delta Lake架構統一批次與串流 · EDA高頻波形採集"
 }

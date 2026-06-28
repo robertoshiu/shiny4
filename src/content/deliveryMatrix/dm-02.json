@@ -1,8 +1,18 @@
 {
   "order": 2,
   "category": "平台軟體（MES+AI）",
+  "category_en": "Platform Software (MES + AI)",
+  "category_zh-Hans": "平台软体（MES+AI）",
   "p1": "授權規劃",
+  "p1_en": "License planning",
+  "p1_zh-Hans": "授权规划",
   "p2": "MES上線",
+  "p2_en": "MES go-live",
+  "p2_zh-Hans": "MES上线",
   "p3": "模型訓練",
-  "p4": "SLO監控"
+  "p3_en": "Model training",
+  "p3_zh-Hans": "模型训练",
+  "p4": "SLO監控",
+  "p4_en": "SLO monitoring",
+  "p4_zh-Hans": "SLO监控"
 }

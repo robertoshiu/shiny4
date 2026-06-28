@@ -2,7 +2,15 @@
   "order": 5,
   "id": "媒體",
   "zhName": "媒體",
+  "zhName_en": "Media",
+  "zhName_zh-Hans": "媒体",
   "enLabel": "MEDIA",
+  "enLabel_en": "MEDIA",
+  "enLabel_zh-Hans": "MEDIA",
   "description": "媒體採訪、行業報告、白皮書合作或活動邀請，請提供媒體機構名稱與截稿日期。",
-  "target": "記者、分析師、研究機構"
+  "description_en": "Media interviews, industry reports, white-paper collaborations, or event invitations — please include your organization name and deadline.",
+  "description_zh-Hans": "媒体采访、行业报告、白皮书合作或活动邀请，请提供媒体机构名称与截稿日期。",
+  "target": "記者、分析師、研究機構",
+  "target_en": "Journalists, analysts, research institutions",
+  "target_zh-Hans": "记者、分析师、研究机构"
 }

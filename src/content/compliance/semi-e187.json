@@ -1,1 +1,13 @@
-{ "order": 4, "name": "SEMI E187", "fullName": "半導體工廠網路安全規範", "definition": "SEMI 針對晶圓廠設備與網路的專項安全規範，覆蓋 SECS-GEM 通訊安全要求。", "domain": "OT / 設備" }
+{
+  "order": 4,
+  "name": "SEMI E187",
+  "fullName": "半導體工廠網路安全規範",
+  "fullName_en": "Semiconductor Factory Cybersecurity Specification",
+  "fullName_zh-Hans": "半导体工厂网络安全规范",
+  "definition": "SEMI 針對晶圓廠設備與網路的專項安全規範，覆蓋 SECS-GEM 通訊安全要求。",
+  "definition_en": "SEMI specialized security specification for fab equipment and networks, covering SECS-GEM communication security requirements.",
+  "definition_zh-Hans": "SEMI 针对晶圆厂设备与网络的专项安全规范，覆盖 SECS-GEM 通信安全要求。",
+  "domain": "OT / 設備",
+  "domain_en": "OT / Equipment",
+  "domain_zh-Hans": "OT / 设备"
+}

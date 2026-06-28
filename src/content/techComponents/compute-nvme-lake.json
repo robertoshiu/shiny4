@@ -2,5 +2,7 @@
   "id": "NVMe-Lake",
   "domain": "compute",
   "zhName": "NVMe數據湖",
+  "zhName_en": "NVMe Data Lake",
+  "zhName_zh-Hans": "NVMe数据湖",
   "spec": "高速NVMe儲存 · EDA高頻波形至訓練特徵全鏈路"
 }

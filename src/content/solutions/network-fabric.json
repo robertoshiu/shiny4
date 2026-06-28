@@ -1,9 +1,17 @@
 {
   "id": "高速網絡Fabric",
   "zhName": "高速網絡Fabric",
+  "zhName_en": "High-Speed Network Fabric",
+  "zhName_zh-Hans": "高速网络Fabric",
   "enLabel": "HIGH-SPEED NETWORK FABRIC",
+  "enLabel_en": "HIGH-SPEED NETWORK FABRIC",
+  "enLabel_zh-Hans": "HIGH-SPEED NETWORK FABRIC",
   "problem": "AI Fabric東西向計算互聯與生產網南北向流量需要800Gb/s超低延遲高頻寬支撐。",
+  "problem_en": "AI Fabric east-west compute interconnects and production-network north-south traffic demand 800Gb/s ultra-low-latency, high-bandwidth support.",
+  "problem_zh-Hans": "AI Fabric东西向计算互联与生产网南北向流量需要800Gb/s超低延迟高带宽支撑。",
   "scope": "Quantum-X800 InfiniBand 144-port 800Gb/s XDR交換矩陣，覆蓋AI Fabric東西向計算網；Spectrum-X SN5600 800Gb/s乙太網絡，覆蓋生產網南北向與存儲網；ConnectX-8 SuperNIC + LinkX高速電纜與光纖佈線；SD-WAN雙ISP廣域鏈路設計（DR路徑冗餘）",
+  "scope_en": "Quantum-X800 InfiniBand 144-port 800Gb/s XDR switching fabric covering AI Fabric east-west compute network; Spectrum-X SN5600 800Gb/s Ethernet covering production-network north-south and storage network; ConnectX-8 SuperNIC + LinkX high-speed cables and fiber cabling; SD-WAN dual-ISP WAN link design (DR path redundancy)",
+  "scope_zh-Hans": "Quantum-X800 InfiniBand 144-port 800Gb/s XDR交换矩阵，覆盖AI Fabric东西向计算网；Spectrum-X SN5600 800Gb/s以太网络，覆盖生产网南北向与存储网；ConnectX-8 SuperNIC + LinkX高速电缆与光纤布线；SD-WAN双ISP广域链路设计（DR路径冗余）",
   "keySpecs": [
     "Quantum-X800（InfiniBand 800Gb/s XDR · 144-port）",
     "Spectrum-X（SN5600 800Gb/s生產網）",

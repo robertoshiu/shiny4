@@ -1,1 +1,14 @@
-{ "order": 3, "num": "L3", "zhName": "算力層", "enLabel": "COMPUTE LAYER", "scope": "GB300 NVL72 AI Fabric · HGX B300 推理 · 800Gb/s Fabric", "href": "/technology/" }
+{
+  "order": 3,
+  "num": "L3",
+  "zhName": "算力層",
+  "zhName_en": "Compute Layer",
+  "zhName_zh-Hans": "算力层",
+  "enLabel": "COMPUTE LAYER",
+  "enLabel_en": "COMPUTE LAYER",
+  "enLabel_zh-Hans": "算力层",
+  "scope": "GB300 NVL72 AI Fabric · HGX B300 推理 · 800Gb/s Fabric",
+  "scope_en": "GB300 NVL72 AI Fabric · HGX B300 Inference · 800Gb/s Fabric",
+  "scope_zh-Hans": "GB300 NVL72 AI Fabric · HGX B300 推理 · 800Gb/s Fabric",
+  "href": "/technology/"
+}

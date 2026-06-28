@@ -1,8 +1,18 @@
 {
   "order": 10,
   "category": "員工設備",
+  "category_en": "Staff Equipment",
+  "category_zh-Hans": "员工设备",
   "p1": "先鋒裝備",
+  "p1_en": "Pioneer equipment",
+  "p1_zh-Hans": "先锋装备",
   "p2": "主力裝備",
+  "p2_en": "Core equipment",
+  "p2_zh-Hans": "主力装备",
   "p3": "試產配置",
-  "p4": "量產完備"
+  "p3_en": "Pilot production configuration",
+  "p3_zh-Hans": "试产配置",
+  "p4": "量產完備",
+  "p4_en": "Full production readiness",
+  "p4_zh-Hans": "量产完备"
 }

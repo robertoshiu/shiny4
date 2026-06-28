@@ -1,6 +1,12 @@
 {
   "order": 3,
   "zhName": "建置合約",
+  "zhName_en": "Delivery Contract",
+  "zhName_zh-Hans": "建置合约",
   "enLabel": "DELIVERY CONTRACT",
-  "description": "與您的晶圓廠直接簽訂建置合約，明確商務條款、Gate里程碑與付款計畫。"
+  "enLabel_en": "DELIVERY CONTRACT",
+  "enLabel_zh-Hans": "DELIVERY CONTRACT",
+  "description": "與您的晶圓廠直接簽訂建置合約，明確商務條款、Gate里程碑與付款計畫。",
+  "description_en": "Sign a build contract directly with your fab — clear commercial terms, Gate milestones, and payment schedule.",
+  "description_zh-Hans": "与您的晶圆厂直接签订建置合约，明确商务条款、Gate里程碑与付款计划。"
 }

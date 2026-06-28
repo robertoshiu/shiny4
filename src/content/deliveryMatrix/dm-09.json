@@ -1,8 +1,18 @@
 {
   "order": 9,
   "category": "消防安防與備件",
+  "category_en": "Fire Safety, Physical Security & Spare Parts",
+  "category_zh-Hans": "消防安防与备件",
   "p1": "消防佈設",
+  "p1_en": "Fire suppression deployment",
+  "p1_zh-Hans": "消防布设",
   "p2": "安防整合",
+  "p2_en": "Physical security integration",
+  "p2_zh-Hans": "安防整合",
   "p3": "備件入庫",
-  "p4": "常態維護"
+  "p3_en": "Spare parts inventory",
+  "p3_zh-Hans": "备件入库",
+  "p4": "常態維護",
+  "p4_en": "Routine maintenance",
+  "p4_zh-Hans": "常态维护"
 }

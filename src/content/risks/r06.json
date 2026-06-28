@@ -1,5 +1,9 @@
 {
   "id": "R.06",
   "zhRisk": "人力風險 / STAFFING：Blackwell Ultra世代稀缺工程師需提早佈局。",
-  "mitigation": "關鍵崗位留任計畫+知識文件化"
+  "zhRisk_en": "Staffing Risk / STAFFING: Blackwell Ultra-generation engineers are scarce and must be secured ahead of demand.",
+  "zhRisk_zh-Hans": "人力风险 / STAFFING：Blackwell Ultra世代稀缺工程师需提早布局。",
+  "mitigation": "關鍵崗位留任計畫+知識文件化",
+  "mitigation_en": "Key-position retention plan + knowledge documentation",
+  "mitigation_zh-Hans": "关键岗位留任计划+知识文件化"
 }

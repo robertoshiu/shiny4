@@ -1,10 +1,22 @@
 {
   "id": "JD-001",
   "zhTitle": "IT/OT解決方案架構師",
+  "zhTitle_en": "IT/OT Solution Architect",
+  "zhTitle_zh-Hans": "IT/OT解决方案架构师",
   "enTitle": "IT/OT SOLUTION ARCHITECT",
+  "enTitle_en": "IT/OT SOLUTION ARCHITECT",
+  "enTitle_zh-Hans": "IT/OT SOLUTION ARCHITECT",
   "functionTeam": "T1",
   "level": "高級/Staff",
+  "level_en": "Senior / Staff",
+  "level_zh-Hans": "高级/Staff",
   "priorityPhase": "裝機期優先",
+  "priorityPhase_en": "Installation Phase Priority",
+  "priorityPhase_zh-Hans": "装机期优先",
   "summary": "制定IT/OT六層技術堆疊藍圖與Gate審查流程，負責RACI管理與跨廠知識模板歸檔。",
-  "tags": ["企業架構", "RACI", "Gate Review"]
+  "summary_en": "Define the IT/OT six-layer stack blueprint and Gate review process; responsible for RACI management and cross-fab knowledge template archiving.",
+  "summary_zh-Hans": "制定IT/OT六层技术堆栈蓝图与Gate审查流程，负责RACI管理与跨厂知识模板归档。",
+  "tags": ["企業架構", "RACI", "Gate Review"],
+  "tags_en": ["Enterprise Architecture", "RACI", "Gate Review"],
+  "tags_zh-Hans": ["企业架构", "RACI", "Gate Review"]
 }

@@ -1,8 +1,18 @@
 {
   "order": 8,
   "category": "企業整合",
+  "category_en": "Enterprise Integration",
+  "category_zh-Hans": "企业整合",
   "p1": "接口定義",
+  "p1_en": "Interface definition",
+  "p1_zh-Hans": "接口定义",
   "p2": "ERP/PLM對接",
+  "p2_en": "ERP/PLM integration",
+  "p2_zh-Hans": "ERP/PLM对接",
   "p3": "ISA-95驗收",
-  "p4": "持續維護"
+  "p3_en": "ISA-95 acceptance",
+  "p3_zh-Hans": "ISA-95验收",
+  "p4": "持續維護",
+  "p4_en": "Continuous maintenance",
+  "p4_zh-Hans": "持续维护"
 }

@@ -2,5 +2,7 @@
   "id": "Historian",
   "domain": "data-AI",
   "zhName": "Historian時序歸檔",
+  "zhName_en": "Historian Time-Series Archive",
+  "zhName_zh-Hans": "Historian时序归档",
   "spec": "製程參數 · 設備狀態 · 廠務數據 · 支援SOC 2合規數據留存"
 }

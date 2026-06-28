@@ -1,8 +1,18 @@
 {
   "order": 3,
   "category": "高速網絡Fabric",
+  "category_en": "High-Speed Network Fabric",
+  "category_zh-Hans": "高速网络Fabric",
   "p1": "基礎網絡鋪設",
+  "p1_en": "Core network deployment",
+  "p1_zh-Hans": "基础网络铺设",
   "p2": "AI Fabric部署",
+  "p2_en": "AI Fabric deployment",
+  "p2_zh-Hans": "AI Fabric部署",
   "p3": "全連通驗收",
-  "p4": "持續維運"
+  "p3_en": "Full-connectivity acceptance",
+  "p3_zh-Hans": "全连通验收",
+  "p4": "持續維運",
+  "p4_en": "Continuous operations",
+  "p4_zh-Hans": "持续维运"
 }

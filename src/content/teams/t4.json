@@ -1,7 +1,15 @@
 {
   "id": "T4",
   "zhName": "網絡",
+  "zhName_en": "Network",
+  "zhName_zh-Hans": "网络",
   "enLabel": "NETWORK FABRIC",
+  "enLabel_en": "NETWORK FABRIC",
+  "enLabel_zh-Hans": "NETWORK FABRIC",
   "description": "Quantum-X800 InfiniBand 800Gb/s AI Fabric、Spectrum-X東西向交換及南北向生產網設計與維運。",
-  "tags": ["Quantum-X800", "Spectrum-X", "OT網段"]
+  "description_en": "Design and operate the Quantum-X800 InfiniBand 800Gb/s AI Fabric, Spectrum-X east-west switching, and north-south production network.",
+  "description_zh-Hans": "Quantum-X800 InfiniBand 800Gb/s AI Fabric、Spectrum-X东西向交换及南北向生产网设计与维运。",
+  "tags": ["Quantum-X800", "Spectrum-X", "OT網段"],
+  "tags_en": ["Quantum-X800", "Spectrum-X", "OT Segment"],
+  "tags_zh-Hans": ["Quantum-X800", "Spectrum-X", "OT网段"]
 }

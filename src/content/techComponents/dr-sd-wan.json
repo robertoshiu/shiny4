@@ -2,5 +2,7 @@
   "id": "DR-SDWAN",
   "domain": "DR",
   "zhName": "SD-WAN雙ISP",
+  "zhName_en": "SD-WAN Dual ISP",
+  "zhName_zh-Hans": "SD-WAN双ISP",
   "spec": "廣域鏈路 · SD-WAN雙ISP · 自動切換 · DR路徑冗餘"
 }

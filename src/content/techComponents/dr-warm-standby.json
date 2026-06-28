@@ -2,5 +2,7 @@
   "id": "DR-WarmStandby",
   "domain": "DR",
   "zhName": "溫備援跨區域架構",
+  "zhName_en": "Warm Standby Cross-Region Architecture",
+  "zhName_zh-Hans": "温备援跨区域架构",
   "spec": "溫備援（Warm Standby）· 跨區域 · RTO ≤ 4hr · RPO ≤ 15min"
 }

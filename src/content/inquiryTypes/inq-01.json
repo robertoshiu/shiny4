@@ -2,7 +2,15 @@
   "order": 1,
   "id": "建置規劃",
   "zhName": "建置規劃",
+  "zhName_en": "Build Planning",
+  "zhName_zh-Hans": "建置规划",
   "enLabel": "BUILD PLANNING",
+  "enLabel_en": "BUILD PLANNING",
+  "enLabel_zh-Hans": "BUILD PLANNING",
   "description": "針對新建或擴建晶圓廠的IT/OT+AI全棧建置規劃。",
-  "target": "新建廠、擴建廠、IT/OT現代化升級"
+  "description_en": "Full-stack IT/OT+AI build planning for new or expanded fab facilities.",
+  "description_zh-Hans": "针对新建或扩建晶圆厂的IT/OT+AI全栈建置规划。",
+  "target": "新建廠、擴建廠、IT/OT現代化升級",
+  "target_en": "Greenfield fabs, expansion fabs, IT/OT modernization upgrades",
+  "target_zh-Hans": "新建厂、扩建厂、IT/OT现代化升级"
 }

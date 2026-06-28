@@ -1,1 +1,13 @@
-{ "order": 3, "name": "IEC 62443", "fullName": "工業自動化與控制系統安全", "definition": "OT 域安全架構主要參考標準，定義分區（Zone）、管道（Conduit）與安全等級（SL）。", "domain": "OT" }
+{
+  "order": 3,
+  "name": "IEC 62443",
+  "fullName": "工業自動化與控制系統安全",
+  "fullName_en": "Industrial Automation and Control Systems Security",
+  "fullName_zh-Hans": "工业自动化与控制系统安全",
+  "definition": "OT 域安全架構主要參考標準，定義分區（Zone）、管道（Conduit）與安全等級（SL）。",
+  "definition_en": "Primary OT security architecture reference standard, defining Zones, Conduits, and Security Levels (SL).",
+  "definition_zh-Hans": "OT 域安全架构主要参考标准，定义分区（Zone）、管道（Conduit）与安全等级（SL）。",
+  "domain": "OT",
+  "domain_en": "OT",
+  "domain_zh-Hans": "OT"
+}

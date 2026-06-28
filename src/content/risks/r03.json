@@ -1,5 +1,9 @@
 {
   "id": "R.03",
   "zhRisk": "合規風險 / COMPLIANCE：等保2.0三級、IEC 62443 Zone/Conduit、SEMI E187 OT網路安全。",
-  "mitigation": "合規底座於裝機期第一階段Gate完成驗收"
+  "zhRisk_en": "Compliance Risk / COMPLIANCE: 等保2.0三级, IEC 62443 Zone/Conduit, SEMI E187 OT cybersecurity.",
+  "zhRisk_zh-Hans": "合规风险 / COMPLIANCE：等保2.0三级、IEC 62443 Zone/Conduit、SEMI E187 OT网络安全。",
+  "mitigation": "合規底座於裝機期第一階段Gate完成驗收",
+  "mitigation_en": "Compliance baseline accepted at Installation Phase Gate 1",
+  "mitigation_zh-Hans": "合规底座于装机期第一阶段Gate完成验收"
 }

@@ -1,10 +1,22 @@
 {
   "id": "JD-005",
   "zhTitle": "網絡工程師（InfiniBand/OT）",
+  "zhTitle_en": "Network Engineer (InfiniBand / OT)",
+  "zhTitle_zh-Hans": "网络工程师（InfiniBand/OT）",
   "enTitle": "NETWORK ENGINEER — INFINIBAND & OT",
+  "enTitle_en": "NETWORK ENGINEER — INFINIBAND & OT",
+  "enTitle_zh-Hans": "NETWORK ENGINEER — INFINIBAND & OT",
   "functionTeam": "T4",
   "level": "中高級",
+  "level_en": "Mid-Senior",
+  "level_zh-Hans": "中高级",
   "priorityPhase": "建廠—裝機期",
+  "priorityPhase_en": "Construction Phase — Installation Phase",
+  "priorityPhase_zh-Hans": "建厂—装机期",
   "summary": "設計與維運Quantum-X800 InfiniBand 800Gb/s AI Fabric及Spectrum-X南北向生產網。",
-  "tags": ["Quantum-X800", "Spectrum-X", "OT網段"]
+  "summary_en": "Design and operate the Quantum-X800 InfiniBand 800Gb/s AI Fabric and Spectrum-X north-south production network.",
+  "summary_zh-Hans": "设计与维运Quantum-X800 InfiniBand 800Gb/s AI Fabric及Spectrum-X南北向生产网。",
+  "tags": ["Quantum-X800", "Spectrum-X", "OT網段"],
+  "tags_en": ["Quantum-X800", "Spectrum-X", "OT Segment"],
+  "tags_zh-Hans": ["Quantum-X800", "Spectrum-X", "OT网段"]
 }

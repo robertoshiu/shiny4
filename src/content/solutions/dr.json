@@ -1,9 +1,17 @@
 {
   "id": "異地備援DR",
   "zhName": "異地備援DR",
+  "zhName_en": "Disaster Recovery DR",
+  "zhName_zh-Hans": "异地备援DR",
   "enLabel": "DISASTER RECOVERY",
+  "enLabel_en": "DISASTER RECOVERY",
+  "enLabel_zh-Hans": "DISASTER RECOVERY",
   "problem": "晶圓廠停機成本極高，業務連續性需要架構級保障。",
+  "problem_en": "Fab downtime costs are extremely high; business continuity requires architecture-level assurance.",
+  "problem_zh-Hans": "晶圆厂停机成本极高，业务连续性需要架构级保障。",
   "scope": "異地溫備援機房選址、網絡設計與基礎設施建置；2×HGX B300關鍵推理備援節點（確保AI決策在DR期間維持）；異步複製架構設計，涵蓋MES數據、Historian、Lakehouse；SD-WAN雙ISP廣域鏈路冗餘；DR季度演練計劃與SLA文件",
+  "scope_en": "Off-site warm-standby data center site selection, network design, and infrastructure build-out; 2×HGX B300 critical inference failover nodes (ensuring AI decisions are maintained during DR); async-replication architecture design covering MES data, Historian, and Lakehouse; SD-WAN dual-ISP WAN link redundancy; DR quarterly drill plan and SLA documentation",
+  "scope_zh-Hans": "异地温备援机房选址、网络设计与基础设施建置；2×HGX B300关键推理备援节点（确保AI决策在DR期间维持）；异步复制架构设计，涵盖MES数据、Historian、Lakehouse；SD-WAN双ISP广域链路冗余；DR季度演练计划与SLA文件",
   "keySpecs": [
     "RTO ≤ 4hr（關鍵系統）",
     "RPO ≤ 15min（異步複製）",

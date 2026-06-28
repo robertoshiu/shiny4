@@ -1,5 +1,9 @@
 {
   "id": "R.01",
   "zhRisk": "供應鏈風險 / SUPPLY CHAIN：GB300 NVL72為新世代高需求產品，需提前12個月鎖單並設備用方案。",
-  "mitigation": "鎖單+備份方案（HGX B300擴容）"
+  "zhRisk_en": "Supply Chain Risk / SUPPLY CHAIN: GB300 NVL72 is a next-generation high-demand product; orders must be locked 12 months in advance with a contingency supply plan.",
+  "zhRisk_zh-Hans": "供应链风险 / SUPPLY CHAIN：GB300 NVL72为新世代高需求产品，需提前12个月锁单并设备用方案。",
+  "mitigation": "鎖單+備份方案（HGX B300擴容）",
+  "mitigation_en": "Order lock + backup plan (HGX B300 capacity expansion)",
+  "mitigation_zh-Hans": "锁单+备份方案（HGX B300扩容）"
 }

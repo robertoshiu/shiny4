@@ -1,7 +1,15 @@
 {
   "id": "T5",
   "zhName": "資安/SOC",
+  "zhName_en": "Security / SOC",
+  "zhName_zh-Hans": "资安/SOC",
   "enLabel": "SECURITY & SOC",
+  "enLabel_en": "SECURITY & SOC",
+  "enLabel_zh-Hans": "SECURITY & SOC",
   "description": "OT入侵偵測與資產可視化、SOC 24×7 SIEM/SOAR運營、NGFW/EDR/IAM/PAM，對齊IEC 62443與等保2.0三級。",
-  "tags": ["IEC 62443", "SIEM/SOAR", "等保2.0"]
+  "description_en": "OT intrusion detection and asset visibility, SOC 24×7 SIEM/SOAR operations, NGFW/EDR/IAM/PAM — aligned to IEC 62443 and 等保2.0三级.",
+  "description_zh-Hans": "OT入侵侦测与资产可视化、SOC 24×7 SIEM/SOAR运营、NGFW/EDR/IAM/PAM，对齐IEC 62443与等保2.0三级。",
+  "tags": ["IEC 62443", "SIEM/SOAR", "等保2.0"],
+  "tags_en": ["IEC 62443", "SIEM/SOAR", "等保2.0"],
+  "tags_zh-Hans": ["IEC 62443", "SIEM/SOAR", "等保2.0"]
 }

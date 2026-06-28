@@ -1,1 +1,14 @@
-{ "order": 5, "code": "GOV.05", "label": "交付管控", "value": 8, "prefix": "", "suffix": " Gate", "sub": "四階段 · RACI 唯一 A · 三級升級", "accent": "sage" }
+{
+  "order": 5,
+  "code": "GOV.05",
+  "label": "交付管控",
+  "label_en": "Delivery Gates",
+  "label_zh-Hans": "交付管控",
+  "value": 8,
+  "prefix": "",
+  "suffix": " Gate",
+  "sub": "四階段 · RACI 唯一 A · 三級升級",
+  "sub_en": "Four Phases · Single RACI Accountable · Three-Tier Escalation",
+  "sub_zh-Hans": "四阶段 · RACI 唯一 A · 三级升级",
+  "accent": "sage"
+}

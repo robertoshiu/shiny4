@@ -6,8 +6,8 @@ describe('t()', () => {
     expect(t('nav.about', 'zh-Hant')).toBe('關於');
   });
 
-  it('falls back to zh-Hant when the locale dictionary lacks the key (en empty in Plan 1)', () => {
-    expect(t('nav.about', 'en')).toBe('關於');
+  it('returns the EN value from the populated en dictionary (Plan 3)', () => {
+    expect(t('nav.about', 'en')).toBe('About');
   });
 
   it('returns the key itself when no dictionary has it', () => {
@@ -16,6 +16,6 @@ describe('t()', () => {
 
   it('accepts only the three valid locales', () => {
     const l: Locale = 'zh-Hans';
-    expect(t('cta.consult', l)).toBe('預約諮詢');
+    expect(t('cta.consult', l)).toBe('预约咨询');
   });
 });

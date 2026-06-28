@@ -1,1 +1,14 @@
-{ "order": 6, "num": "L6", "zhName": "備援層", "enLabel": "RESILIENCE LAYER", "scope": "溫備援跨區域 · 異步複製 · SD-WAN 雙 ISP · RTO ≤ 4hr / RPO ≤ 15min", "href": "/technology/" }
+{
+  "order": 6,
+  "num": "L6",
+  "zhName": "備援層",
+  "zhName_en": "Resilience Layer",
+  "zhName_zh-Hans": "备援层",
+  "enLabel": "RESILIENCE LAYER",
+  "enLabel_en": "RESILIENCE LAYER",
+  "enLabel_zh-Hans": "备援层",
+  "scope": "溫備援跨區域 · 異步複製 · SD-WAN 雙 ISP · RTO ≤ 4hr / RPO ≤ 15min",
+  "scope_en": "Warm Standby Cross-Region · Async Replication · SD-WAN Dual ISP · RTO ≤ 4hr / RPO ≤ 15min",
+  "scope_zh-Hans": "温备援跨区域 · 异步复制 · SD-WAN 双 ISP · RTO ≤ 4hr / RPO ≤ 15min",
+  "href": "/technology/"
+}

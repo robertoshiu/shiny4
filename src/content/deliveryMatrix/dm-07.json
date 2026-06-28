@@ -1,8 +1,18 @@
 {
   "order": 7,
   "category": "中控台與視覺化",
+  "category_en": "Control Console & Visualization",
+  "category_zh-Hans": "中控台与可视化",
   "p1": "架構設計",
+  "p1_en": "Architecture design",
+  "p1_zh-Hans": "架构设计",
   "p2": "CCC部署",
+  "p2_en": "CCC deployment",
+  "p2_zh-Hans": "CCC部署",
   "p3": "Digital Twin上線",
-  "p4": "持續監控"
+  "p3_en": "Digital Twin go-live",
+  "p3_zh-Hans": "Digital Twin上线",
+  "p4": "持續監控",
+  "p4_en": "Continuous monitoring",
+  "p4_zh-Hans": "持续监控"
 }

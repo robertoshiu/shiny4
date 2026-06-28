@@ -1,1 +1,14 @@
-{ "order": 3, "code": "SLO.03", "label": "系統 SLO", "value": 95, "prefix": "≥", "suffix": "%", "sub": "全系統可用性 · SOC 24×7 監控", "accent": "gold" }
+{
+  "order": 3,
+  "code": "SLO.03",
+  "label": "系統 SLO",
+  "label_en": "System SLO",
+  "label_zh-Hans": "系统 SLO",
+  "value": 95,
+  "prefix": "≥",
+  "suffix": "%",
+  "sub": "全系統可用性 · SOC 24×7 監控",
+  "sub_en": "Full-System Availability · SOC 24×7 Monitoring",
+  "sub_zh-Hans": "全系统可用性 · SOC 24×7 监控",
+  "accent": "gold"
+}

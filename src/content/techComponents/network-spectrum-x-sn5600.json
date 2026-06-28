@@ -2,6 +2,10 @@
   "id": "Spectrum-X-SN5600",
   "domain": "network",
   "zhName": "Spectrum-X SN5600",
+  "zhName_en": "Spectrum-X SN5600",
+  "zhName_zh-Hans": "Spectrum-X SN5600",
   "spec": "800Gb/s · 乙太網路 · 南北向生產網與AI服務網",
-  "note": "橋接OT生產段與AI應用層，對齊ISA-95 L3/L4分段。"
+  "note": "橋接OT生產段與AI應用層，對齊ISA-95 L3/L4分段。",
+  "note_en": "Bridges the OT production segment and AI application layer, aligned to ISA-95 L3/L4 segmentation.",
+  "note_zh-Hans": "桥接OT生产段与AI应用层，对齐ISA-95 L3/L4分段。"
 }

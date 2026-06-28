@@ -1,9 +1,17 @@
 {
   "id": "企業整合",
   "zhName": "企業整合",
+  "zhName_en": "Enterprise Integration",
+  "zhName_zh-Hans": "企业整合",
   "enLabel": "ENTERPRISE INTEGRATION",
+  "enLabel_en": "ENTERPRISE INTEGRATION",
+  "enLabel_zh-Hans": "ENTERPRISE INTEGRATION",
   "problem": "ISA-95 L3↔L4數據流缺乏標準化架構，MES與ERP/PLM間存在數據孤島。",
+  "problem_en": "ISA-95 L3↔L4 data flows lack a standardized architecture; data silos exist between MES and ERP/PLM.",
+  "problem_zh-Hans": "ISA-95 L3↔L4数据流缺乏标准化架构，MES与ERP/PLM间存在数据孤岛。",
   "scope": "ISA-95 L3↔L4數據流架構設計與實施，對齊MES FAB300接口規範；ERP/PLM雙向接口（工單、BOM、庫存、良率報表）；AMHS/MCS自動物料搬運系統整合，LIMS實驗室信息管理接口；FMCS廠務管控系統OPC UA接口，統一進入數據層",
+  "scope_en": "ISA-95 L3↔L4 data-flow architecture design and implementation, aligned to MES FAB300 interface specifications; ERP/PLM bidirectional interfaces (work orders, BOM, inventory, yield reports); AMHS/MCS automated material handling system integration and LIMS laboratory information management interface; FMCS facility management system OPC UA interface unified into the data layer",
+  "scope_zh-Hans": "ISA-95 L3↔L4数据流架构设计与实施，对齐MES FAB300接口规范；ERP/PLM双向接口（工单、BOM、库存、良率报表）；AMHS/MCS自动物料搬运系统整合，LIMS实验室信息管理接口；FMCS厂务管控系统OPC UA接口，统一进入数据层",
   "keySpecs": [
     "標準架構（ISA-95 L3↔L4雙向）",
     "整合系統（ERP · PLM · AMHS/MCS · LIMS · FMCS）",

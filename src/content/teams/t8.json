@@ -1,7 +1,15 @@
 {
   "id": "T8",
   "zhName": "中控CCC",
+  "zhName_en": "Central Command CCC",
+  "zhName_zh-Hans": "中控CCC",
   "enLabel": "CENTRAL COMMAND & CONTROL",
+  "enLabel_en": "CENTRAL COMMAND & CONTROL",
+  "enLabel_zh-Hans": "CENTRAL COMMAND & CONTROL",
   "description": "整合全廠事件告警、KPI看板、異常升級與跨部門協調；CCC中控台是全廠可觀測性的單一入口。",
-  "tags": ["CCC中控台", "全廠告警", "KPI看板"]
+  "description_en": "Integrate fab-wide event alerting, KPI dashboards, anomaly escalation, and cross-department coordination; the CCC console is the single pane of glass for fab-wide observability.",
+  "description_zh-Hans": "整合全厂事件告警、KPI看板、异常升级与跨部门协调；CCC中控台是全厂可观测性的单一入口。",
+  "tags": ["CCC中控台", "全廠告警", "KPI看板"],
+  "tags_en": ["CCC Console", "Fab-wide Alerts", "KPI Dashboard"],
+  "tags_zh-Hans": ["CCC中控台", "全厂告警", "KPI看板"]
 }

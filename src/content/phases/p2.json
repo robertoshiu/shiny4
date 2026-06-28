@@ -1,1 +1,17 @@
-{ "order": 2, "code": "P2", "zhName": "裝機期", "months": "M7–M15", "gate": "Gate 3–5", "milestone": "主交付里程碑", "deliverables": ["GB300 NVL72 主交付、AI Fabric 部署", "高量產 MES 平台上線", "OT 安全就位"] }
+{
+  "order": 2,
+  "code": "P2",
+  "zhName": "裝機期",
+  "zhName_en": "Installation Phase",
+  "zhName_zh-Hans": "装机期",
+  "months": "M7–M15",
+  "gate": "Gate 3–5",
+  "gate_en": "Gate 3–5",
+  "gate_zh-Hans": "Gate 3–5",
+  "milestone": "主交付里程碑",
+  "milestone_en": "Primary Delivery Milestone",
+  "milestone_zh-Hans": "主交付里程碑",
+  "deliverables": ["GB300 NVL72 主交付、AI Fabric 部署", "高量產 MES 平台上線", "OT 安全就位"],
+  "deliverables_en": ["GB300 NVL72 Primary Delivery & AI Fabric Deployment", "High-Volume MES Platform Go-Live", "OT Security In Place"],
+  "deliverables_zh-Hans": ["GB300 NVL72 主交付、AI Fabric 部署", "高量产 MES 平台上线", "OT 安全就位"]
+}

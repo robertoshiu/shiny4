@@ -1,6 +1,12 @@
 {
   "order": 1,
   "zhName": "諮詢評估",
+  "zhName_en": "Consultation",
+  "zhName_zh-Hans": "咨询评估",
   "enLabel": "CONSULTATION",
-  "description": "一通對談，釐清您的晶圓廠建置需求、IT/OT現況與希望我們承擔的全棧範圍。"
+  "enLabel_en": "CONSULTATION",
+  "enLabel_zh-Hans": "CONSULTATION",
+  "description": "一通對談，釐清您的晶圓廠建置需求、IT/OT現況與希望我們承擔的全棧範圍。",
+  "description_en": "A single conversation to clarify your fab build requirements, current IT/OT state, and the full-stack scope you need us to own.",
+  "description_zh-Hans": "一通对谈，厘清您的晶圆厂建置需求、IT/OT现况与希望我们承担的全栈范围。"
 }

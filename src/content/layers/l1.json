@@ -1,1 +1,14 @@
-{ "order": 1, "num": "L1", "zhName": "輸入層", "enLabel": "INPUT LAYER", "scope": "8 大工藝機台 · SECS-GEM / GEM300 · OPC UA 廠務 · 傳感網絡", "href": "/solutions/" }
+{
+  "order": 1,
+  "num": "L1",
+  "zhName": "輸入層",
+  "zhName_en": "Input Layer",
+  "zhName_zh-Hans": "输入层",
+  "enLabel": "INPUT LAYER",
+  "enLabel_en": "INPUT LAYER",
+  "enLabel_zh-Hans": "输入层",
+  "scope": "8 大工藝機台 · SECS-GEM / GEM300 · OPC UA 廠務 · 傳感網絡",
+  "scope_en": "8 Process Tool Types · SECS-GEM / GEM300 · OPC UA Facilities · Sensor Network",
+  "scope_zh-Hans": "8 大工艺机台 · SECS-GEM / GEM300 · OPC UA 厂务 · 传感网络",
+  "href": "/solutions/"
+}

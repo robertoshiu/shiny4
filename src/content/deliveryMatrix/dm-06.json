@@ -1,8 +1,18 @@
 {
   "order": 6,
   "category": "機房 · 液冷 · 供電",
+  "category_en": "Data Center · Liquid Cooling · Power",
+  "category_zh-Hans": "机房 · 液冷 · 供电",
   "p1": "土建施工",
+  "p1_en": "Civil construction",
+  "p1_zh-Hans": "土建施工",
   "p2": "液冷投產",
+  "p2_en": "Liquid cooling commissioning",
+  "p2_zh-Hans": "液冷投产",
   "p3": "環境驗收",
-  "p4": "常態維護"
+  "p3_en": "Environment acceptance",
+  "p3_zh-Hans": "环境验收",
+  "p4": "常態維護",
+  "p4_en": "Routine maintenance",
+  "p4_zh-Hans": "常态维护"
 }

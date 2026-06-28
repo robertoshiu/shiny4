@@ -2,7 +2,15 @@
   "order": 3,
   "id": "供應商協調",
   "zhName": "供應商協調",
+  "zhName_en": "Vendor Coordination",
+  "zhName_zh-Hans": "供应商协调",
   "enLabel": "VENDOR COORDINATION",
+  "enLabel_en": "VENDOR COORDINATION",
+  "enLabel_zh-Hans": "VENDOR COORDINATION",
   "description": "晶圓廠建置中的供應商與技術選型協調。",
-  "target": "晶圓廠建置中的供應商與技術選型協調"
+  "description_en": "Vendor management and technology selection coordination in fab construction projects.",
+  "description_zh-Hans": "晶圆厂建置中的供应商与技术选型协调。",
+  "target": "晶圓廠建置中的供應商與技術選型協調",
+  "target_en": "Vendor management and technology selection for fab construction",
+  "target_zh-Hans": "晶圆厂建置中的供应商与技术选型协调"
 }

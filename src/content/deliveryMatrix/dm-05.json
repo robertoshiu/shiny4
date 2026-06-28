@@ -1,8 +1,18 @@
 {
   "order": 5,
   "category": "資訊安全OT/IT",
+  "category_en": "Cybersecurity OT/IT",
+  "category_zh-Hans": "资讯安全OT/IT",
   "p1": "合規底座設計",
+  "p1_en": "Compliance baseline design",
+  "p1_zh-Hans": "合规底座设计",
   "p2": "OT安全整合",
+  "p2_en": "OT security integration",
+  "p2_zh-Hans": "OT安全整合",
   "p3": "SOC上線",
-  "p4": "SOC 24×7"
+  "p3_en": "SOC go-live",
+  "p3_zh-Hans": "SOC上线",
+  "p4": "SOC 24×7",
+  "p4_en": "SOC 24×7",
+  "p4_zh-Hans": "SOC 24×7"
 }

@@ -1,7 +1,15 @@
 {
   "id": "T7",
   "zhName": "企業整合",
+  "zhName_en": "Enterprise Integration",
+  "zhName_zh-Hans": "企业整合",
   "enLabel": "ENTERPRISE INTEGRATION",
+  "enLabel_en": "ENTERPRISE INTEGRATION",
+  "enLabel_zh-Hans": "ENTERPRISE INTEGRATION",
   "description": "打通ISA-95 L3↔L4數據流：ERP/PLM接口、AMHS/MCS、LIMS、FMCS；確保跨系統數據完整性。",
-  "tags": ["ISA-95", "ERP/PLM", "AMHS/MCS"]
+  "description_en": "Bridge ISA-95 L3↔L4 data flows: ERP/PLM interfaces, AMHS/MCS, LIMS, FMCS — ensuring cross-system data integrity.",
+  "description_zh-Hans": "打通ISA-95 L3↔L4数据流：ERP/PLM接口、AMHS/MCS、LIMS、FMCS；确保跨系统数据完整性。",
+  "tags": ["ISA-95", "ERP/PLM", "AMHS/MCS"],
+  "tags_en": ["ISA-95", "ERP/PLM", "AMHS/MCS"],
+  "tags_zh-Hans": ["ISA-95", "ERP/PLM", "AMHS/MCS"]
 }

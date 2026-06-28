@@ -1,1 +1,13 @@
-{ "order": 1, "name": "等保 2.0 三級", "fullName": "中國網路安全等級保護 2.0 三級", "definition": "適用於關鍵資訊基礎設施的安全要求。", "domain": "IT / 合規" }
+{
+  "order": 1,
+  "name": "等保 2.0 三級",
+  "fullName": "中國網路安全等級保護 2.0 三級",
+  "fullName_en": "China Cybersecurity Classified Protection 2.0 Level 3",
+  "fullName_zh-Hans": "中国网络安全等级保护 2.0 三级",
+  "definition": "適用於關鍵資訊基礎設施的安全要求。",
+  "definition_en": "Security requirements applicable to critical information infrastructure.",
+  "definition_zh-Hans": "适用于关键信息基础设施的安全要求。",
+  "domain": "IT / 合規",
+  "domain_en": "IT / Compliance",
+  "domain_zh-Hans": "IT / 合规"
+}

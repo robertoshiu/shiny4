@@ -2,5 +2,7 @@
   "id": "Agentic-RAG",
   "domain": "data-AI",
   "zhName": "Agentic RAG",
+  "zhName_en": "Agentic RAG",
+  "zhName_zh-Hans": "Agentic RAG",
   "spec": "LLM推理核心 · 接收製程異常訊號後自主查閱知識庫 · 推理根因並閉環回饋配方"
 }

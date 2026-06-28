@@ -1,8 +1,18 @@
 {
   "order": 4,
   "category": "異地備援DR",
+  "category_en": "Off-site DR",
+  "category_zh-Hans": "异地备援DR",
   "p1": "選址規劃",
+  "p1_en": "Site selection planning",
+  "p1_zh-Hans": "选址规划",
   "p2": "備援建置",
+  "p2_en": "DR site build",
+  "p2_zh-Hans": "备援建置",
   "p3": "首輪演練",
-  "p4": "季度演練"
+  "p3_en": "First DR drill",
+  "p3_zh-Hans": "首轮演练",
+  "p4": "季度演練",
+  "p4_en": "Quarterly drills",
+  "p4_zh-Hans": "季度演练"
 }

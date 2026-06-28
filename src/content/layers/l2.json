@@ -1,1 +1,14 @@
-{ "order": 2, "num": "L2", "zhName": "數據層", "enLabel": "DATA LAYER", "scope": "Historian 時序歸檔 · NVMe Lakehouse · EDA 高頻採集", "href": "/technology/" }
+{
+  "order": 2,
+  "num": "L2",
+  "zhName": "數據層",
+  "zhName_en": "Data Layer",
+  "zhName_zh-Hans": "数据层",
+  "enLabel": "DATA LAYER",
+  "enLabel_en": "DATA LAYER",
+  "enLabel_zh-Hans": "数据层",
+  "scope": "Historian 時序歸檔 · NVMe Lakehouse · EDA 高頻採集",
+  "scope_en": "Historian Time-Series Archive · NVMe Lakehouse · EDA High-Frequency Collection",
+  "scope_zh-Hans": "Historian 时序归档 · NVMe Lakehouse · EDA 高频采集",
+  "href": "/technology/"
+}

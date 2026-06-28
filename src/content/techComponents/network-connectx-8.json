@@ -2,5 +2,7 @@
   "id": "ConnectX-8",
   "domain": "network",
   "zhName": "ConnectX-8 SuperNIC",
+  "zhName_en": "ConnectX-8 SuperNIC",
+  "zhName_zh-Hans": "ConnectX-8 SuperNIC",
   "spec": "RDMA卸載降低CPU負擔 · LinkX光纖模組低損耗傳輸"
 }

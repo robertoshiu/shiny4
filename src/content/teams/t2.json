@@ -1,7 +1,15 @@
 {
   "id": "T2",
   "zhName": "MES/EAP",
+  "zhName_en": "MES/EAP",
+  "zhName_zh-Hans": "MES/EAP",
   "enLabel": "MANUFACTURING EXECUTION",
+  "enLabel_en": "MANUFACTURING EXECUTION",
+  "enLabel_zh-Hans": "MANUFACTURING EXECUTION",
   "description": "高量產MES平台（FAB300）實施、SECS-GEM/GEM300機台聯調、WIP調度優化與APC R2R+FDC閉環。",
-  "tags": ["FAB300", "SECS-GEM", "APC FDC"]
+  "description_en": "Implement the high-volume MES platform (FAB300), SECS-GEM/GEM300 equipment integration, WIP scheduling optimization, and APC R2R+FDC closed-loop control.",
+  "description_zh-Hans": "高量产MES平台（FAB300）实施、SECS-GEM/GEM300机台联调、WIP调度优化与APC R2R+FDC闭环。",
+  "tags": ["FAB300", "SECS-GEM", "APC FDC"],
+  "tags_en": ["FAB300", "SECS-GEM", "APC FDC"],
+  "tags_zh-Hans": ["FAB300", "SECS-GEM", "APC FDC"]
 }

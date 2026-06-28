@@ -1,5 +1,9 @@
 {
   "id": "R.04",
   "zhRisk": "交期風險 / SCHEDULE：液冷機房施工、特種電氣改造工期依賴地方審批。",
-  "mitigation": "M1啟動審批，並行施工+週進度里程碑"
+  "zhRisk_en": "Schedule Risk / SCHEDULE: Liquid-cooled data-center construction and specialty electrical retrofits are dependent on local regulatory approvals.",
+  "zhRisk_zh-Hans": "交期风险 / SCHEDULE：液冷机房施工、特种电气改造工期依赖地方审批。",
+  "mitigation": "M1啟動審批，並行施工+週進度里程碑",
+  "mitigation_en": "Approvals initiated at M1; parallel construction with weekly progress milestones",
+  "mitigation_zh-Hans": "M1启动审批，并行施工+周进度里程碑"
 }

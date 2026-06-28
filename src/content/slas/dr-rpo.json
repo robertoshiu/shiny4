@@ -1,1 +1,14 @@
-{ "order": 2, "code": "DR.02", "label": "DR RPO", "value": 15, "prefix": "≤", "suffix": "min", "sub": "異步複製 · 數據損失上限", "accent": "clay" }
+{
+  "order": 2,
+  "code": "DR.02",
+  "label": "DR RPO",
+  "label_en": "DR RPO",
+  "label_zh-Hans": "DR RPO",
+  "value": 15,
+  "prefix": "≤",
+  "suffix": "min",
+  "sub": "異步複製 · 數據損失上限",
+  "sub_en": "Async Replication · Max Data Loss",
+  "sub_zh-Hans": "异步复制 · 数据损失上限",
+  "accent": "clay"
+}

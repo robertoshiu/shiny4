@@ -1,1 +1,17 @@
-{ "order": 1, "code": "P1", "zhName": "建廠期", "months": "M1–M6", "gate": "Gate 1–2", "milestone": "建廠里程碑", "deliverables": ["機房土建、供電、液冷基礎設施", "消防安防", "環境驗收"] }
+{
+  "order": 1,
+  "code": "P1",
+  "zhName": "建廠期",
+  "zhName_en": "Construction Phase",
+  "zhName_zh-Hans": "建厂期",
+  "months": "M1–M6",
+  "gate": "Gate 1–2",
+  "gate_en": "Gate 1–2",
+  "gate_zh-Hans": "Gate 1–2",
+  "milestone": "建廠里程碑",
+  "milestone_en": "Construction Milestone",
+  "milestone_zh-Hans": "建厂里程碑",
+  "deliverables": ["機房土建、供電、液冷基礎設施", "消防安防", "環境驗收"],
+  "deliverables_en": ["Data Center Civil Construction, Power Supply & Liquid Cooling Infrastructure", "Fire Safety & Physical Security", "Environmental Acceptance Testing"],
+  "deliverables_zh-Hans": ["机房土建、供电、液冷基础设施", "消防安防", "环境验收"]
+}

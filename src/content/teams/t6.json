@@ -1,7 +1,15 @@
 {
   "id": "T6",
   "zhName": "DR業務連續性",
+  "zhName_en": "DR & Business Continuity",
+  "zhName_zh-Hans": "DR业务连续性",
   "enLabel": "DISASTER RECOVERY",
+  "enLabel_en": "DISASTER RECOVERY",
+  "enLabel_zh-Hans": "DISASTER RECOVERY",
   "description": "溫備援跨區域架構、異步複製、SD-WAN雙ISP；保障RTO ≤ 4hr/RPO ≤ 15min，DR演練納入季度Review。",
-  "tags": ["RTO ≤ 4hr", "RPO ≤ 15min", "SD-WAN"]
+  "description_en": "Warm-standby cross-region architecture, async replication, SD-WAN dual-ISP — ensuring RTO ≤ 4hr / RPO ≤ 15min; DR drills included in quarterly reviews.",
+  "description_zh-Hans": "温备援跨区域架构、异步复制、SD-WAN双ISP；保障RTO ≤ 4hr/RPO ≤ 15min，DR演练纳入季度Review。",
+  "tags": ["RTO ≤ 4hr", "RPO ≤ 15min", "SD-WAN"],
+  "tags_en": ["RTO ≤ 4hr", "RPO ≤ 15min", "SD-WAN"],
+  "tags_zh-Hans": ["RTO ≤ 4hr", "RPO ≤ 15min", "SD-WAN"]
 }

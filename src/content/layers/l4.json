@@ -1,1 +1,14 @@
-{ "order": 4, "num": "L4", "zhName": "應用層", "enLabel": "APPLICATION LAYER", "scope": "Agentic RAG / LLM · Digital Twin（Omniverse）· 高量產 MES 平台（FAB300）", "href": "/solutions/" }
+{
+  "order": 4,
+  "num": "L4",
+  "zhName": "應用層",
+  "zhName_en": "Application Layer",
+  "zhName_zh-Hans": "应用层",
+  "enLabel": "APPLICATION LAYER",
+  "enLabel_en": "APPLICATION LAYER",
+  "enLabel_zh-Hans": "应用层",
+  "scope": "Agentic RAG / LLM · Digital Twin（Omniverse）· 高量產 MES 平台（FAB300）",
+  "scope_en": "Agentic RAG / LLM · Digital Twin (Omniverse) · High-Volume MES Platform (FAB300)",
+  "scope_zh-Hans": "Agentic RAG / LLM · Digital Twin（Omniverse）· 高量产 MES 平台（FAB300）",
+  "href": "/solutions/"
+}

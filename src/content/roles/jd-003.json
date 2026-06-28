@@ -1,10 +1,22 @@
 {
   "id": "JD-003",
   "zhTitle": "AI/MLOps工程師（GPU叢集）",
+  "zhTitle_en": "AI/MLOps Engineer (GPU Cluster)",
+  "zhTitle_zh-Hans": "AI/MLOps工程师（GPU集群）",
   "enTitle": "AI/MLOPS ENGINEER — GPU CLUSTER",
+  "enTitle_en": "AI/MLOPS ENGINEER — GPU CLUSTER",
+  "enTitle_zh-Hans": "AI/MLOPS ENGINEER — GPU CLUSTER",
   "functionTeam": "T3",
   "level": "中高級/Senior",
+  "level_en": "Mid-Senior / Senior",
+  "level_zh-Hans": "中高级/Senior",
   "priorityPhase": "裝機期—試產期",
+  "priorityPhase_en": "Installation Phase — Pilot Production Phase",
+  "priorityPhase_zh-Hans": "装机期—试产期",
   "summary": "負責模型訓練與部署（基於GB300 AI Fabric）、Agentic RAG開發與MLOps流水線。",
-  "tags": ["GB300 NVL72", "Agentic RAG", "Omniverse"]
+  "summary_en": "Responsible for model training and deployment (on GB300 AI Fabric), Agentic RAG development, and MLOps pipelines.",
+  "summary_zh-Hans": "负责模型训练与部署（基于GB300 AI Fabric）、Agentic RAG开发与MLOps流水线。",
+  "tags": ["GB300 NVL72", "Agentic RAG", "Omniverse"],
+  "tags_en": ["GB300 NVL72", "Agentic RAG", "Omniverse"],
+  "tags_zh-Hans": ["GB300 NVL72", "Agentic RAG", "Omniverse"]
 }

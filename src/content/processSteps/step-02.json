@@ -1,6 +1,12 @@
 {
   "order": 2,
   "zhName": "範圍評估",
+  "zhName_en": "Scope Assessment",
+  "zhName_zh-Hans": "范围评估",
   "enLabel": "SCOPE ASSESSMENT",
-  "description": "白紙黑字界定L1–L6交付範圍、SLA指標與驗收標準，簽約前雙方對齊，無灰色地帶。"
+  "enLabel_en": "SCOPE ASSESSMENT",
+  "enLabel_zh-Hans": "SCOPE ASSESSMENT",
+  "description": "白紙黑字界定L1–L6交付範圍、SLA指標與驗收標準，簽約前雙方對齊，無灰色地帶。",
+  "description_en": "Define L1–L6 delivery scope, SLA targets, and acceptance criteria in writing — both parties aligned before contract, no ambiguity.",
+  "description_zh-Hans": "白纸黑字界定L1–L6交付范围、SLA指标与验收标准，签约前双方对齐，无灰色地带。"
 }

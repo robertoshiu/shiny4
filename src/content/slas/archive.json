@@ -1,1 +1,14 @@
-{ "order": 6, "code": "KNW.06", "label": "模板歸檔", "value": 100, "prefix": "", "suffix": "%", "sub": "跨廠複製就緒 · 知識資產保全", "accent": "sage" }
+{
+  "order": 6,
+  "code": "KNW.06",
+  "label": "模板歸檔",
+  "label_en": "Template Archive",
+  "label_zh-Hans": "模板归档",
+  "value": 100,
+  "prefix": "",
+  "suffix": "%",
+  "sub": "跨廠複製就緒 · 知識資產保全",
+  "sub_en": "Cross-Fab Replication Ready · Knowledge Asset Preservation",
+  "sub_zh-Hans": "跨厂复制就绪 · 知识资产保全",
+  "accent": "sage"
+}

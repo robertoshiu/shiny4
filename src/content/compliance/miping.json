@@ -1,1 +1,13 @@
-{ "order": 2, "name": "密評", "fullName": "商用密碼應用評估", "definition": "商用密碼算法（SM2/SM3/SM4）應用安全評估，適用於具有密碼合規要求的場景。", "domain": "合規" }
+{
+  "order": 2,
+  "name": "密評",
+  "fullName": "商用密碼應用評估",
+  "fullName_en": "Commercial Cryptography Application Security Evaluation",
+  "fullName_zh-Hans": "商用密码应用评估",
+  "definition": "商用密碼算法（SM2/SM3/SM4）應用安全評估，適用於具有密碼合規要求的場景。",
+  "definition_en": "Security evaluation of commercial cryptographic algorithms (SM2/SM3/SM4) applications, applicable to scenarios with cryptographic compliance requirements.",
+  "definition_zh-Hans": "商用密码算法（SM2/SM3/SM4）应用安全评估，适用于具有密码合规要求的场景。",
+  "domain": "合規",
+  "domain_en": "Compliance",
+  "domain_zh-Hans": "合规"
+}

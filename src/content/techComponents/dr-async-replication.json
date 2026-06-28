@@ -2,5 +2,7 @@
   "id": "DR-AsyncReplication",
   "domain": "DR",
   "zhName": "異步複製",
+  "zhName_en": "Async Replication",
+  "zhName_zh-Hans": "异步复制",
   "spec": "關鍵DB延遲 ≤ 15min · 涵蓋MES數據、Historian、Lakehouse"
 }
