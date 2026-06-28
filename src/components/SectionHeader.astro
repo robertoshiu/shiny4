@@ -1,0 +1,52 @@
+---
+interface Props {
+  index: string;
+  zh: string;
+  en: string;
+}
+const { index, zh, en } = Astro.props;
+---
+
+<header class="section-header">
+  <span class="section-header__numeral" aria-hidden="true">{index}</span>
+  <p class="section-header__en" aria-hidden="true">{en}</p>
+  <h2 id={`heading-${index}`} class="section-header__zh">{zh}</h2>
+  <span class="section-header__underline" aria-hidden="true"></span>
+</header>
+
+<style>
+  .section-header {
+    position: relative;
+    margin-bottom: clamp(2rem, 5vw, 3.5rem);
+  }
+  .section-header__numeral {
+    position: absolute;
+    top: -1.5rem;
+    right: 0;
+    font-family: var(--font-display);
+    font-size: clamp(4rem, 12vw, 9rem);
+    line-height: 1;
+    color: var(--ink);
+    opacity: 0.05;
+    pointer-events: none;
+    user-select: none;
+  }
+  .section-header__en {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    color: var(--sun);
+    margin: 0 0 0.5rem;
+  }
+  .section-header__zh {
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    font-weight: 600;
+  }
+  .section-header__underline {
+    display: block;
+    width: 56px;
+    height: 2px;
+    margin-top: 1rem;
+    background: var(--sun);
+  }
+</style>

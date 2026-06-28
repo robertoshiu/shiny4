@@ -1,0 +1,91 @@
+---
+import { getCollection } from 'astro:content';
+const slas = (await getCollection('slas')).sort((a, b) => a.data.order - b.data.order);
+---
+
+<div class="sla-strip">
+  {
+    slas.map((s) => (
+      <div class={`sla sla--${s.data.accent}`}>
+        <span
+          class="sla__value"
+          data-to={s.data.value}
+          data-prefix={s.data.prefix}
+          data-suffix={s.data.suffix}
+        >
+          {s.data.prefix}
+          {s.data.value}
+          {s.data.suffix}
+        </span>
+        <span class="sla__label">{s.data.label}</span>
+        <span class="sla__sub">{s.data.sub}</span>
+      </div>
+    ))
+  }
+</div>
+
+<script>
+  import { countUp } from '../scripts/counter';
+  const values = document.querySelectorAll<HTMLElement>('.sla__value[data-to]');
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const el = entry.target as HTMLElement;
+        countUp(el, {
+          to: Number(el.dataset.to),
+          prefix: el.dataset.prefix || '',
+          suffix: el.dataset.suffix || '',
+        });
+        io.unobserve(el);
+      }
+    },
+    { threshold: 0.4 },
+  );
+  values.forEach((v) => io.observe(v));
+</script>
+
+<style>
+  .sla-strip {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+  @media (min-width: 768px) {
+    .sla-strip {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  .sla {
+    background: var(--surface);
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .sla__value {
+    font-family: var(--font-mono);
+    font-size: clamp(1.8rem, 5vw, 2.6rem);
+    font-weight: 500;
+    line-height: 1;
+  }
+  .sla--clay .sla__value {
+    color: var(--clay);
+  }
+  .sla--gold .sla__value {
+    color: var(--sun);
+  }
+  .sla--sage .sla__value {
+    color: var(--sage);
+  }
+  .sla__label {
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .sla__sub {
+    font-size: 0.85rem;
+    color: var(--ink-muted);
+  }
+</style>

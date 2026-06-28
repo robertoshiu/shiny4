@@ -1,0 +1,59 @@
+---
+import CTAButton from './CTAButton.astro';
+import { t } from '../i18n/utils';
+import type { Locale } from '../i18n/utils';
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+---
+
+<section class="engage" aria-labelledby="engage-heading">
+  <p class="engage__en" aria-hidden="true">ENGAGE</p>
+  <h2 id="engage-heading" class="engage__title">為您的晶圓廠，交付 IT/OT+AI 全棧</h2>
+  <p class="engage__body">
+    您的晶圓廠專注製程卓越；我們直接承擔 IT/OT+AI 全棧的建置、整合與維運責任，以明確 SLA
+    保障交付，並交還 100% 歸檔的跨廠範本，讓知識資產永遠在您手中。
+  </p>
+  <div class="engage__actions">
+    <CTAButton variant="clay" href="/contact/" label={t('cta.consult', locale)} />
+    <a class="engage__mail" href="mailto:hello@shinylogic.tech">hello@shinylogic.tech</a>
+  </div>
+</section>
+
+<style>
+  .engage {
+    max-width: var(--maxw);
+    margin-inline: auto;
+    padding: clamp(4rem, 12vw, 9rem) var(--gutter);
+    text-align: center;
+  }
+  .engage__en {
+    font-family: var(--font-mono);
+    letter-spacing: 0.2em;
+    color: var(--sun);
+    margin: 0 0 1rem;
+  }
+  .engage__title {
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    margin-bottom: 1.5rem;
+  }
+  .engage__body {
+    max-width: 56ch;
+    margin: 0 auto 2.5rem;
+    color: var(--ink);
+  }
+  .engage__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    justify-content: center;
+    align-items: center;
+  }
+  .engage__mail {
+    font-family: var(--font-mono);
+    color: var(--ink-muted);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+</style>

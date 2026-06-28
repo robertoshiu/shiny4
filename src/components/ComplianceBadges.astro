@@ -1,0 +1,44 @@
+---
+import { getCollection } from 'astro:content';
+const items = (await getCollection('compliance')).sort((a, b) => a.data.order - b.data.order);
+---
+
+<ul class="compliance">
+  {
+    items.map((c) => (
+      <li class="compliance__badge">
+        <span class="compliance__name">{c.data.name}</span>
+        <span class="compliance__full">{c.data.fullName}</span>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .compliance {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .compliance__badge {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.75rem 1.1rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 2px;
+    background: var(--surface);
+  }
+  .compliance__name {
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .compliance__full {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--ink-muted);
+  }
+</style>

@@ -1,0 +1,18 @@
+---
+interface Props {
+  text: string;
+}
+const { text } = Astro.props;
+---
+
+<span class="hud-coordinate" aria-hidden="true">{text}</span>
+
+<style>
+  .hud-coordinate {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+  }
+</style>
