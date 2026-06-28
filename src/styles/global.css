@@ -101,3 +101,122 @@ canvas {
     transform: none !important;
   }
 }
+
+/* ─── Film grain + vignette overlay ─────────────────────────────────────────
+   A noise texture gives the page a warm analogue-film quality.
+   The vignette anchors the eye to the center, Orano-style.
+   Both use pointer-events:none so they're purely decorative.
+   Under reduced-motion: grain is static (animation removed); vignette stays.  */
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9990;
+  pointer-events: none;
+  /* Inline SVG noise — no network request, no CLS */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  opacity: 0.04;
+  animation: grain-drift 0.12s steps(1) infinite;
+  mix-blend-mode: overlay;
+}
+
+@keyframes grain-drift {
+  0%   { background-position:   0%   0%; }
+  10%  { background-position:  20%  30%; }
+  20%  { background-position: -10%  50%; }
+  30%  { background-position:  40%  10%; }
+  40%  { background-position: -30%  70%; }
+  50%  { background-position:  15%  25%; }
+  60%  { background-position:  55%  -5%; }
+  70%  { background-position: -20%  80%; }
+  80%  { background-position:  35%  45%; }
+  90%  { background-position: -40%  15%; }
+  100% { background-position:   0%   0%; }
+}
+
+/* Static grain under reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  body::before {
+    animation: none;
+    background-position: 0% 0%;
+  }
+}
+html.reduced-motion body::before {
+  animation: none;
+}
+
+/* Radial vignette — warm espresso edges, open center */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9989;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 80% 70% at 50% 50%,
+    transparent 40%,
+    rgba(14, 11, 8, 0.55) 100%
+  );
+}
+
+/* ─── Custom HUD cursor ──────────────────────────────────────────────────────
+   When cursor.ts initializes, it adds .cursor-ready to <body> to hide the
+   OS cursor. The SVG cursor element is inserted with id="hud-cursor".        */
+
+body.cursor-ready {
+  cursor: none;
+}
+
+body.cursor-ready a,
+body.cursor-ready button,
+body.cursor-ready [role="button"],
+body.cursor-ready summary,
+body.cursor-ready input,
+body.cursor-ready select,
+body.cursor-ready textarea,
+body.cursor-ready label[for] {
+  cursor: none;
+}
+
+#hud-cursor {
+  /* cursor.ts handles positioning via JS RAF; just ensure it's above grain */
+  z-index: 9998;
+  transition: opacity 0.2s;
+}
+
+/* Ring and dot transitions */
+#hud-cursor .c-ring {
+  transition: r 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+              stroke-opacity 0.22s;
+}
+#hud-cursor .c-dot {
+  transition: opacity 0.18s;
+}
+#hud-cursor .c-tick {
+  transition: opacity 0.18s;
+}
+
+/* ─── Link underline stroke-draw (used by magnetic.ts) ─────────────────────
+   .link-line is injected as a child <span>; the JS event listeners control
+   clip-path; CSS transition provides the animation.                          */
+
+a .link-line {
+  /* Already set inline by initLinkUnderlines(); these are fallback defaults */
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--sun);
+  pointer-events: none;
+}
+
+/* ─── HUD corner brackets (boot animation target) ───────────────────────────
+   #hud-brackets is injected by theme-motion.ts::injectHudBrackets().
+   Opacity is low so brackets read as ambient decoration, not UI chrome.      */
+
+#hud-brackets {
+  opacity: 0.35;
+}

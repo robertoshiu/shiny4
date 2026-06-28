@@ -7,7 +7,7 @@ interface Props {
 }
 const { locale } = Astro.props;
 
-// Compute sibling URLs from the actual current page path.
+// Compute base-aware sibling URLs from the actual current page path (siblingUrl uses withBase internally).
 const pathname = Astro.url.pathname;
 const segs = [
   { code: 'zh-Hant' as Locale, label: '繁', href: siblingUrl(pathname, 'zh-Hant') },

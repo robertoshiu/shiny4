@@ -2,7 +2,7 @@
 import Nav from './Nav.astro';
 import LanguageToggle from './LanguageToggle.astro';
 import CTAButton from './CTAButton.astro';
-import { t } from '../i18n/utils';
+import { t, withBase } from '../i18n/utils';
 import type { Locale } from '../i18n/utils';
 interface Props {
   locale: Locale;
@@ -12,7 +12,7 @@ const { locale } = Astro.props;
 
 <header class="site-header" data-header>
   <div class="site-header__inner">
-    <a class="brand" href="/">
+    <a class="brand" href={withBase('/')}>
       <span class="brand__name">SHINYLOGIC</span>
       <span class="brand__zh">顯藝科技</span>
       <span class="brand__sub" aria-hidden="true">INTELLIGENT WAFER FAB SYSTEMS</span>
@@ -21,7 +21,7 @@ const { locale } = Astro.props;
     <div class="site-header__desktop">
       <Nav locale={locale} />
       <LanguageToggle locale={locale} />
-      <CTAButton variant="clay" href="/contact/" label={t('cta.consult', locale)} />
+      <CTAButton variant="clay" href={withBase('/contact/')} label={t('cta.consult', locale)} />
     </div>
     <button
       class="site-header__burger"
@@ -38,7 +38,7 @@ const { locale } = Astro.props;
     <Nav locale={locale} />
     <div class="drawer__footer">
       <LanguageToggle locale={locale} />
-      <CTAButton variant="clay" href="/contact/" label={t('cta.consult', locale)} />
+      <CTAButton variant="clay" href={withBase('/contact/')} label={t('cta.consult', locale)} />
     </div>
   </div>
 </header>

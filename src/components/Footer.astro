@@ -1,7 +1,7 @@
 ---
 import FooterTicker from './FooterTicker.astro';
 import LanguageToggle from './LanguageToggle.astro';
-import { t } from '../i18n/utils';
+import { t, withBase } from '../i18n/utils';
 import type { Locale } from '../i18n/utils';
 interface Props {
   locale: Locale;
@@ -20,14 +20,14 @@ const { locale } = Astro.props;
     </div>
     <nav class="site-footer__col" aria-label={t('footer.col.company', locale)}>
       <p class="site-footer__h">{t('footer.col.company', locale)}</p>
-      <a href="/about/">{t('nav.about', locale)}</a>
-      <a href="/careers/">{t('nav.careers', locale)}</a>
+      <a href={withBase('/about/')}>{t('nav.about', locale)}</a>
+      <a href={withBase('/careers/')}>{t('nav.careers', locale)}</a>
     </nav>
     <nav class="site-footer__col" aria-label={t('footer.col.capabilities', locale)}>
       <p class="site-footer__h">{t('footer.col.capabilities', locale)}</p>
-      <a href="/solutions/">{t('nav.solutions', locale)}</a>
-      <a href="/technology/">{t('nav.technology', locale)}</a>
-      <a href="/methodology/">{t('nav.methodology', locale)}</a>
+      <a href={withBase('/solutions/')}>{t('nav.solutions', locale)}</a>
+      <a href={withBase('/technology/')}>{t('nav.technology', locale)}</a>
+      <a href={withBase('/methodology/')}>{t('nav.methodology', locale)}</a>
     </nav>
     <div class="site-footer__col">
       <p class="site-footer__h">{t('footer.col.contact', locale)}</p>

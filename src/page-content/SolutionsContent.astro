@@ -9,7 +9,7 @@ import EngageCTA from '../components/EngageCTA.astro';
 import LayerStack from '../components/LayerStack.astro';
 import SolutionBlock from '../components/SolutionBlock.astro';
 import { getCollection } from 'astro:content';
-import { t, localized } from '../i18n/utils';
+import { t, localized, withBase } from '../i18n/utils';
 import type { Locale } from '../i18n/utils';
 
 interface Props {
@@ -69,8 +69,8 @@ const govPillars = [
       lede={t('solutions.hero.lede', locale)}
       stats={heroStats}
       ctas={[
-        { href: '#sol-blocks', label: t('solutions.hero.cta1', locale),  variant: 'clay' },
-        { href: '/contact/',   label: t('cta.consult', locale),           variant: 'ghost' },
+        { href: '#sol-blocks',            label: t('solutions.hero.cta1', locale), variant: 'clay' },
+        { href: withBase('/contact/'),  label: t('cta.consult', locale),          variant: 'ghost' },
       ]}
       locale={locale}
     />
@@ -81,7 +81,14 @@ const govPillars = [
     <div class="section__inner">
       <SectionHeader index="02" zh={t('solutions.section02.zh', locale)} en={t('solutions.section02.en', locale)} />
       <p class="section__lead reveal">{t('solutions.section02.lead', locale)}</p>
-      <LayerStack locale={locale} />
+      <!--
+        data-signal-travel: initSignalTravel() finds this wrapper and animates
+        a gold→clay gradient pulse down the L1→L6 connector line, lighting each
+        layer dot as it passes. Repeats every 6 s while in view.
+      -->
+      <div data-signal-travel>
+        <LayerStack locale={locale} />
+      </div>
     </div>
   </section>
 
@@ -90,7 +97,11 @@ const govPillars = [
     <div class="section__inner">
       <SectionHeader index="03" zh={t('solutions.section03.zh', locale)} en={t('solutions.section03.en', locale)} />
       <p class="section__lead reveal">{t('solutions.section03.lead', locale)}</p>
-      <div class="sol-grid">
+      <!--
+        data-section-enter: initSectionEnter() spring-stagger the 6 SolutionBlock
+        articles in (translateY 48→0, scale 0.96→1, stagger 55ms) on scroll-enter.
+      -->
+      <div class="sol-grid" data-section-enter>
         {solutions.map((entry, i) => (
           <SolutionBlock
             id={entry.data.id}
@@ -155,8 +166,181 @@ const govPillars = [
 </PageLayout>
 
 <script>
-  import { revealOnEnter } from '../scripts/theme-motion';
-  revealOnEnter('.reveal');
+  /**
+   * SolutionsContent motion script — full cinematic engine matching Home.
+   *
+   * Boot order (all DOMContentLoaded):
+   *  1. bootMotion()           — HUD corner brackets draw-in; safe noop on sub-pages
+   *                              that lack .hero__content/.hero__title.
+   *  2. bootSubHero()          — spring stagger the sub-hero poster content:
+   *                              eyebrow → title → en-label → lede → stats → CTAs.
+   *  3. initCursor()           — gold ring HUD cursor with crosshair ticks.
+   *  4. initSmoothScroll()     — Lenis smooth scroll (noop under reduced-motion).
+   *  5. revealAll(…)           — spring word-stagger on ALL section-header h2 elements.
+   *  6. initParallax()         — counter-scroll on ghost numerals.
+   *  7. initSignalTravel()     — gold→clay pulse down SOL.02 layer stack, repeats 6 s.
+   *  8. revealOnEnter('.reveal') — spring reveal for .section__lead + .reveal blocks.
+   *  9. initSectionEnter()     — spring-stagger the 6 SolutionBlock articles on enter.
+   * 10. bindMagnetic(…)        — magnetic pull on .cta--clay + .cta--ghost buttons.
+   * 11. initLinkUnderlines()   — gold stroke-draw underline on hover/focus for links.
+   * 12. hero dot-field         — cursor-reactive ember grid behind sub-hero content.
+   * 13. SOL.03 dot-field       — cursor-reactive ember grid behind solution block grid.
+   *
+   * Reduced-motion: every imported function is internally gated on
+   * prefersReducedMotion() and degrades to static final-state immediately.
+   * Steps 12–13 are skipped entirely under reduced-motion (guard at end of init).
+   */
+
+  import {
+    bootMotion,
+    revealOnEnter,
+    prefersReducedMotion,
+  } from '../scripts/theme-motion';
+  import { initCursor } from '../scripts/motion/cursor';
+  import { initSmoothScroll } from '../scripts/motion/smooth-scroll';
+  import { initParallax, initSignalTravel, initSectionEnter } from '../scripts/motion/scroll-fx';
+  import { revealAll } from '../scripts/motion/text-reveal';
+  import { bindMagnetic, initLinkUnderlines } from '../scripts/motion/magnetic';
+  import { mount as mountDotField } from '../scripts/motion/dot-field';
+  import { animate, stagger, spring } from 'animejs';
+
+  // ─── Sub-hero poster boot (spring stagger replacement for bootMotion hero) ────
+  /**
+   * Stagger-spring the children of .sub-hero__content into view.
+   * Fires at 580 ms to sequence after the HUD brackets finish drawing (~380 ms).
+   * Under reduced-motion: forces final state immediately with no timeline.
+   */
+  function bootSubHero(): void {
+    const content = document.querySelector<HTMLElement>('.sub-hero__content');
+    if (!content) return;
+
+    const children = Array.from(content.children) as HTMLElement[];
+    if (children.length === 0) return;
+
+    if (prefersReducedMotion()) {
+      children.forEach((c) => {
+        c.style.opacity   = '1';
+        c.style.transform = 'none';
+      });
+      return;
+    }
+
+    // Set initial hidden state so there's no flash-of-visible-content
+    children.forEach((c) => {
+      c.style.opacity   = '0';
+      c.style.transform = 'translateY(28px)';
+    });
+
+    // Delay until after HUD brackets draw in (0–380 ms) + short breath
+    setTimeout(() => {
+      animate(children, {
+        opacity:    [0, 1],
+        translateY: [28, 0],
+        delay:      stagger(70, { ease: 'out(2)' }),
+        ease:       spring({ stiffness: 240, damping: 22, mass: 0.9 }),
+      });
+    }, 580);
+  }
+
+  function init(): void {
+    // ── 1. HUD brackets (safe on all pages; skips missing .hero__* targets) ────
+    bootMotion();
+
+    // ── 2. Sub-hero poster content spring stagger ─────────────────────────────
+    bootSubHero();
+
+    // ── 3. HUD cursor (gold ring + crosshair, pointer:fine only) ─────────────
+    initCursor();
+
+    // ── 4. Lenis smooth scroll ────────────────────────────────────────────────
+    initSmoothScroll();
+
+    // ── 5. Spring word-stagger on section headings ────────────────────────────
+    // All .section-header__zh h2 elements (SOL.02–SOL.04) split into word spans.
+    // Each word slides up from 110% with spring (stiffness:280, damping:24).
+    revealAll('.section-header__zh', { mode: 'words', threshold: 0.25, staggerMs: 40 });
+
+    // ── 6. Parallax on ghost numerals ─────────────────────────────────────────
+    // .section-header__numeral giant digits counter-scroll at 0.12× speed for depth.
+    document.querySelectorAll<HTMLElement>('.section-header__numeral').forEach((el) => {
+      el.setAttribute('data-parallax', '');
+      el.setAttribute('data-parallax-speed', '0.12');
+    });
+    initParallax();
+
+    // ── 7. Signal-travel down the SOL.02 layer stack ─────────────────────────
+    // Finds [data-signal-travel] wrapper, sends a gold→clay pulse down the
+    // L1→L6 connector line. Lights each .layer-chapter__dot on arrival.
+    // Repeats every 6 s while in view.
+    initSignalTravel();
+
+    // ── 8. Spring reveal for .section__lead + .reveal elements ───────────────
+    // Applies to all .section__lead, .outcomes__sla, .outcomes__compliance,
+    // .outcomes__gov blocks that carry the .reveal class.
+    revealOnEnter('.reveal');
+
+    // ── 9. Spring-stagger the 6 SolutionBlock articles on scroll-enter ───────
+    // [data-section-enter] on .sol-grid: children animate translateY 48→0,
+    // scale 0.96→1, stagger 55 ms with spring(220, 22, 1.0).
+    initSectionEnter();
+
+    // ── 10. Magnetic pull on CTA buttons ─────────────────────────────────────
+    // On fine-pointer devices only. Buttons spring toward cursor when within
+    // 1.5× bounding box, snap back with spring(350, 26, 0.8) on leave.
+    document.querySelectorAll<HTMLElement>('.cta--clay, .cta--ghost').forEach((el) => {
+      bindMagnetic(el, { strength: 0.38, maxDisp: 20 });
+    });
+
+    // ── 11. Gold stroke-draw underlines on nav + footer links ─────────────────
+    initLinkUnderlines();
+
+    // ── Reduced-motion gate: skip all canvas/particle effects ─────────────────
+    if (prefersReducedMotion()) return;
+
+    // ── 12. Cursor-reactive ember dot-field behind sub-hero content ───────────
+    // Injected as the first child of .sub-hero__inner (position:relative; z:1).
+    // z-index:-1 places the canvas below the text within that stacking context
+    // but above the SVG poster (which lives outside .sub-hero__inner, at z:0).
+    const subHeroInner = document.querySelector<HTMLElement>('.sub-hero__inner');
+    if (subHeroInner) {
+      const heroDotBg = document.createElement('div');
+      heroDotBg.setAttribute('aria-hidden', 'true');
+      heroDotBg.style.cssText =
+        'position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden;';
+      subHeroInner.insertBefore(heroDotBg, subHeroInner.firstChild);
+      mountDotField(heroDotBg, {
+        cols:           30,
+        rows:           16,
+        dotRadius:      1.4,
+        interactRadius: 100,
+      });
+    }
+
+    // ── 13. Cursor-reactive dot-field behind SOL.03 solution block grid ───────
+    // .section--alt has isolation:isolate + position:relative added in styles
+    // to create a stacking context. z-index:-1 canvas renders above the section
+    // background (var(--bg-deep)) but below the .section__inner in-flow content.
+    const solGridSection = document.querySelector<HTMLElement>('.section--alt');
+    if (solGridSection) {
+      const solDotBg = document.createElement('div');
+      solDotBg.setAttribute('aria-hidden', 'true');
+      solDotBg.style.cssText =
+        'position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden;';
+      solGridSection.insertBefore(solDotBg, solGridSection.firstChild);
+      mountDotField(solDotBg, {
+        cols:           22,
+        rows:           14,
+        dotRadius:      2.2,
+        interactRadius: 130,
+      });
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 </script>
 
 <style>
@@ -164,8 +348,20 @@ const govPillars = [
   .section {
     padding: clamp(4rem, 10vw, 7rem) var(--gutter);
   }
+  /*
+   * .section--alt: SOL.03 solution-block grid section.
+   * position:relative + isolation:isolate creates a stacking context without
+   * disturbing z-index relationships with other sections. The z:-1 dot-field
+   * wrapper injected by the page script is contained here, rendering its ember
+   * dots ABOVE the section's background but BELOW the in-flow .section__inner
+   * content (paint order: background → z:-1 → block boxes).
+   * overflow:hidden clips the canvas to the section boundary.
+   */
   .section--alt {
     background: var(--bg-deep);
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
   }
 
   .section__inner {

@@ -7,7 +7,7 @@ import SecurityZoneDiagram from '../components/SecurityZoneDiagram.astro';
 import ComplianceMatrix from '../components/ComplianceMatrix.astro';
 import EngageCTA from '../components/EngageCTA.astro';
 import { getCollection } from 'astro:content';
-import { t, localized } from '../i18n/utils';
+import { t, localized, withBase } from '../i18n/utils';
 import type { Locale } from '../i18n/utils';
 
 interface Props {
@@ -113,7 +113,7 @@ const heroStats = [
       enLabel={t('technology.hero.enLabel', locale)}
       lede={t('technology.hero.lede', locale)}
       stats={heroStats}
-      ctas={[{ href: '/contact/', label: t('cta.consult', locale), variant: 'clay' }]}
+      ctas={[{ href: withBase('/contact/'), label: t('cta.consult', locale), variant: 'clay' }]}
     />
   </Fragment>
 
@@ -141,7 +141,7 @@ const heroStats = [
   <!-- ── 02 高速網絡 Fabric ─────────────────────────────────────────────── -->
   <section class="section" id="network" aria-labelledby="heading-02">
     <SectionHeader index="02" zh={t('technology.section02.zh', locale)} en={t('technology.section02.en', locale)} />
-    <div class="net-grid reveal">
+    <div class="net-grid" data-section-enter>
       {networkComps.map((comp) => {
         const accent = NET_ACCENT[comp.data.id] ?? 'sage';
         return (
@@ -182,13 +182,15 @@ const heroStats = [
   </section>
 
   <!-- ── 03 高量產 MES 平台（FAB300）──────────────────────────────────────── -->
-  <section class="section" id="mes" aria-labelledby="heading-03">
+  <section class="section section--mes" id="mes" aria-labelledby="heading-03">
     <SectionHeader index="03" zh={t('technology.section03.zh', locale)} en={t('technology.section03.en', locale)} />
     <div class="mes-layout">
-      <!-- 7-module map -->
-      <div class="mes-modules reveal" role="list" aria-label={t('technology.section03.modules.ariaLabel', locale)}>
+      <!-- 7-module map — data-signal-travel: pulse descends left gutter, lights each dot -->
+      <div class="mes-modules" data-signal-travel data-section-enter role="list" aria-label={t('technology.section03.modules.ariaLabel', locale)}>
         {mesModules.map((mod) => (
           <div class="mes-module" role="listitem">
+            {/* Signal-travel anchor dot — lit by the gold pulse as it passes */}
+            <span class="layer-chapter__dot layer-chapter__dot--sun mes-dot" aria-hidden="true"></span>
             <span class="mes-module__idx" aria-hidden="true">{mod.idx}</span>
             <div class="mes-module__body">
               <span class="mes-module__en">{mod.en}</span>
@@ -236,13 +238,13 @@ const heroStats = [
   </section>
 
   <!-- ── 04 數據與 AI 平台 ──────────────────────────────────────────────── -->
-  <section class="section" id="data-ai" aria-labelledby="heading-04">
+  <section class="section section--data-ai" id="data-ai" aria-labelledby="heading-04">
     <SectionHeader index="04" zh={t('technology.section04.zh', locale)} en={t('technology.section04.en', locale)} />
-    <div class="dai-grid">
+    <div class="dai-grid" data-section-enter>
       {dataAIComps.map((comp) => {
         const accent = DAI_ACCENT[comp.data.id] ?? 'sun';
         return (
-          <article class={`dai-card dai-card--${accent} reveal`}>
+          <article class={`dai-card dai-card--${accent}`}>
             <header class="dai-card__hd">
               <span class={`dai-card__tag dai-card__tag--${accent}`}>
                 {ACCENT_LABEL[accent]}
@@ -338,31 +340,170 @@ const heroStats = [
 </PageLayout>
 
 <script>
-  import { revealOnEnter } from '../scripts/theme-motion';
-  revealOnEnter('.reveal');
+  /**
+   * TechnologyContent motion script — full cinematic engine matching Home.
+   *
+   * Boot order (DOMContentLoaded):
+   *  1. bootMotion()           — HUD brackets draw-in, nav fade, sub-hero spring
+   *  2. initCursor()           — gold ring HUD cursor with crosshair ticks
+   *  3. initSmoothScroll()     — Lenis smooth scroll (no-op under reduced-motion)
+   *  4. revealAll(…)           — spring word-stagger on all section-header h2s
+   *  5. initParallax()         — counter-scroll on ghost numerals
+   *  6. initSignalTravel()     — gold→clay pulse down §03 MES module stack
+   *  7. revealOnEnter('.reveal') — spring reveal for lede/facts/kpi blocks
+   *  8. initSectionEnter()     — spring-stagger children of [data-section-enter]
+   *  9. bindMagnetic(…)        — magnetic pull on .cta--clay elements
+   * 10. initLinkUnderlines()   — gold stroke-draw underline on hover/focus
+   * 11. Scroll-spy              — highlight active layer-nav item
+   * 12. hero dot-field          — cursor-reactive ember grid behind sub-hero
+   * 13. §03 dot-field           — cursor-reactive ember grid behind MES section
+   * 14. §04 dot-field           — cursor-reactive ember grid behind Data-AI section
+   *
+   * Reduced-motion: each function is internally gated; degrades to final-state.
+   */
 
-  // Scroll-spy: highlight active layer-nav item as sections enter viewport
-  const navItems = Array.from(
-    document.querySelectorAll<HTMLAnchorElement>('.layer-nav__item'),
-  );
-  const sectionIds = ['compute', 'network', 'mes', 'data-ai', 'security', 'dr'];
-  const sections = sectionIds.map((id) => document.getElementById(id));
+  import {
+    bootMotion,
+    revealOnEnter,
+    prefersReducedMotion,
+  } from '../scripts/theme-motion';
+  import { initCursor } from '../scripts/motion/cursor';
+  import { initSmoothScroll } from '../scripts/motion/smooth-scroll';
+  import { initParallax, initSignalTravel, initSectionEnter } from '../scripts/motion/scroll-fx';
+  import { revealAll } from '../scripts/motion/text-reveal';
+  import { bindMagnetic, initLinkUnderlines } from '../scripts/motion/magnetic';
+  import { mount as mountDotField } from '../scripts/motion/dot-field';
 
-  if (navItems.length && sections.some(Boolean)) {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const id = entry.target.id;
-            navItems.forEach((a) => {
-              a.classList.toggle('is-active', a.getAttribute('href') === `#${id}`);
-            });
-          }
-        });
-      },
-      { threshold: 0.2, rootMargin: '-10% 0px -60% 0px' },
+  function init(): void {
+    // ── 1. Page-load boot: HUD brackets + nav ────────────────────────────────
+    bootMotion();
+
+    // ── 2. Custom HUD cursor ─────────────────────────────────────────────────
+    initCursor();
+
+    // ── 3. Lenis smooth scroll ───────────────────────────────────────────────
+    initSmoothScroll();
+
+    // ── 4. Spring word-stagger on section headings ───────────────────────────
+    revealAll('.section-header__zh', { mode: 'words', threshold: 0.25, staggerMs: 40 });
+
+    // ── 5. Parallax on giant ghost numerals ──────────────────────────────────
+    // .section-header__numeral elements are position:absolute overlays.
+    // Counter-scroll at 0.12× speed for depth — same as Home §01–§08.
+    document.querySelectorAll<HTMLElement>('.section-header__numeral').forEach((el) => {
+      el.setAttribute('data-parallax', '');
+      el.setAttribute('data-parallax-speed', '0.12');
+    });
+    initParallax();
+
+    // ── 6. Signal-travel down the §03 MES 7-module stack ────────────────────
+    // Each .mes-module has a .layer-chapter__dot (sun) that the gold→clay
+    // pulse lights up as it descends. Container [data-signal-travel] on
+    // .mes-modules, pulse at left:19px (aligns with mes-dot position).
+    initSignalTravel();
+
+    // ── 7. Spring reveal for prose/lede/facts/kpi blocks ────────────────────
+    revealOnEnter('.reveal');
+
+    // ── 8. Spring-stagger for card grids on section-enter ───────────────────
+    // .net-grid and .dai-grid have [data-section-enter] — children (articles)
+    // slide up from translateY:48 with spring(220,22,1) stagger 55ms.
+    // Also applies to .mes-modules which doubles up signal-travel.
+    initSectionEnter();
+
+    // ── 9. Magnetic pull on clay CTAs ────────────────────────────────────────
+    document.querySelectorAll<HTMLElement>('.cta--clay').forEach((el) => {
+      bindMagnetic(el, { strength: 0.38, maxDisp: 20 });
+    });
+
+    // ── 10. Gold stroke-draw underlines on nav + footer links ────────────────
+    initLinkUnderlines();
+
+    // ── 11. Scroll-spy: highlight active layer-nav item ──────────────────────
+    const navItems = Array.from(
+      document.querySelectorAll<HTMLAnchorElement>('.layer-nav__item'),
     );
-    sections.forEach((s) => s && observer.observe(s));
+    const sectionIds = ['compute', 'network', 'mes', 'data-ai', 'security', 'dr'];
+    const spySections = sectionIds.map((id) => document.getElementById(id));
+
+    if (navItems.length && spySections.some(Boolean)) {
+      const spyObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const id = entry.target.id;
+              navItems.forEach((a) => {
+                a.classList.toggle('is-active', a.getAttribute('href') === `#${id}`);
+              });
+            }
+          });
+        },
+        { threshold: 0.2, rootMargin: '-10% 0px -60% 0px' },
+      );
+      spySections.forEach((s) => s && spyObserver.observe(s));
+    }
+
+    // Dot-fields only when motion is allowed
+    if (prefersReducedMotion()) return;
+
+    // ── 12. Cursor-reactive ember dot-field behind sub-hero ──────────────────
+    // Inserted between .sub-hero__poster (z:0) and .sub-hero__inner (z:1)
+    // as a sibling at z:0, rendered above the SVG but below the text.
+    const subHero      = document.querySelector<HTMLElement>('.sub-hero');
+    const subHeroInner = document.querySelector<HTMLElement>('.sub-hero__inner');
+    if (subHero && subHeroInner) {
+      const heroDotBg = document.createElement('div');
+      heroDotBg.setAttribute('aria-hidden', 'true');
+      heroDotBg.style.cssText =
+        'position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;';
+      subHero.insertBefore(heroDotBg, subHeroInner);
+      mountDotField(heroDotBg, {
+        cols:           28,
+        rows:           12,
+        dotRadius:      1.5,
+        interactRadius: 100,
+      });
+    }
+
+    // ── 13. Cursor-reactive dot-field behind §03 MES section ─────────────────
+    // .section--mes has isolation:isolate — the z:-1 wrapper is contained.
+    const mesSection = document.querySelector<HTMLElement>('.section--mes');
+    if (mesSection) {
+      const mesDotBg = document.createElement('div');
+      mesDotBg.setAttribute('aria-hidden', 'true');
+      mesDotBg.style.cssText =
+        'position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden;';
+      mesSection.insertBefore(mesDotBg, mesSection.firstChild);
+      mountDotField(mesDotBg, {
+        cols:           20,
+        rows:           14,
+        dotRadius:      1.8,
+        interactRadius: 120,
+      });
+    }
+
+    // ── 14. Cursor-reactive dot-field behind §04 Data-AI section ─────────────
+    // .section--data-ai has isolation:isolate — same stacking context trick.
+    const daiSection = document.querySelector<HTMLElement>('.section--data-ai');
+    if (daiSection) {
+      const daiDotBg = document.createElement('div');
+      daiDotBg.setAttribute('aria-hidden', 'true');
+      daiDotBg.style.cssText =
+        'position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden;';
+      daiSection.insertBefore(daiDotBg, daiSection.firstChild);
+      mountDotField(daiDotBg, {
+        cols:           22,
+        rows:           10,
+        dotRadius:      2.2,
+        interactRadius: 140,
+      });
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
   }
 </script>
 
@@ -1000,12 +1141,99 @@ const heroStats = [
     font-size: 0.82rem;
   }
 
+  /* ── §03 MES — stacking context for z:-1 dot-field + signal-travel ──────── */
+  /*
+   * position:relative + isolation:isolate creates a stacking context so the
+   * z:-1 dot-field wrapper injected by the page script renders BELOW the
+   * in-flow SectionHeader and mes-layout content. overflow:hidden clips the
+   * dot canvas to the section bounds.
+   */
+  .section--mes {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+
+  /* ── §04 Data-AI — same stacking context trick for dot-field ─────────────── */
+  .section--data-ai {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+
+  /* ── Signal-travel connector line on MES module stack left gutter ─────────── */
+  /*
+   * A 1px border-color line at left:19px matches the initSignalTravel()
+   * pulse position. The gold→clay pulse animates over this line on scroll-enter.
+   * ::before creates the static connector; the JS pulse draws on top.
+   */
+  .mes-modules[data-signal-travel] {
+    position: relative; /* initSignalTravel also sets this; belt-and-suspenders */
+  }
+  .mes-modules[data-signal-travel]::before {
+    content: '';
+    position: absolute;
+    left: 19px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--border);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Signal-travel dot inside each MES module ─────────────────────────────── */
+  /*
+   * .layer-chapter__dot base styling is in LayerStack.astro (scoped), so we
+   * re-declare the essential geometry here. The --sun variant fills gold.
+   * .mes-dot positions each dot at left:15px within its .mes-module (position:relative)
+   * so the dot center sits at ~15px+5px=20px from .mes-modules left — close
+   * to the 19px pulse line that initSignalTravel draws.
+   */
+  .mes-module {
+    position: relative; /* needed for .mes-dot absolute positioning */
+  }
+
+  .layer-chapter__dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border-strong);
+    background: var(--surface);
+    flex-shrink: 0;
+    z-index: 1;
+  }
+  .layer-chapter__dot--sun {
+    border-color: var(--sun);
+    background: var(--sun);
+  }
+
+  .mes-dot {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    /* Subtle glow matching the signal-travel pulse color */
+    box-shadow: 0 0 4px 1px rgba(233, 196, 106, 0.35);
+  }
+
   /* ── Reduced-motion: strip transitions ───────────────────────────────────── */
   @media (prefers-reduced-motion: reduce) {
     .mes-module,
     .dr-tr,
     .layer-nav__item {
       transition: none;
+    }
+    .mes-dot {
+      box-shadow: none;
+    }
+    /* Dot-fields never mount under reduced-motion (gated in JS).
+       Sections still need their stacking context for layout correctness. */
+    .section--mes,
+    .section--data-ai {
+      overflow: visible; /* restore if no canvas to clip */
     }
   }
 </style>

@@ -11,7 +11,7 @@ import LayerStack from '../components/LayerStack.astro';
 import PhaseTimeline from '../components/PhaseTimeline.astro';
 import ByTheNumbers from '../components/ByTheNumbers.astro';
 import BuildVsBuy from '../components/BuildVsBuy.astro';
-import { t } from '../i18n/utils';
+import { t, withBase } from '../i18n/utils';
 import type { Locale } from '../i18n/utils';
 
 interface Props {
@@ -37,7 +37,22 @@ const chips = [
     <HeroPoster />
     <HeroCanvas />
     <div class="hero__content">
-      <p class="hero__eyebrow" aria-hidden="true">WHO WE ARE // SYSTEMS INTEGRATOR</p>
+      <!--
+        hero__eyebrow: data-parallax counter-scrolls slightly against page scroll
+        (initParallax reads data-parallax-speed; speed 0.08 = subtle depth layer).
+      -->
+      <p
+        class="hero__eyebrow"
+        aria-hidden="true"
+        data-parallax
+        data-parallax-speed="0.08"
+      >WHO WE ARE // SYSTEMS INTEGRATOR</p>
+      <!--
+        hero__title: bootMotion handles the spring block reveal (stiffness:260,
+        damping:22) so the whole headline springs up from 32px below as the
+        HUD brackets draw in. No word-split here to avoid conflict with the
+        bootMotion timeline.
+      -->
       <h1 class="hero__title" data-locale={locale}>
         <span class="hero__line">{t('home.hero.titleLine1', locale)}</span>
         <span class="hero__line"
@@ -51,7 +66,12 @@ const chips = [
         {chips.map((c) => <li class={`chip chip--${c.accent}`}>{c.label}</li>)}
       </ul>
       <div class="hero__actions">
-        <CTAButton variant="clay" href="/contact/" label={t('cta.consult', locale)} />
+        <!--
+          withBase('/contact/') ensures the href is correct on both custom-domain
+          (/) and GitHub Pages (/shiny4/) deployments.
+          data-magnetic is wired in the page script via bindMagnetic().
+        -->
+        <CTAButton variant="clay" href={withBase('/contact/')} label={t('cta.consult', locale)} />
         <a class="hero__secondary" href="#architecture">{t('cta.viewArchitecture', locale)} →</a>
       </div>
     </div>
@@ -70,14 +90,22 @@ const chips = [
     </div>
   </section>
 
-  <!-- 02 Six-layer architecture -->
+  <!-- 02 Six-layer architecture — signal-travel wrapper triggers glowing pulse -->
   <section class="section" id="architecture" aria-labelledby="heading-02">
     <SectionHeader
       index="02"
       zh={t('home.section02.zh', locale)}
       en={t('home.section02.en', locale)}
     />
-    <LayerStack locale={locale} />
+    <!--
+      data-signal-travel: initSignalTravel() finds this wrapper, prepends a
+      gold→clay gradient pulse at left:19px (the gutter connector line), and
+      animates it top→bottom on scroll-enter, lighting each .layer-chapter__dot
+      as it passes. Repeats every 6 s for ambient effect.
+    -->
+    <div data-signal-travel>
+      <LayerStack locale={locale} />
+    </div>
   </section>
 
   <!-- 03 Universal SLA strip -->
@@ -100,8 +128,12 @@ const chips = [
     <PhaseTimeline locale={locale} />
   </section>
 
-  <!-- 05 By the Numbers -->
-  <section class="section" id="numbers" aria-labelledby="heading-05">
+  <!-- 05 By the Numbers — dot-field canvas injected by page script -->
+  <!--
+    section--numbers: position:relative + isolation:isolate creates a stacking
+    context so the z:-1 dot-field wrapper is contained within this section.
+  -->
+  <section class="section section--numbers" id="numbers" aria-labelledby="heading-05">
     <SectionHeader
       index="05"
       zh={t('home.section05.zh', locale)}
@@ -129,11 +161,145 @@ const chips = [
 </PageLayout>
 
 <script>
-  import { revealOnEnter } from '../scripts/theme-motion';
-  revealOnEnter('.reveal');
+  /**
+   * HomeContent motion script — full cinematic engine for the Home page.
+   *
+   * Boot order (all DOMContentLoaded):
+   *  1. bootMotion()           — HUD brackets draw-in, canvas fade, nav, eyebrow,
+   *                              hero title spring block, lead, chips, CTA actions
+   *  2. initCursor()           — gold ring HUD cursor with crosshair ticks
+   *  3. initSmoothScroll()     — Lenis smooth scroll (no-op under reduced-motion)
+   *  4. revealAll(…)           — spring word-stagger on ALL section-header h2 elements
+   *  5. initParallax()         — counter-scroll on ghost numerals + hero eyebrow
+   *  6. initSignalTravel()     — gold→clay pulse down §02 layer stack, repeats 6 s
+   *  7. revealOnEnter('.reveal') — spring reveal for .prose and .ecosystem blocks
+   *  8. bindMagnetic(…)        — magnetic pull on .cta--clay + .hero__secondary
+   *  9. initLinkUnderlines()   — gold stroke-draw underline on hover/focus for links
+   * 10. hero dot-field         — cursor-reactive ember grid behind hero headline
+   * 11. §05 dot-field          — cursor-reactive ember grid behind Key Figures metrics
+   *
+   * Reduced-motion: each imported function is internally gated on
+   * prefersReducedMotion() and degrades to static final-state immediately.
+   */
+
+  import {
+    bootMotion,
+    revealOnEnter,
+    prefersReducedMotion,
+  } from '../scripts/theme-motion';
+  import { initCursor } from '../scripts/motion/cursor';
+  import { initSmoothScroll } from '../scripts/motion/smooth-scroll';
+  import { initParallax, initSignalTravel } from '../scripts/motion/scroll-fx';
+  import { revealAll } from '../scripts/motion/text-reveal';
+  import { bindMagnetic, initLinkUnderlines } from '../scripts/motion/magnetic';
+  import { mount as mountDotField } from '../scripts/motion/dot-field';
+
+  function init(): void {
+    // ── 1. Page-load boot: HUD brackets + hero elements ──────────────────────
+    bootMotion();
+
+    // ── 2. Custom HUD cursor (gold ring + crosshair, pointer:fine only) ───────
+    initCursor();
+
+    // ── 3. Lenis smooth scroll ────────────────────────────────────────────────
+    initSmoothScroll();
+
+    // ── 4. Spring word-stagger on section headings ────────────────────────────
+    // All .section-header__zh h2 elements (§01–§06) split into word spans.
+    // Each word slides up from 110% with spring (stiffness:280, damping:24).
+    // Fires at threshold:0.25 — well after bootMotion finishes the hero, so no
+    // conflict. Sections below the fold trigger on scroll-enter.
+    revealAll('.section-header__zh', { mode: 'words', threshold: 0.25, staggerMs: 40 });
+
+    // ── 5. Parallax on ghost numerals + hero eyebrow ──────────────────────────
+    // Ghost numerals (.section-header__numeral) are position:absolute overlays.
+    // Adding data-parallax to them causes initParallax to counter-scroll them
+    // at 0.12× speed — the giant numbers drift slower than the page for depth.
+    // Hero eyebrow already has data-parallax in HTML (speed 0.08).
+    document.querySelectorAll<HTMLElement>('.section-header__numeral').forEach((el) => {
+      el.setAttribute('data-parallax', '');
+      el.setAttribute('data-parallax-speed', '0.12');
+    });
+    initParallax();
+
+    // ── 6. Signal-travel down the §02 six-layer stack ────────────────────────
+    // Finds [data-signal-travel] wrapper, prepends a 3px gold→clay pulse pill,
+    // animates height 0→stackH over 900 ms, lights each .layer-chapter__dot
+    // with a scale spring (stiffness:400, damping:18) as the pulse arrives.
+    // Repeats every 6 s while section is in view.
+    initSignalTravel();
+
+    // ── 7. Spring reveal for prose / ecosystem blocks (.reveal class) ─────────
+    // Legacy spring-reveal (translateY:24 + opacity, spring:260/22/0.9).
+    // Applied to .prose.reveal in §01 and .ecosystem.reveal in §06.
+    revealOnEnter('.reveal');
+
+    // ── 8. Magnetic pull on clay CTAs + secondary hero link ──────────────────
+    // On fine-pointer devices only. Element springs toward cursor when within
+    // 1.5× bounding box, snaps back with spring(350, 26, 0.8) on leave.
+    document.querySelectorAll<HTMLElement>('.cta--clay, .hero__secondary').forEach((el) => {
+      bindMagnetic(el, { strength: 0.38, maxDisp: 20 });
+    });
+
+    // ── 9. Gold stroke-draw underlines on nav + footer links ─────────────────
+    // Injects a <span class="link-line"> inside each .nav-link / .footer-link /
+    // [data-link-underline] a. CSS clip-path transitions from inset(0 100% 0 0)
+    // to inset(0 0% 0 0) on hover/focus — left-to-right gold stroke draw.
+    initLinkUnderlines();
+
+    // Only mount dot-fields if motion is allowed
+    if (prefersReducedMotion()) return;
+
+    // ── 10. Cursor-reactive ember dot-field behind hero headline ──────────────
+    // A z:-1 wrapper div is injected as the first child of .hero__content, so
+    // the canvas renders BELOW the in-flow text elements within hero__content's
+    // stacking context (hero__content has z-index:2 which creates a new stacking
+    // context; z:-1 child paints at step-2 below the section's in-flow content).
+    // The WebGL HeroCanvas (z:1 in page-hero) shows through the transparent gaps.
+    const heroContent = document.querySelector<HTMLElement>('.hero__content');
+    if (heroContent) {
+      const heroDotBg = document.createElement('div');
+      heroDotBg.setAttribute('aria-hidden', 'true');
+      heroDotBg.style.cssText =
+        'position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden;';
+      heroContent.insertBefore(heroDotBg, heroContent.firstChild);
+      mountDotField(heroDotBg, {
+        cols:          34,
+        rows:          20,
+        dotRadius:     1.5,
+        interactRadius: 100,
+      });
+    }
+
+    // ── 11. Cursor-reactive dot-field behind §05 Key Figures ─────────────────
+    // Same z:-1 wrapper technique. .section--numbers has isolation:isolate in
+    // CSS to create a stacking context that contains the z:-1 child. Dots react
+    // to cursor within the section, interpolating gold→clay by proximity.
+    const numbersSection = document.querySelector<HTMLElement>('.section--numbers');
+    if (numbersSection) {
+      const numbersDotBg = document.createElement('div');
+      numbersDotBg.setAttribute('aria-hidden', 'true');
+      numbersDotBg.style.cssText =
+        'position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden;';
+      numbersSection.insertBefore(numbersDotBg, numbersSection.firstChild);
+      mountDotField(numbersDotBg, {
+        cols:          22,
+        rows:          12,
+        dotRadius:     2.4,
+        interactRadius: 140,
+      });
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 </script>
 
 <style>
+  /* ── Hero content ──────────────────────────────────────────────────────────── */
   .hero__content {
     position: relative;
     z-index: 2;
@@ -142,6 +308,7 @@ const chips = [
     padding: clamp(7rem, 14vh, 11rem) var(--gutter) clamp(3rem, 8vh, 6rem);
     width: 100%;
   }
+
   .hero__eyebrow {
     font-family: var(--font-mono);
     font-size: 0.78rem;
@@ -149,15 +316,18 @@ const chips = [
     color: var(--sun);
     margin: 0 0 1.25rem;
   }
+
   .hero__title {
     font-size: clamp(2.8rem, 9vw, 7rem);
     font-weight: 900;
     margin: 0 0 1.5rem;
     text-wrap: balance;
   }
+
   .hero__line {
     display: block;
   }
+
   /*
    * Hero headline line-break control (§14 design spec).
    *
@@ -176,12 +346,14 @@ const chips = [
   .hero__nowrap {
     white-space: nowrap;
   }
+
   .hero__lead {
     max-width: 52ch;
     font-size: clamp(1.05rem, 2vw, 1.3rem);
     color: var(--ink);
     margin-bottom: 2rem;
   }
+
   .hero__chips {
     display: flex;
     flex-wrap: wrap;
@@ -190,6 +362,7 @@ const chips = [
     margin: 0 0 2.5rem;
     padding: 0;
   }
+
   .chip {
     font-family: var(--font-mono);
     font-size: 0.9rem;
@@ -198,24 +371,29 @@ const chips = [
     border-radius: 999px;
     color: var(--ink);
   }
+
   .chip--clay {
     border-color: var(--clay);
     color: var(--clay);
   }
+
   .chip--gold {
     border-color: var(--sun);
     color: var(--sun);
   }
+
   .chip--sage {
     border-color: var(--sage);
     color: var(--sage);
   }
+
   .hero__actions {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 1.5rem;
   }
+
   .hero__secondary {
     font-family: var(--font-mono);
     color: var(--ink);
@@ -224,10 +402,12 @@ const chips = [
     padding-bottom: 0.2rem;
   }
 
+  /* ── Prose (§01) ────────────────────────────────────────────────────────── */
   .prose {
     max-width: 62ch;
     font-size: 1.1rem;
   }
+
   .trust-line {
     margin-top: 1.5rem;
     font-family: var(--font-serif-tc);
@@ -236,6 +416,20 @@ const chips = [
     line-height: 1.5;
   }
 
+  /* ── §05 Key Figures — stacking context for z:-1 dot-field wrapper ─────── */
+  /*
+   * position:relative + isolation:isolate creates a stacking context without
+   * disturbing the section's z-index relative to other sections. The z:-1 dot-
+   * field wrapper injected by the page script is contained here, rendering its
+   * ember dots BELOW the in-flow SectionHeader and ByTheNumbers content.
+   */
+  .section--numbers {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+
+  /* ── Ecosystem note (§06) ───────────────────────────────────────────────── */
   .ecosystem {
     margin-top: 2rem;
     max-width: 62ch;

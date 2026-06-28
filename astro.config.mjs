@@ -1,10 +1,9 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
-// Custom domain via public/CNAME → base stays '/'.
 export default defineConfig({
-  site: 'https://shinylogic.tech',
-  base: '/',
+  site: 'https://robertoshiu.github.io',
+  base: '/shiny4/',
   output: 'static',
   trailingSlash: 'always',
   i18n: {

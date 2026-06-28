@@ -9,7 +9,7 @@ import ComplianceBadges from '../components/ComplianceBadges.astro';
 import RiskCard from '../components/RiskCard.astro';
 import EngageCTA from '../components/EngageCTA.astro';
 import { getCollection } from 'astro:content';
-import { t, localized } from '../i18n/utils';
+import { t, localized, withBase } from '../i18n/utils';
 import type { Locale } from '../i18n/utils';
 
 interface Props {
@@ -90,7 +90,7 @@ const templateItems = [
       lede={t('methodology.hero.lede', locale)}
       stats={heroStats}
       ctas={[
-        { href: '/contact/', label: t('cta.consult', locale), variant: 'clay' },
+        { href: withBase('/contact/'), label: t('cta.consult', locale), variant: 'clay' },
         { href: '#matrix', label: t('methodology.hero.cta2', locale), variant: 'ghost' },
       ]}
       locale={locale}
@@ -158,7 +158,7 @@ const templateItems = [
     <div class="reveal">
       <SlaStrip locale={locale} />
     </div>
-    <div class="kpi-detail reveal" aria-label={t('methodology.section04.kpiAriaLabel', locale)}>
+    <div class="kpi-detail" aria-label={t('methodology.section04.kpiAriaLabel', locale)}>
       <div class="kpi-row">
         <span class="kpi-row__code kpi-row__code--gold">YLD.01</span>
         <div>
@@ -214,7 +214,7 @@ const templateItems = [
     <p class="fig-lede reveal">
       {t('methodology.section05.lede', locale)}
     </p>
-    <div class="risk-grid reveal" role="list" aria-label={t('methodology.section05.riskGridAriaLabel', locale)}>
+    <div class="risk-grid" role="list" aria-label={t('methodology.section05.riskGridAriaLabel', locale)} data-section-enter>
       {risks.map((r) => (
         <div role="listitem">
           <RiskCard
@@ -241,9 +241,9 @@ const templateItems = [
     </p>
 
     <!-- 3-step process -->
-    <ol class="repl-steps" aria-label={t('methodology.section06.stepsAriaLabel', locale)}>
+    <ol class="repl-steps" aria-label={t('methodology.section06.stepsAriaLabel', locale)} data-section-enter>
       {replSteps.map((s) => (
-        <li class="repl-step reveal">
+        <li class="repl-step">
           <div class="repl-step__num" aria-hidden="true">{s.num}</div>
           <div class="repl-step__content">
             <h3 class="repl-step__zh">{s.zh}</h3>
@@ -286,8 +286,359 @@ const templateItems = [
 </PageLayout>
 
 <script>
-  import { revealOnEnter } from '../scripts/theme-motion';
-  revealOnEnter('.reveal');
+  /**
+   * MethodologyContent motion script — full cinematic engine matching Home.
+   *
+   * Boot order (DOMContentLoaded):
+   *  1. bootMotion()           — HUD brackets draw-in, nav fade
+   *  2. Sub-hero spring boot   — eyebrow, title, en-label, lede, stats, CTAs
+   *  3. initCursor()           — gold ring HUD cursor
+   *  4. initSmoothScroll()     — Lenis (no-op under reduced-motion)
+   *  5. revealAll(…)           — spring word-stagger on section headings
+   *  6. initParallax()         — ghost numerals counter-scroll at 0.12×
+   *  7. initSectionEnter()     — spring-stagger risk cards + repl steps
+   *  8. revealOnEnter('.reveal') — spring block reveal for .reveal elements
+   *  9. fireKpiSignal()        — custom signal-travel down the §04 KPI table
+   * 10. initSlaCountUp()       — spring overshoot count-up on .sla__value[data-to]
+   * 11. bindMagnetic(…)        — magnetic CTAs
+   * 12. initLinkUnderlines()   — gold stroke-draw underlines
+   * 13. Dot-field (hero)       — cursor-reactive ember grid behind sub-hero
+   * 14. Dot-field (risk)       — cursor-reactive ember grid behind §05 risk section
+   *
+   * Reduced-motion: every function is internally gated on prefersReducedMotion().
+   */
+
+  import {
+    bootMotion,
+    revealOnEnter,
+    prefersReducedMotion,
+  } from '../scripts/theme-motion';
+  import { initCursor } from '../scripts/motion/cursor';
+  import { initSmoothScroll } from '../scripts/motion/smooth-scroll';
+  import { initParallax, initSectionEnter } from '../scripts/motion/scroll-fx';
+  import { revealAll } from '../scripts/motion/text-reveal';
+  import { bindMagnetic, initLinkUnderlines } from '../scripts/motion/magnetic';
+  import { mount as mountDotField } from '../scripts/motion/dot-field';
+  import { animate, stagger, spring, createTimeline } from 'animejs';
+
+  // ─── KPI signal-travel (adapted for .kpi-detail table) ───────────────────────
+  function fireKpiSignal(): void {
+    if (prefersReducedMotion()) return;
+
+    const kpiDetail = document.querySelector<HTMLElement>('.kpi-detail');
+    if (!kpiDetail) return;
+
+    const rows = Array.from(kpiDetail.querySelectorAll<HTMLElement>('.kpi-row'));
+    if (!rows.length) return;
+
+    // Hide rows so the signal reveals them on scroll-enter
+    rows.forEach((row) => {
+      row.style.opacity = '0';
+      row.style.transform = 'translateX(-8px)';
+    });
+
+    // Glowing pulse pill that travels the left rail of the KPI table
+    const pulse = document.createElement('div');
+    pulse.setAttribute('aria-hidden', 'true');
+    pulse.style.cssText = [
+      'position:absolute', 'left:0', 'top:0',
+      'width:2px', 'height:0', 'border-radius:1px',
+      'background:linear-gradient(180deg,#E9C46A 0%,#E07A5F 100%)',
+      'box-shadow:0 0 6px 2px rgba(233,196,106,0.45)',
+      'pointer-events:none', 'z-index:3', 'opacity:0',
+    ].join(';');
+
+    kpiDetail.style.position = 'relative';
+    kpiDetail.prepend(pulse);
+
+    let fired = false;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting || fired) continue;
+          fired = true;
+          runSignal();
+          const interval = setInterval(runSignal, 7000);
+          // Cleanup interval when section leaves
+          const exitIo = new IntersectionObserver((ex) => {
+            if (!ex[0]?.isIntersecting) { clearInterval(interval); exitIo.disconnect(); }
+          }, { threshold: 0 });
+          exitIo.observe(kpiDetail);
+        }
+      },
+      { threshold: 0.2 },
+    );
+    io.observe(kpiDetail);
+
+    function runSignal() {
+      if (prefersReducedMotion()) return;
+      const kH = kpiDetail!.offsetHeight;
+      pulse.style.height = '0';
+
+      const tl = createTimeline({ defaults: { ease: 'out(2)' } });
+
+      tl.add(pulse, { opacity: [0, 1], duration: 80 }, 0)
+        .add(pulse, { height: [0, kH], duration: 820, ease: 'inOut(2)' }, 80);
+
+      rows.forEach((row) => {
+        const rowTop = row.getBoundingClientRect().top
+          - kpiDetail!.getBoundingClientRect().top;
+        const arrivalT = Math.round(80 + (rowTop / kH) * 820);
+        tl.add(
+          row,
+          {
+            opacity:    [0, 1],
+            translateX: [-8, 0],
+            duration: 300,
+            ease: spring({ stiffness: 340, damping: 22, mass: 0.8 }),
+          },
+          arrivalT,
+        );
+      });
+
+      tl.add(pulse, { opacity: [1, 0], duration: 260, ease: 'in(2)' }, 920);
+    }
+  }
+
+  // ─── SLA count-up (port of initCountUp for .sla__value[data-to]) ─────────────
+  function initSlaCountUp(): void {
+    const els = Array.from(
+      document.querySelectorAll<HTMLElement>('.sla__value[data-to]'),
+    );
+    if (!els.length) return;
+
+    if (prefersReducedMotion()) {
+      els.forEach((el) => {
+        const prefix = el.dataset.prefix ?? '';
+        const suffix = el.dataset.suffix ?? '';
+        const to     = Number(el.dataset.to ?? 0);
+        el.textContent = `${prefix}${to}${suffix}`;
+      });
+      return;
+    }
+
+    for (const el of els) {
+      const to     = Number(el.dataset.to ?? 0);
+      const prefix = el.dataset.prefix ?? '';
+      const suffix = el.dataset.suffix ?? '';
+
+      // Wrap prefix symbol if present so it can stroke in separately
+      const hasSymbol = prefix.length > 0 && /[≤≥~<>]/.test(prefix);
+      let prefixEl: HTMLElement | null = null;
+      let valueSpan: HTMLElement | null = null;
+
+      if (hasSymbol) {
+        prefixEl = document.createElement('span');
+        prefixEl.textContent = prefix;
+        prefixEl.style.cssText = [
+          'display:inline-block',
+          'clip-path:inset(0 100% 0 0)',
+          'transition:clip-path 400ms var(--ease-out)',
+        ].join(';');
+        el.textContent = '';
+        el.appendChild(prefixEl);
+        valueSpan = document.createElement('span');
+        el.appendChild(valueSpan);
+      } else {
+        el.textContent = `${prefix}0${suffix}`;
+      }
+
+      let counted = false;
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (!e.isIntersecting || counted) continue;
+            counted = true;
+
+            if (prefixEl) {
+              setTimeout(() => { prefixEl!.style.clipPath = 'inset(0 0% 0 0)'; }, 50);
+            }
+
+            const state = { val: 0 };
+            const target: HTMLElement = valueSpan ?? el;
+
+            animate(state as unknown as Record<string, number>, {
+              val: [0, to],
+              delay: hasSymbol ? 300 : 0,
+              ease: spring({ stiffness: 160, damping: 14, mass: 1.2, velocity: 0 }),
+              onUpdate() {
+                const r = Math.abs(Math.round(state.val));
+                target.textContent = prefixEl ? `${r}${suffix}` : `${prefix}${r}${suffix}`;
+              },
+              onComplete() {
+                target.textContent = prefixEl ? `${to}${suffix}` : `${prefix}${to}${suffix}`;
+              },
+            });
+            io.unobserve(el);
+          }
+        },
+        { threshold: 0.3 },
+      );
+      io.observe(el);
+    }
+  }
+
+  // ─── MAIN INIT ────────────────────────────────────────────────────────────────
+  function init(): void {
+    // ── 1. HUD brackets + nav fade (safe on pages without .hero__*) ────────────
+    bootMotion();
+
+    // ── 2. Sub-hero spring boot ─────────────────────────────────────────────────
+    // bootMotion targets .hero__* classes; SubHero uses .sub-hero__* so we
+    // animate the sub-page hero with a matching timeline.
+    const reduced = prefersReducedMotion();
+
+    const subHeroEyebrow = document.querySelector<HTMLElement>('.sub-hero__eyebrow');
+    const subHeroTitle   = document.querySelector<HTMLElement>('.sub-hero__title');
+    const subHeroEnLabel = document.querySelector<HTMLElement>('.sub-hero__en-label');
+    const subHeroLede    = document.querySelector<HTMLElement>('.sub-hero__lede');
+    const subHeroStats   = document.querySelectorAll<HTMLElement>('.sub-hero__stat');
+    const subHeroCtas    = document.querySelectorAll<HTMLElement>('.sub-hero__ctas > *');
+
+    if (reduced) {
+      // Final states immediately — no animation
+      [subHeroEyebrow, subHeroTitle, subHeroEnLabel, subHeroLede].forEach((el) => {
+        if (el) { el.style.opacity = '1'; el.style.transform = 'none'; }
+      });
+      subHeroStats.forEach((el) => { el.style.opacity = '1'; el.style.transform = 'none'; });
+      subHeroCtas.forEach((el)  => { el.style.opacity = '1'; el.style.transform = 'none'; });
+    } else {
+      // Set initial hidden states
+      [subHeroEyebrow, subHeroTitle, subHeroEnLabel, subHeroLede].forEach((el) => {
+        if (el) { el.style.opacity = '0'; el.style.transform = 'translateY(20px)'; }
+      });
+      subHeroStats.forEach((el) => {
+        el.style.opacity = '0'; el.style.transform = 'translateY(16px)';
+      });
+      subHeroCtas.forEach((el) => {
+        el.style.opacity = '0'; el.style.transform = 'translateY(12px)';
+      });
+
+      const tl = createTimeline({ defaults: { ease: 'out(3)' } });
+
+      if (subHeroEyebrow) {
+        tl.add(subHeroEyebrow, {
+          opacity: [0, 1], translateY: [20, 0], duration: 400,
+        }, 350);
+      }
+      if (subHeroTitle) {
+        tl.add(subHeroTitle, {
+          opacity:    [0, 1],
+          translateY: [32, 0],
+          duration:   540,
+          ease:       spring({ stiffness: 260, damping: 22, mass: 0.9 }),
+        }, 450);
+      }
+      if (subHeroEnLabel) {
+        tl.add(subHeroEnLabel, {
+          opacity: [0, 1], translateY: [14, 0], duration: 360,
+        }, 640);
+      }
+      if (subHeroLede) {
+        tl.add(subHeroLede, {
+          opacity: [0, 1], translateY: [14, 0], duration: 360,
+        }, 700);
+      }
+      if (subHeroStats.length) {
+        tl.add(Array.from(subHeroStats), {
+          opacity:    [0, 1],
+          translateY: [16, 0],
+          delay:      stagger(70),
+          duration:   320,
+          ease:       spring({ stiffness: 320, damping: 24 }),
+        }, 780);
+      }
+      if (subHeroCtas.length) {
+        tl.add(Array.from(subHeroCtas), {
+          opacity:    [0, 1],
+          translateY: [12, 0],
+          delay:      stagger(80),
+          duration:   300,
+        }, 940);
+      }
+    }
+
+    // ── 3. Custom HUD cursor ────────────────────────────────────────────────────
+    initCursor();
+
+    // ── 4. Lenis smooth scroll ──────────────────────────────────────────────────
+    initSmoothScroll();
+
+    // ── 5. Spring word-stagger on all section headings ──────────────────────────
+    revealAll('.section-header__zh', { mode: 'words', threshold: 0.25, staggerMs: 40 });
+
+    // ── 6. Parallax on ghost numerals ───────────────────────────────────────────
+    document.querySelectorAll<HTMLElement>('.section-header__numeral').forEach((el) => {
+      el.setAttribute('data-parallax', '');
+      el.setAttribute('data-parallax-speed', '0.12');
+    });
+    initParallax();
+
+    // ── 7. Spring-stagger section enters (.risk-grid, .repl-steps) ──────────────
+    initSectionEnter();
+
+    // ── 8. Spring block reveal for .reveal elements ─────────────────────────────
+    revealOnEnter('.reveal');
+
+    // ── 9. KPI signal-travel (gold→clay pulse down §04 KPI table) ───────────────
+    fireKpiSignal();
+
+    // ── 10. SLA count-up with spring overshoot ──────────────────────────────────
+    initSlaCountUp();
+
+    // ── 11. Magnetic pull on clay CTAs ──────────────────────────────────────────
+    document.querySelectorAll<HTMLElement>('.cta--clay').forEach((el) => {
+      bindMagnetic(el, { strength: 0.38, maxDisp: 20 });
+    });
+
+    // ── 12. Gold stroke-draw underlines on nav + footer links ───────────────────
+    initLinkUnderlines();
+
+    // Only mount dot-fields if motion is allowed
+    if (prefersReducedMotion()) return;
+
+    // ── 13. Cursor-reactive ember dot-field behind sub-hero ─────────────────────
+    // Injected into .sub-hero__poster (z:0 in the sub-hero stacking context)
+    // so it renders above the SVG background rings but below .sub-hero__inner (z:1).
+    const subHeroPoster = document.querySelector<HTMLElement>('.sub-hero__poster');
+    if (subHeroPoster) {
+      const heroDotBg = document.createElement('div');
+      heroDotBg.setAttribute('aria-hidden', 'true');
+      heroDotBg.style.cssText =
+        'position:absolute;inset:0;pointer-events:none;overflow:hidden;';
+      subHeroPoster.appendChild(heroDotBg);
+      mountDotField(heroDotBg, {
+        cols:           32,
+        rows:           18,
+        dotRadius:      1.3,
+        interactRadius: 110,
+      });
+    }
+
+    // ── 14. Cursor-reactive ember dot-field behind §05 risk section ─────────────
+    // .section--deep has isolation:isolate + overflow:hidden so z:-1 child is
+    // contained and renders above the bg-deep color but below in-flow content.
+    const riskSection = document.querySelector<HTMLElement>('.section--deep');
+    if (riskSection) {
+      const riskDotBg = document.createElement('div');
+      riskDotBg.setAttribute('aria-hidden', 'true');
+      riskDotBg.style.cssText =
+        'position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden;';
+      riskSection.insertBefore(riskDotBg, riskSection.firstChild);
+      mountDotField(riskDotBg, {
+        cols:           26,
+        rows:           14,
+        dotRadius:      2.0,
+        interactRadius: 130,
+      });
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 </script>
 
 <style>
@@ -301,8 +652,18 @@ const templateItems = [
   }
 
   /* ── Deep background for risk section ────────────────── */
+  /*
+   * position:relative + isolation:isolate creates a stacking context so the
+   * z:-1 dot-field wrapper injected by the page script is contained within
+   * this section — rendering its ember dots BELOW in-flow content but ABOVE
+   * the bg-deep background color (unlike a plain z:-1 on a non-isolated ancestor
+   * which would bleed through to the page root stacking context).
+   */
   .section--deep {
     background: var(--bg-deep);
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
   }
 
   /* ── Phase detail rows (FIG.03 supplement) ───────────── */

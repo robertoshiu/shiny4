@@ -115,5 +115,49 @@ const hrefZhHans = new URL(siblingUrl(pathname, 'zh-Hans'), Astro.site).href;
     <script>
       import '../scripts/lang-persist';
     </script>
+
+    <!--
+      MOTION ENGINE — loaded as a single entry point that:
+        1. Boots the page-load cinematic sequence (HUD brackets → hero → nav)
+        2. Initialises Lenis smooth scroll (no-op under reduced-motion)
+        3. Wires up the custom HUD cursor (no-op on touch)
+        4. Wires up magnetic buttons + link underline stroke-draw
+        5. Registers scroll-fx: parallax, section-enter stagger, count-up
+        6. Auto-mounts dot-field canvases for [data-dot-field] sections
+      All effects gate themselves on prefersReducedMotion() internally.
+    -->
+    <script>
+      import { bootMotion } from '../scripts/theme-motion';
+      import { initSmoothScroll } from '../scripts/motion/smooth-scroll';
+      import { initCursor } from '../scripts/motion/cursor';
+      import { initMagnetic, initLinkUnderlines } from '../scripts/motion/magnetic';
+      import { initAll as initScrollFx } from '../scripts/motion/scroll-fx';
+      import { mount as mountDotField } from '../scripts/motion/dot-field';
+      import { revealAll } from '../scripts/motion/text-reveal';
+
+      // Run boot sequence immediately (sets initial hidden states, kicks off tl)
+      bootMotion();
+
+      // Lenis smooth scroll — self-disables under reduced-motion
+      initSmoothScroll();
+
+      // Custom HUD cursor — self-disables on touch / coarse pointer
+      initCursor();
+
+      // Magnetic buttons + link underlines
+      initMagnetic();
+      initLinkUnderlines();
+
+      // Scroll effects: parallax + section-enter + signal-travel + count-up
+      initScrollFx();
+
+      // Text split-reveal for [data-reveal] headings
+      revealAll('[data-reveal]');
+
+      // Auto-mount dot-field canvases
+      document.querySelectorAll<HTMLElement>('[data-dot-field]').forEach((el) => {
+        mountDotField(el);
+      });
+    </script>
   </body>
 </html>

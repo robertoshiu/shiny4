@@ -6,7 +6,7 @@ import LayerStack from '../components/LayerStack.astro';
 import ComplianceBadges from '../components/ComplianceBadges.astro';
 import PhaseTimeline from '../components/PhaseTimeline.astro';
 import EngageCTA from '../components/EngageCTA.astro';
-import { t } from '../i18n/utils';
+import { t, withBase } from '../i18n/utils';
 import type { Locale } from '../i18n/utils';
 
 interface Props {
@@ -35,8 +35,8 @@ const { locale } = Astro.props;
         { value: '8', label: t('about.hero.stat3.label', locale), sub: t('about.hero.stat3.sub', locale), accent: 'sage' },
       ]}
       ctas={[
-        { href: '/contact/', label: t('cta.consult', locale), variant: 'clay' },
-        { href: '/solutions/', label: t('about.hero.cta2', locale), variant: 'ghost' },
+        { href: withBase('/contact/'), label: t('cta.consult', locale), variant: 'clay' },
+        { href: withBase('/solutions/'), label: t('about.hero.cta2', locale), variant: 'ghost' },
       ]}
     />
   </Fragment>
@@ -51,20 +51,27 @@ const { locale } = Astro.props;
     </div>
   </section>
 
-  <!-- 02 我們交付什麼 -->
+  <!-- 02 我們交付什麼
+       data-signal-travel: initSignalTravel() prepends a gold→clay gradient pulse
+       that descends the connector line, lighting each .layer-chapter__dot on arrival.
+       Repeats every 6 s while section is in view. -->
   <section class="section" id="what-we-deliver" aria-labelledby="heading-02">
     <SectionHeader index="02" zh={t('about.section02.zh', locale)} en={t('about.section02.en', locale)} />
-    <LayerStack locale={locale} />
+    <div data-signal-travel>
+      <LayerStack locale={locale} />
+    </div>
     <div class="compliance-row reveal">
       <p class="compliance-label">{t('about.section02.complianceLabel', locale)}</p>
       <ComplianceBadges locale={locale} />
     </div>
   </section>
 
-  <!-- 03 治理與責任 -->
+  <!-- 03 治理與責任
+       data-section-enter: initSectionEnter() spring-staggers each .gov-pillar
+       (translateY:48→0, scale:0.96→1, stagger:55ms) when section scrolls in. -->
   <section class="section" id="governance" aria-labelledby="heading-03">
     <SectionHeader index="03" zh={t('about.section03.zh', locale)} en={t('about.section03.en', locale)} />
-    <div class="governance-grid reveal">
+    <div class="governance-grid" data-section-enter>
 
       <article class="gov-pillar gov-pillar--sage">
         <span class="gov-pillar__tag gov-pillar__tag--sage">{t('about.gov.raci.tag', locale)}</span>
@@ -99,10 +106,11 @@ const { locale } = Astro.props;
     <PhaseTimeline locale={locale} />
   </section>
 
-  <!-- 05 為何信任我們 -->
+  <!-- 05 為何信任我們
+       data-section-enter: spring-stagger each .trust-card on scroll-enter. -->
   <section class="section" id="why-trust" aria-labelledby="heading-05">
     <SectionHeader index="05" zh={t('about.section05.zh', locale)} en={t('about.section05.en', locale)} />
-    <div class="trust-grid reveal">
+    <div class="trust-grid" data-section-enter>
 
       <div class="trust-card">
         <p class="trust-card__en">{t('about.trust.methodology.en', locale)}</p>
@@ -131,10 +139,14 @@ const { locale } = Astro.props;
     </div>
   </section>
 
-  <!-- 06 關鍵數字 -->
-  <section class="section" id="key-figures" aria-labelledby="heading-06">
+  <!-- 06 關鍵數字
+       section--key-figures: position:relative + isolation:isolate creates a stacking
+       context so the z:-1 dot-field wrapper injected by the page script is contained here.
+       data-stat-to on numeric values drives spring overshoot count-up on scroll-enter.
+       data-section-enter springs each stat-block in with stagger when §06 enters view. -->
+  <section class="section section--key-figures" id="key-figures" aria-labelledby="heading-06">
     <SectionHeader index="06" zh={t('about.section06.zh', locale)} en={t('about.section06.en', locale)} />
-    <div class="stat-grid reveal">
+    <div class="stat-grid" data-section-enter>
 
       <article class="stat-block stat-block--sun">
         <span class="stat-block__rule" aria-hidden="true"></span>
@@ -146,7 +158,7 @@ const { locale } = Astro.props;
 
       <article class="stat-block stat-block--sage">
         <span class="stat-block__rule" aria-hidden="true"></span>
-        <p class="stat-block__value">4</p>
+        <p class="stat-block__value" data-stat-to="4">4</p>
         <p class="stat-block__label">{t('about.stat.phases.label', locale)}</p>
         <p class="stat-block__sub">{t('about.stat.phases.sub', locale)}</p>
         <span class="stat-block__accent-tag stat-block__accent-tag--sage">{t('about.gov.raci.tag', locale)}</span>
@@ -162,7 +174,7 @@ const { locale } = Astro.props;
 
       <article class="stat-block stat-block--sage">
         <span class="stat-block__rule" aria-hidden="true"></span>
-        <p class="stat-block__value">100%</p>
+        <p class="stat-block__value" data-stat-to="100" data-stat-suffix="%">100%</p>
         <p class="stat-block__label">{t('about.stat.knowledge.label', locale)}</p>
         <p class="stat-block__sub">{t('about.stat.knowledge.sub', locale)}</p>
         <span class="stat-block__accent-tag stat-block__accent-tag--sage">{t('about.gov.raci.tag', locale)}</span>
@@ -176,8 +188,259 @@ const { locale } = Astro.props;
 </PageLayout>
 
 <script>
-  import { revealOnEnter } from '../scripts/theme-motion';
-  revealOnEnter('.reveal');
+  /**
+   * AboutContent motion script — full cinematic engine for the About page.
+   *
+   * Mirrors the Home motion budget. Boot order (all DOMContentLoaded):
+   *  1. bootMotion()             — HUD corner brackets draw-in, nav fade
+   *                                (safe when .hero__content is absent — null-checked)
+   *  2. Sub-hero spring cascade  — poster-hero variant: eyebrow → title spring-up
+   *                                → en-label → lede → stat strip → CTAs (stagger)
+   *  3. initCursor()             — gold ring HUD cursor with crosshair ticks
+   *  4. initSmoothScroll()       — Lenis smooth scroll (no-op under reduced-motion)
+   *  5. revealAll(…)             — spring word-stagger on all section-header h2 elements
+   *  6. initParallax()           — counter-scroll on ghost numerals (.section-header__numeral)
+   *  7. initSignalTravel()       — gold→clay pulse down §02 LayerStack, repeats 6 s
+   *  8. revealOnEnter('.reveal') — spring reveal for .prose + .compliance-row blocks
+   *  9. initSectionEnter()       — spring stagger on .governance-grid / .trust-grid /
+   *                                .stat-grid children (translateY:48→0, scale:0.96→1)
+   * 10. bindMagnetic(…)          — magnetic pull on .cta--clay + .cta--ghost CTAs
+   * 11. initLinkUnderlines()     — gold stroke-draw underline on nav/footer links
+   * 12. initAboutCountUp()       — spring overshoot count-up on numeric stat metrics
+   * 13. Sub-hero dot-field       — cursor-reactive ember grid inside .sub-hero__poster
+   * 14. §06 dot-field            — cursor-reactive ember grid behind Key Figures
+   *
+   * Reduced-motion: every imported function is internally gated on
+   * prefersReducedMotion(). Sub-hero cascade degrades to final-state immediately.
+   * Dot-fields and parallax skip entirely; Lenis is never constructed.
+   */
+
+  import { animate, stagger, spring, createTimeline } from 'animejs';
+  import {
+    bootMotion,
+    revealOnEnter,
+    prefersReducedMotion,
+  } from '../scripts/theme-motion';
+  import { initCursor } from '../scripts/motion/cursor';
+  import { initSmoothScroll } from '../scripts/motion/smooth-scroll';
+  import { initParallax, initSignalTravel, initSectionEnter } from '../scripts/motion/scroll-fx';
+  import { revealAll } from '../scripts/motion/text-reveal';
+  import { bindMagnetic, initLinkUnderlines } from '../scripts/motion/magnetic';
+  import { mount as mountDotField } from '../scripts/motion/dot-field';
+
+  // ── Count-up with spring overshoot for .stat-block__value[data-stat-to] ─────
+  // Fires on scroll-enter. Snaps to exact integer on complete.
+  // Attributes:  data-stat-to="100"  data-stat-suffix="%"
+  function initAboutCountUp(): void {
+    if (prefersReducedMotion()) return;
+
+    const els = Array.from(
+      document.querySelectorAll<HTMLElement>('.stat-block__value[data-stat-to]'),
+    );
+    for (const el of els) {
+      const to     = Number(el.dataset.statTo ?? 0);
+      const suffix = el.dataset.statSuffix ?? '';
+      const state  = { val: 0 };
+      let fired    = false;
+
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (!e.isIntersecting || fired) continue;
+            fired = true;
+            animate(state as unknown as Record<string, number>, {
+              val:  [0, to],
+              ease: spring({ stiffness: 160, damping: 14, mass: 1.2, velocity: 0 }),
+              onUpdate() {
+                el.textContent = `${Math.abs(Math.round(state.val))}${suffix}`;
+              },
+              onComplete() {
+                // Snap to exact value on settle
+                el.textContent = `${to}${suffix}`;
+              },
+            });
+            io.unobserve(el);
+          }
+        },
+        { threshold: 0.3 },
+      );
+      io.observe(el);
+    }
+  }
+
+  function init(): void {
+    // ── 1. Page-load boot: HUD brackets + nav ─────────────────────────────────
+    // bootMotion null-checks .hero__content, .hero__title etc — safe for sub-pages.
+    // It still injects HUD corner brackets and fades the .site-header nav in.
+    bootMotion();
+
+    // ── 2. Sub-hero poster spring cascade ─────────────────────────────────────
+    // Poster-hero variant for sub-pages. The cascade mirrors the Home hero boot
+    // timeline but targets SubHero's own class names.
+    const subEyebrow = document.querySelector<HTMLElement>('.sub-hero__eyebrow');
+    const subTitle   = document.querySelector<HTMLElement>('.sub-hero__title');
+    const subEnLabel = document.querySelector<HTMLElement>('.sub-hero__en-label');
+    const subLede    = document.querySelector<HTMLElement>('.sub-hero__lede');
+    const subStats   = document.querySelectorAll<HTMLElement>('.sub-hero__stat');
+    const subCtas    = document.querySelectorAll<HTMLElement>('.sub-hero__ctas > *');
+
+    if (!prefersReducedMotion()) {
+      // Prime initial hidden state before timeline fires
+      [subEyebrow, subTitle, subEnLabel, subLede].forEach((el) => {
+        if (el) { el.style.opacity = '0'; el.style.transform = 'translateY(20px)'; }
+      });
+      subStats.forEach((s) => {
+        s.style.opacity   = '0';
+        s.style.transform = 'translateY(28px)';
+      });
+      subCtas.forEach((c) => {
+        c.style.opacity   = '0';
+        c.style.transform = 'translateY(12px)';
+      });
+
+      const heroTl = createTimeline({ defaults: { ease: 'out(3)' } });
+
+      // 300ms — eyebrow monoline label
+      if (subEyebrow) {
+        heroTl.add(subEyebrow, { opacity: [0, 1], translateY: [12, 0], duration: 380 }, 300);
+      }
+      // 440ms — title springs up from 32px (same spring as Home hero__title)
+      if (subTitle) {
+        heroTl.add(subTitle, {
+          opacity:    [0, 1],
+          translateY: [32, 0],
+          duration:   540,
+          ease:       spring({ stiffness: 260, damping: 22, mass: 0.9 }),
+        }, 440);
+      }
+      // 640ms — en-label subtitle
+      if (subEnLabel) {
+        heroTl.add(subEnLabel, { opacity: [0, 1], translateY: [10, 0], duration: 360 }, 640);
+      }
+      // 740ms — lede paragraph
+      if (subLede) {
+        heroTl.add(subLede, { opacity: [0, 1], translateY: [10, 0], duration: 360 }, 740);
+      }
+      // 860ms — stat strip: stagger each stat cell with spring
+      if (subStats.length) {
+        heroTl.add(subStats, {
+          opacity:    [0, 1],
+          translateY: [28, 0],
+          delay:      stagger(60),
+          duration:   360,
+          ease:       spring({ stiffness: 300, damping: 24 }),
+        }, 860);
+      }
+      // 1020ms — CTA buttons cascade
+      if (subCtas.length) {
+        heroTl.add(subCtas, {
+          opacity:    [0, 1],
+          translateY: [12, 0],
+          delay:      stagger(80),
+          duration:   320,
+        }, 1020);
+      }
+    } else {
+      // Reduced-motion: force all sub-hero content to final state immediately
+      [subEyebrow, subTitle, subEnLabel, subLede].forEach((el) => {
+        if (el) { el.style.opacity = '1'; el.style.transform = 'none'; }
+      });
+      subStats.forEach((s) => { s.style.opacity = '1'; s.style.transform = 'none'; });
+      subCtas.forEach((c)  => { c.style.opacity = '1'; c.style.transform = 'none'; });
+    }
+
+    // ── 3. Custom HUD cursor (gold ring + crosshair, pointer:fine only) ────────
+    initCursor();
+
+    // ── 4. Lenis smooth scroll ─────────────────────────────────────────────────
+    initSmoothScroll();
+
+    // ── 5. Spring word-stagger on section headings ─────────────────────────────
+    // All .section-header__zh h2 elements (§01–§06) split into word spans.
+    // Each word slides up from 110% with spring (stiffness:280, damping:24).
+    // Fires at threshold:0.25 — below-fold sections trigger on scroll-enter.
+    revealAll('.section-header__zh', { mode: 'words', threshold: 0.25, staggerMs: 40 });
+
+    // ── 6. Parallax on ghost numerals ──────────────────────────────────────────
+    // Giant faint numerals (.section-header__numeral) drift at 0.12× scroll speed
+    // — slower than the page for parallax depth. Counter-direction = up (default).
+    document.querySelectorAll<HTMLElement>('.section-header__numeral').forEach((el) => {
+      el.setAttribute('data-parallax', '');
+      el.setAttribute('data-parallax-speed', '0.12');
+    });
+    initParallax();
+
+    // ── 7. Signal-travel down §02 LayerStack ───────────────────────────────────
+    // Finds [data-signal-travel] wrapper, prepends a 3px gold→clay gradient pill,
+    // animates height 0→stackH over 900 ms, lights .layer-chapter__dot as it passes.
+    // Repeats every 6 s while section is in view.
+    initSignalTravel();
+
+    // ── 8. Spring reveal for .prose + .compliance-row ──────────────────────────
+    // translateY:24→0 + opacity with spring(260, 22, 0.9) on scroll-enter.
+    revealOnEnter('.reveal');
+
+    // ── 9. Spring stagger for governance / trust / stat grids ──────────────────
+    // Finds [data-section-enter] wrappers (.governance-grid, .trust-grid, .stat-grid).
+    // Stagger-animates their direct children: translateY:48→0, scale:0.96→1.
+    initSectionEnter();
+
+    // ── 10. Magnetic CTAs ──────────────────────────────────────────────────────
+    // Fine-pointer devices only. Element springs toward cursor within 1.5× bbox,
+    // snaps back with spring(350, 26, 0.8) on leave.
+    document.querySelectorAll<HTMLElement>('.cta--clay, .cta--ghost').forEach((el) => {
+      bindMagnetic(el, { strength: 0.38, maxDisp: 20 });
+    });
+
+    // ── 11. Gold stroke-draw underlines on nav + footer links ──────────────────
+    initLinkUnderlines();
+
+    // ── 12. Spring count-up on numeric stat metrics ─────────────────────────────
+    // Targets .stat-block__value[data-stat-to]. Skips non-numeric values (GB300, ≤4hr).
+    initAboutCountUp();
+
+    // Only mount interactive canvas layers if motion is allowed
+    if (prefersReducedMotion()) return;
+
+    // ── 13. Cursor-reactive ember dot-field behind sub-hero poster ─────────────
+    // Mounted inside .sub-hero__poster (position:absolute;inset:0;z-index:0).
+    // Canvas sits above the static SVG rings but below .sub-hero__inner (z-index:1),
+    // so interactive amber dots appear under the headline text.
+    const subHeroPoster = document.querySelector<HTMLElement>('.sub-hero__poster');
+    if (subHeroPoster) {
+      mountDotField(subHeroPoster, {
+        cols:            26,
+        rows:            14,
+        dotRadius:       1.4,
+        interactRadius:  110,
+      });
+    }
+
+    // ── 14. Cursor-reactive dot-field behind §06 Key Figures ───────────────────
+    // A z:-1 wrapper div is injected as first child of .section--key-figures,
+    // which has isolation:isolate — the wrapper's z:-1 canvas is contained within
+    // the section and renders below SectionHeader + stat-grid content.
+    const keyFigures = document.querySelector<HTMLElement>('.section--key-figures');
+    if (keyFigures) {
+      const kfDotBg = document.createElement('div');
+      kfDotBg.setAttribute('aria-hidden', 'true');
+      kfDotBg.style.cssText =
+        'position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden;';
+      keyFigures.insertBefore(kfDotBg, keyFigures.firstChild);
+      mountDotField(kfDotBg, {
+        cols:            22,
+        rows:            10,
+        dotRadius:       2.2,
+        interactRadius:  130,
+      });
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 </script>
 
 <style>
@@ -337,6 +600,17 @@ const { locale } = Astro.props;
     margin: 0;
   }
 
+  /* ── §06 Key Figures — stacking context for z:-1 dot-field wrapper ─────────
+   * position:relative + isolation:isolate creates a stacking context that
+   * contains the z:-1 dot-field div injected by the page script, keeping the
+   * ember dots visually behind SectionHeader + stat-grid content.
+   */
+  .section--key-figures {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+
   /* ── Stat grid: 4 columns (or 2×2 on tablet) ── */
   .stat-grid {
     display: grid;
@@ -437,6 +711,16 @@ const { locale } = Astro.props;
     .gov-pillar,
     .stat-block {
       transition: none;
+    }
+    /* Sub-hero content: ensure visibility without any transform */
+    .sub-hero__eyebrow,
+    .sub-hero__title,
+    .sub-hero__en-label,
+    .sub-hero__lede,
+    .sub-hero__stat,
+    .sub-hero__ctas > * {
+      opacity: 1 !important;
+      transform: none !important;
     }
   }
 </style>

@@ -1,6 +1,13 @@
 ---
 ---
 
+<!--
+  HeroCanvas — WebGL particle-system mount point.
+  Sits above HeroPoster (z-index 1, starts opacity:0, fades in on first frame).
+  initHero() is called after first paint via requestIdleCallback / setTimeout.
+  Destroyed on pagehide (Astro SPA nav) to release the WebGL context.
+  Under prefers-reduced-motion, initHero() returns a no-op early; poster stays.
+-->
 <canvas id="hero-canvas" class="hero-canvas" aria-hidden="true" tabindex="-1"></canvas>
 
 <script>
@@ -8,17 +15,22 @@
   import { prefersReducedMotion } from '../../scripts/theme-motion';
 
   const canvas = document.getElementById('hero-canvas') as HTMLCanvasElement | null;
+
   if (canvas && !prefersReducedMotion()) {
     const start = () => {
       const handle = initHero(canvas);
-      canvas.classList.add('is-active');
+      // Fade canvas in once the GPU is rendering (next micro-task)
+      requestAnimationFrame(() => canvas.classList.add('is-active'));
+      // Clean up on Astro view-transitions / browser back-forward
       window.addEventListener('pagehide', () => handle.destroy(), { once: true });
     };
+
+    // Lazy-init after first paint so hero text renders without blocking
     if ('requestIdleCallback' in window) {
       (window as unknown as { requestIdleCallback: (cb: () => void, o?: object) => void })
-        .requestIdleCallback(start, { timeout: 2000 });
+        .requestIdleCallback(start, { timeout: 1800 });
     } else {
-      setTimeout(start, 200);
+      setTimeout(start, 160);
     }
   }
 </script>
@@ -31,10 +43,17 @@
     height: 100%;
     display: block;
     opacity: 0;
-    transition: opacity var(--dur-slow) var(--ease-out);
+    transition: opacity var(--dur-slow, 720ms) var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1));
     z-index: 1;
+    /* Prevent any pointer capture that could interfere with page scroll */
+    pointer-events: none;
   }
   .hero-canvas.is-active {
     opacity: 1;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-canvas {
+      display: none;
+    }
   }
 </style>

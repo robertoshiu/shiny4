@@ -64,9 +64,9 @@ const inquiryTypes = (await getCollection('inquiryTypes')).sort(
   </section>
 
   <!-- ── DIRECT.02 直接聯絡 ─────────────────────────────────────── -->
-  <section class="section" id="direct" aria-labelledby="heading-02">
+  <section class="section section--direct" id="direct" aria-labelledby="heading-02">
     <SectionHeader index="02" zh={t('contact.section02.zh', locale)} en={t('contact.section02.en', locale)} />
-    <div class="direct-grid reveal" role="list" aria-label={t('contact.direct.ariaLabel', locale)}>
+    <div class="direct-grid" role="list" aria-label={t('contact.direct.ariaLabel', locale)}>
 
       <!-- Email (primary) -->
       <div class="direct-card" role="listitem">
@@ -110,7 +110,7 @@ const inquiryTypes = (await getCollection('inquiryTypes')).sort(
     <p class="types-intro reveal">
       {t('contact.section03.intro', locale)}
     </p>
-    <div class="inq-grid reveal" role="list" aria-label={t('contact.section03.ariaLabel', locale)}>
+    <div class="inq-grid" role="list" aria-label={t('contact.section03.ariaLabel', locale)}>
       {inquiryTypes.map((type) => (
         <div role="listitem">
           <InquiryTypeCard
@@ -145,13 +145,13 @@ const inquiryTypes = (await getCollection('inquiryTypes')).sort(
         </div>
 
         <div class="cta-stat cta-stat--clay" role="listitem">
-          <span class="cta-stat__value">RTO ≤ 4hr</span>
+          <span class="cta-stat__value">RTO ≤ <span data-count-up data-to="4">4</span>hr</span>
           <span class="cta-stat__label">{t('contact.cta.clay.label', locale)}</span>
           <span class="cta-stat__tag cta-stat__tag--clay" aria-label={t('contact.cta.clay.ariaLabel', locale)}>RESILIENCE</span>
         </div>
 
         <div class="cta-stat cta-stat--sun" role="listitem">
-          <span class="cta-stat__value">SLO ≥ 95%</span>
+          <span class="cta-stat__value">SLO ≥ <span data-count-up data-to="95">95</span>%</span>
           <span class="cta-stat__label">{t('contact.cta.sun.label', locale)}</span>
           <span class="cta-stat__tag cta-stat__tag--sun" aria-label={t('contact.cta.sun.ariaLabel', locale)}>PERFORMANCE</span>
         </div>
@@ -172,8 +172,286 @@ const inquiryTypes = (await getCollection('inquiryTypes')).sort(
 </PageLayout>
 
 <script>
-  import { revealOnEnter } from '../scripts/theme-motion';
-  revealOnEnter('.reveal');
+  /**
+   * ContactContent motion script — full cinematic engine for the Contact page.
+   *
+   * Boot order (all DOMContentLoaded):
+   *  1. bootMotion()        — HUD corner brackets draw-in + nav fade
+   *  2. Sub-hero spring     — eyebrow → title (spring) → en-label → lede → CTAs
+   *  3. initCursor()        — gold ring HUD cursor with crosshair ticks
+   *  4. initSmoothScroll()  — Lenis smooth scroll (no-op under reduced-motion)
+   *  5. revealAll(…)        — spring word-stagger on all section-header h2 elements
+   *  6. initParallax()      — counter-scroll on ghost section numerals
+   *  7. revealOnEnter(…)    — spring reveal for .reveal prose/note blocks
+   *  8. bindMagnetic(…)     — magnetic pull on .cta--clay + .cta-secondary
+   *  9. initLinkUnderlines()— gold stroke-draw underline on hover/focus for links
+   * 10. count-up            — spring overshoot on [data-count-up] numeric spans
+   * 11. hero dot-field      — cursor-reactive ember grid behind sub-hero content
+   * 12. direct dot-field    — cursor-reactive ember grid behind §02 direct section
+   * 13. direct-card stagger — spring stagger cascade on .direct-card entries
+   * 14. inq-card stagger    — spring stagger cascade on .inq-grid card entries
+   *
+   * Reduced-motion: every function is internally gated on prefersReducedMotion().
+   * No timelines run; elements are forced to their final states immediately.
+   */
+
+  import {
+    bootMotion,
+    revealOnEnter,
+    prefersReducedMotion,
+  } from '../scripts/theme-motion';
+  import { initCursor } from '../scripts/motion/cursor';
+  import { initSmoothScroll } from '../scripts/motion/smooth-scroll';
+  import { initParallax } from '../scripts/motion/scroll-fx';
+  import { revealAll } from '../scripts/motion/text-reveal';
+  import { bindMagnetic, initLinkUnderlines } from '../scripts/motion/magnetic';
+  import { mount as mountDotField } from '../scripts/motion/dot-field';
+  import { animate, stagger, spring, createTimeline } from 'animejs';
+
+  function init(): void {
+    // ── 1. Page-load boot: HUD brackets + nav ────────────────────────────────
+    // bootMotion() injects gold SVG corner-bracket decorations, fades the nav,
+    // and checks for .hero__* targets — all absent here, so those steps no-op.
+    bootMotion();
+
+    // ── 2. Sub-hero spring reveal (boot cascade, offset after HUD draw-in) ────
+    // SubHero uses .sub-hero__* classes; bootMotion does not animate them.
+    // This mirrors the Home hero cascade timing: eyebrow → title spring →
+    // en-label → lede → CTAs, starting 350 ms after DOMContentLoaded.
+    if (!prefersReducedMotion()) {
+      const subEyebrow = document.querySelector<HTMLElement>('.sub-hero__eyebrow');
+      const subTitle   = document.querySelector<HTMLElement>('.sub-hero__title');
+      const subEnLabel = document.querySelector<HTMLElement>('.sub-hero__en-label');
+      const subLede    = document.querySelector<HTMLElement>('.sub-hero__lede');
+      const subCtas    = document.querySelectorAll<HTMLElement>('.sub-hero__ctas > *');
+
+      // Set initial hidden states (mirrors bootMotion pattern for .hero__* elements)
+      [subEyebrow, subTitle, subEnLabel, subLede].forEach((el) => {
+        if (el) { el.style.opacity = '0'; el.style.transform = 'translateY(28px)'; }
+      });
+      subCtas.forEach((el) => {
+        el.style.opacity  = '0';
+        el.style.transform = 'translateY(12px)';
+      });
+
+      const tl = createTimeline({ defaults: { ease: 'out(3)' } });
+
+      if (subEyebrow) {
+        tl.add(subEyebrow, { opacity: [0, 1], translateY: [12, 0], duration: 400 }, 350);
+      }
+      if (subTitle) {
+        // Spring block reveal matches Home hero title: stiffness:260, damping:22
+        tl.add(subTitle, {
+          opacity:    [0, 1],
+          translateY: [32, 0],
+          duration:   540,
+          ease:       spring({ stiffness: 260, damping: 22, mass: 0.9 }),
+        }, 460);
+      }
+      if (subEnLabel) {
+        tl.add(subEnLabel, { opacity: [0, 1], translateY: [10, 0], duration: 380 }, 620);
+      }
+      if (subLede) {
+        tl.add(subLede, { opacity: [0, 1], duration: 380 }, 700);
+      }
+      if (subCtas.length) {
+        tl.add(subCtas, {
+          opacity:    [0, 1],
+          translateY: [12, 0],
+          delay:      stagger(80),
+          duration:   320,
+        }, 840);
+      }
+    }
+
+    // ── 3. Custom HUD cursor (gold ring + crosshair, pointer:fine only) ───────
+    initCursor();
+
+    // ── 4. Lenis smooth scroll ────────────────────────────────────────────────
+    initSmoothScroll();
+
+    // ── 5. Spring word-stagger on all section-header h2 elements ─────────────
+    // §00–§03 headings: each word slides up from 110% with spring stagger 40 ms.
+    revealAll('.section-header__zh', { mode: 'words', threshold: 0.25, staggerMs: 40 });
+
+    // ── 6. Parallax on ghost section numerals ─────────────────────────────────
+    // .section-header__numeral overlays drift at 0.12× scroll speed — the giant
+    // faint numerals appear to float slightly slower than the page content.
+    document.querySelectorAll<HTMLElement>('.section-header__numeral').forEach((el) => {
+      el.setAttribute('data-parallax', '');
+      el.setAttribute('data-parallax-speed', '0.12');
+    });
+    initParallax();
+
+    // ── 7. Spring reveal for prose / note blocks (.reveal class) ─────────────
+    // Applies to .process-note, .types-intro, .cta-inner (translateY:24 + opacity).
+    revealOnEnter('.reveal');
+
+    // ── 8. Magnetic pull on clay CTAs + secondary links ──────────────────────
+    // Spring-attracts toward cursor within 1.5× bounding box; snaps back spring.
+    document.querySelectorAll<HTMLElement>('.cta--clay, .cta-secondary').forEach((el) => {
+      bindMagnetic(el, { strength: 0.38, maxDisp: 18 });
+    });
+
+    // ── 9. Gold stroke-draw underlines on nav + footer links ─────────────────
+    initLinkUnderlines();
+
+    // ── 10. Spring count-up on numeric CTA stat values ───────────────────────
+    // Targets [data-count-up][data-to] spans embedded in .cta-stat__value text.
+    // E.g. "RTO ≤ 4hr" → the "4" span counts 0→4 with spring overshoot.
+    const countUpEls = Array.from(
+      document.querySelectorAll<HTMLElement>('[data-count-up][data-to]'),
+    );
+    if (countUpEls.length) {
+      if (prefersReducedMotion()) {
+        // Snap to final value immediately — no animation
+        countUpEls.forEach((el) => {
+          el.textContent = el.dataset.to ?? el.textContent;
+        });
+      } else {
+        countUpEls.forEach((el) => {
+          const to = Number(el.dataset.to ?? 0);
+          el.textContent = '0';
+          let fired = false;
+          const io = new IntersectionObserver(
+            (entries) => {
+              for (const entry of entries) {
+                if (!entry.isIntersecting || fired) continue;
+                fired = true;
+                const state = { val: 0 };
+                // Spring overshoot: briefly exceeds target then settles
+                animate(state as unknown as Record<string, number>, {
+                  val:  [0, to],
+                  ease: spring({ stiffness: 160, damping: 14, mass: 1.2 }),
+                  onUpdate() {
+                    el.textContent = String(Math.abs(Math.round(state.val)));
+                  },
+                  onComplete() {
+                    el.textContent = String(to);
+                  },
+                });
+                io.unobserve(el);
+              }
+            },
+            { threshold: 0.3 },
+          );
+          io.observe(el);
+        });
+      }
+    }
+
+    // Only mount purely decorative canvas effects under full motion
+    if (prefersReducedMotion()) return;
+
+    // ── 11. Cursor-reactive dot-field behind sub-hero content ─────────────────
+    // sub-hero__inner has position:relative + z-index:1 (Astro-scoped CSS),
+    // creating a stacking context. Injecting a z:-1 wrapper as its first child
+    // places the canvas below in-flow text but above the sibling SVG poster (z:0).
+    const subHeroInner = document.querySelector<HTMLElement>('.sub-hero__inner');
+    if (subHeroInner) {
+      const heroDotBg = document.createElement('div');
+      heroDotBg.setAttribute('aria-hidden', 'true');
+      heroDotBg.style.cssText =
+        'position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden;';
+      subHeroInner.insertBefore(heroDotBg, subHeroInner.firstChild);
+      mountDotField(heroDotBg, {
+        cols:           40,
+        rows:           18,
+        dotRadius:      1.4,
+        interactRadius: 120,
+      });
+    }
+
+    // ── 12. Cursor-reactive dot-field behind §02 direct contact section ───────
+    // .section--direct has position:relative + isolation:isolate in scoped CSS,
+    // so the z:-1 dot-field wrapper is contained within the section (mirrors
+    // .section--numbers on Home page §05).
+    const directSection = document.querySelector<HTMLElement>('.section--direct');
+    if (directSection) {
+      const directDotBg = document.createElement('div');
+      directDotBg.setAttribute('aria-hidden', 'true');
+      directDotBg.style.cssText =
+        'position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden;';
+      directSection.insertBefore(directDotBg, directSection.firstChild);
+      mountDotField(directDotBg, {
+        cols:           22,
+        rows:           10,
+        dotRadius:      2.0,
+        interactRadius: 120,
+      });
+    }
+
+    // ── 13. Spring-stagger the direct-contact cards on scroll-enter ───────────
+    // Four .direct-card panels cascade in from translateY(48) + scale(0.97)
+    // with spring easing — NOT a plain opacity fade. Each card delays 70 ms.
+    const directGrid = document.querySelector<HTMLElement>('.direct-grid');
+    const directCards = directGrid
+      ? Array.from(directGrid.querySelectorAll<HTMLElement>('.direct-card'))
+      : [];
+    if (directGrid && directCards.length) {
+      directCards.forEach((c) => {
+        c.style.opacity   = '0';
+        c.style.transform = 'translateY(48px) scale(0.97)';
+      });
+      let firedDirect = false;
+      const directIO = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (!e.isIntersecting || firedDirect) continue;
+            firedDirect = true;
+            animate(directCards, {
+              opacity:    [0, 1],
+              translateY: [48, 0],
+              scale:      [0.97, 1],
+              delay:      stagger(70, { ease: 'out(2)' }),
+              ease:       spring({ stiffness: 220, damping: 22, mass: 1 }),
+            });
+            directIO.disconnect();
+          }
+        },
+        { threshold: 0.15 },
+      );
+      directIO.observe(directGrid);
+    }
+
+    // ── 14. Spring-stagger the five inquiry-type cards on scroll-enter ─────────
+    // Cards lift from translateY(48) + scale(0.97) in rapid editorial sequence.
+    const inqGrid = document.querySelector<HTMLElement>('.inq-grid');
+    const inqCards = inqGrid
+      ? Array.from(inqGrid.querySelectorAll<HTMLElement>(':scope > [role="listitem"]'))
+      : [];
+    if (inqGrid && inqCards.length) {
+      inqCards.forEach((c) => {
+        c.style.opacity   = '0';
+        c.style.transform = 'translateY(48px) scale(0.97)';
+      });
+      let firedInq = false;
+      const inqIO = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (!e.isIntersecting || firedInq) continue;
+            firedInq = true;
+            animate(inqCards, {
+              opacity:    [0, 1],
+              translateY: [48, 0],
+              scale:      [0.97, 1],
+              delay:      stagger(60, { ease: 'out(2)' }),
+              ease:       spring({ stiffness: 220, damping: 22, mass: 1 }),
+            });
+            inqIO.disconnect();
+          }
+        },
+        { threshold: 0.08 },
+      );
+      inqIO.observe(inqGrid);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 </script>
 
 <style>
@@ -189,6 +467,22 @@ const inquiryTypes = (await getCollection('inquiryTypes')).sort(
     line-height: 1.65;
     border-left: 2px solid var(--border-strong);
     padding-left: 1.1rem;
+  }
+
+  /* ─────────────────────────────────────────────────────────────────
+     DIRECT.02 — Stacking context for z:-1 dot-field wrapper
+  ───────────────────────────────────────────────────────────────── */
+
+  /*
+   * position:relative + isolation:isolate creates a stacking context so the
+   * z:-1 dot-field wrapper injected by the page script is contained within
+   * this section — ember dots render BELOW the SectionHeader and direct-grid
+   * content. Mirrors .section--numbers on the Home page.
+   */
+  .section--direct {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
   }
 
   /* ─────────────────────────────────────────────────────────────────

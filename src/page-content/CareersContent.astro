@@ -7,7 +7,7 @@ import JobCard from '../components/JobCard.astro';
 import EngageCTA from '../components/EngageCTA.astro';
 import CTAButton from '../components/CTAButton.astro';
 import { getCollection } from 'astro:content';
-import { t, localized } from '../i18n/utils';
+import { t, localized, withBase } from '../i18n/utils';
 import type { Locale } from '../i18n/utils';
 
 interface Props {
@@ -137,12 +137,16 @@ const principles = [
   },
 ];
 
+/**
+ * norms — countTo/countSuffix drive the spring count-up (initCountUp via .btn__value[data-to]).
+ * Non-numeric values (e.g. "季度") are left without countTo.
+ */
 const norms = [
-  { value: t('careers.norm.0.value', locale), label: t('careers.norm.0.label', locale), sub: t('careers.norm.0.sub', locale), accent: 'sage' as const },
-  { value: t('careers.norm.1.value', locale), label: t('careers.norm.1.label', locale), sub: t('careers.norm.1.sub', locale), accent: 'sage' as const },
-  { value: t('careers.norm.2.value', locale), label: t('careers.norm.2.label', locale), sub: t('careers.norm.2.sub', locale), accent: 'clay' as const },
+  { value: t('careers.norm.0.value', locale), label: t('careers.norm.0.label', locale), sub: t('careers.norm.0.sub', locale), accent: 'sage' as const, countTo: 8 },
+  { value: t('careers.norm.1.value', locale), label: t('careers.norm.1.label', locale), sub: t('careers.norm.1.sub', locale), accent: 'sage' as const, countTo: 1 },
+  { value: t('careers.norm.2.value', locale), label: t('careers.norm.2.label', locale), sub: t('careers.norm.2.sub', locale), accent: 'clay' as const, countTo: 3 },
   { value: t('careers.norm.3.value', locale), label: t('careers.norm.3.label', locale), sub: t('careers.norm.3.sub', locale), accent: 'clay' as const },
-  { value: t('careers.norm.4.value', locale), label: t('careers.norm.4.label', locale), sub: t('careers.norm.4.sub', locale), accent: 'sage' as const },
+  { value: t('careers.norm.4.value', locale), label: t('careers.norm.4.label', locale), sub: t('careers.norm.4.sub', locale), accent: 'sage' as const, countTo: 100, countSuffix: '%' },
 ];
 ---
 
@@ -187,9 +191,14 @@ const norms = [
   <!-- 01 前沿技術，真實場景 -->
   <section class="section" id="why-shinylogic" aria-labelledby="heading-01">
     <SectionHeader index="01" zh={t('careers.section01.zh', locale)} en={t('careers.section01.en', locale)} />
+    <!--
+      tech-domains: spring-stagger handled by springGrid() in page script.
+      Cards animate from translateY(36px) scale(0.97) → final state with stagger 65ms.
+      .reveal class removed to avoid double-animation conflict.
+    -->
     <div class="tech-domains">
       {techDomains.map((d) => (
-        <article class={`tech-domain tech-domain--${d.accent} reveal`} aria-label={d.zh}>
+        <article class={`tech-domain tech-domain--${d.accent}`} aria-label={d.zh}>
           <p class="tech-domain__en">{d.en}</p>
           <h3 class="tech-domain__zh">{d.zh}</h3>
           <p class="tech-domain__desc">{d.desc}</p>
@@ -207,6 +216,10 @@ const norms = [
   <!-- 02 IT智能部，八大職能 -->
   <section class="section" id="team-functions" aria-labelledby="heading-02">
     <SectionHeader index="02" zh={t('careers.section02.zh', locale)} en={t('careers.section02.en', locale)} />
+    <!--
+      team-grid: 8 TeamFunctionCards — spring-stagger via springGrid('.team-grid', '.tfc').
+      Fast 40ms stagger cascades T1→T8 in quick ripple.
+    -->
     <div class="team-grid">
       {teams.map((team) => (
         <TeamFunctionCard
@@ -225,6 +238,10 @@ const norms = [
   <!-- 03 四階段組建，逐步到位 -->
   <section class="section" id="hiring-rhythm" aria-labelledby="heading-03">
     <SectionHeader index="03" zh={t('careers.section03.zh', locale)} en={t('careers.section03.en', locale)} />
+    <!--
+      staffing-phases: 4 phase cards — spring-stagger via springGrid('.staffing-phases', '.sp').
+      P1→P2→P3→P4 cascade at 65ms stagger with spring(240/22/0.9).
+    -->
     <div class="staffing-phases" role="list" aria-label={t('careers.section03.zh', locale)}>
       {staffingPhases.map((p) => (
         <article
@@ -253,13 +270,17 @@ const norms = [
     </div>
   </section>
 
-  <!-- 04 拿授權，拿責任 -->
-  <section class="section" id="culture" aria-labelledby="heading-04">
+  <!-- 04 拿授權，拿責任 — section--culture provides isolation for dot-field canvas -->
+  <section class="section section--culture" id="culture" aria-labelledby="heading-04">
     <SectionHeader index="04" zh={t('careers.section04.zh', locale)} en={t('careers.section04.en', locale)} />
 
+    <!--
+      principles: spring-stagger via springGrid('.principles', '.principle').
+      .reveal class removed — springGrid is the sole animation driver.
+    -->
     <div class="principles">
       {principles.map((p) => (
-        <article class="principle reveal">
+        <article class="principle">
           <span class="principle__num">PRINCIPLE {p.num}</span>
           <h3 class="principle__zh">{p.zh}</h3>
           <p class="principle__body">{p.body}</p>
@@ -267,10 +288,20 @@ const norms = [
       ))}
     </div>
 
+    <!--
+      norms: operating metrics strip.
+      Numeric .norm__value spans get .btn__value + data-to for spring count-up
+      via initCountUp() (spring stiffness:160, damping:14, slight overshoot).
+      Non-numeric norm (index 3, "季度") is left without count-up attrs.
+    -->
     <div class="norms" role="list" aria-label={t('careers.section04.zh', locale)}>
       {norms.map((n) => (
         <div class={`norm norm--${n.accent}`} role="listitem">
-          <span class="norm__value">{n.value}</span>
+          <span
+            class={`norm__value${n.countTo !== undefined ? ' btn__value' : ''}`}
+            data-to={n.countTo !== undefined ? String(n.countTo) : undefined}
+            data-suffix={n.countSuffix}
+          >{n.value}</span>
           <span class="norm__label">{n.label}</span>
           <span class="norm__sub">{n.sub}</span>
           <span class={`norm__tag norm__tag--${n.accent}`}>
@@ -289,6 +320,10 @@ const norms = [
   <!-- 05 代表性職缺 -->
   <section class="section" id="open-roles" aria-labelledby="heading-05">
     <SectionHeader index="05" zh={t('careers.section05.zh', locale)} en={t('careers.section05.en', locale)} />
+    <!--
+      roles-grid: spring-stagger via springGrid('.roles-grid', '.job-card').
+      40ms stagger across N role cards.
+    -->
     <div class="roles-grid">
       {roles.map((r) => (
         <JobCard role={r} locale={locale} />
@@ -300,9 +335,17 @@ const norms = [
   </section>
 
   <!-- APPLY -->
+  <!--
+    apply section: position:relative for .apply__numeral giant faint background digit.
+    .apply__title gets data-reveal="words" for dramatic word-stagger spring reveal.
+    .apply__contact uses withBase() for base-aware href.
+  -->
   <section class="section apply" id="apply" aria-labelledby="apply-heading">
+    <!-- Giant faint background numeral — parallax via data-parallax in page script -->
+    <span class="apply__numeral" aria-hidden="true" data-parallax data-parallax-speed="0.10">06</span>
+
     <p class="apply__en" aria-hidden="true">{t('careers.apply.en', locale)}</p>
-    <h2 id="apply-heading" class="apply__title">{t('careers.apply.title', locale)}</h2>
+    <h2 id="apply-heading" class="apply__title" data-reveal="words">{t('careers.apply.title', locale)}</h2>
     <p class="apply__body">
       {t('careers.apply.bodyPre', locale)}
       <a class="apply__email" href="mailto:hello@shinylogic.tech">hello@shinylogic.tech</a>
@@ -314,7 +357,11 @@ const norms = [
         href="mailto:hello@shinylogic.tech?subject=履歷投遞"
         label={t('careers.apply.cta.apply', locale)}
       />
-      <a class="apply__contact" href="/contact/">{t('careers.apply.contact.label', locale)}</a>
+      <!--
+        data-magnetic: bindMagnetic() pulls this link toward cursor on fine-pointer devices.
+        withBase() makes the href base-aware for both custom-domain and GitHub Pages.
+      -->
+      <a class="apply__contact" href={withBase('/contact/')} data-magnetic>{t('careers.apply.contact.label', locale)}</a>
     </div>
   </section>
 
@@ -322,8 +369,276 @@ const norms = [
 </PageLayout>
 
 <script>
-  import { revealOnEnter } from '../scripts/theme-motion';
-  revealOnEnter('.reveal');
+  /**
+   * CareersContent motion script — full cinematic engine, matching Home page treatment.
+   *
+   * Boot order (all DOMContentLoaded):
+   *  1. bootMotion()           — HUD corner brackets draw-in, nav fade
+   *  2. Sub-hero boot          — eyebrow, title (spring), en-label, lede, stats, CTAs
+   *  3. initCursor()           — gold ring HUD cursor with crosshair ticks
+   *  4. initSmoothScroll()     — Lenis smooth scroll (no-op under reduced-motion)
+   *  5. revealAll(…)           — spring word-stagger on ALL section-header h2 elements
+   *  6. initParallax()         — counter-scroll on ghost numerals (+ apply__numeral)
+   *  7. springGrid(…)          — spring stagger for each card grid (tech, team, phases,
+   *                              principles, roles, apply body content)
+   *  8. initCountUp()          — spring overshoot count-up on .btn__value[data-to] norm values
+   *  9. revealAll('[data-reveal]') — word-stagger on apply title
+   * 10. bindMagnetic(…)        — magnetic pull on .cta--clay + .apply__contact
+   * 11. initLinkUnderlines()   — gold stroke-draw underline on hover/focus for links
+   * 12. hero dot-field         — cursor-reactive ember grid behind sub-hero content
+   * 13. §04 dot-field          — cursor-reactive ember grid behind culture/norms section
+   *
+   * Reduced-motion: every function is gated on prefersReducedMotion(); degrades to
+   * static final-state immediately with no IO/timeline overhead.
+   * Performance: DPR≤2, RAF-paused offscreen via IntersectionObserver.
+   */
+
+  import {
+    bootMotion,
+    revealOnEnter,
+    prefersReducedMotion,
+  } from '../scripts/theme-motion';
+  import { initCursor } from '../scripts/motion/cursor';
+  import { initSmoothScroll } from '../scripts/motion/smooth-scroll';
+  import { initParallax, initCountUp } from '../scripts/motion/scroll-fx';
+  import { revealAll } from '../scripts/motion/text-reveal';
+  import { bindMagnetic, initLinkUnderlines } from '../scripts/motion/magnetic';
+  import { mount as mountDotField } from '../scripts/motion/dot-field';
+  import { animate, stagger, spring, createTimeline } from 'animejs';
+
+  /**
+   * springGrid — spring-stagger grid children on parent section-enter.
+   *
+   * Observes each element matching containerSel; when it enters viewport at
+   * threshold 0.1, spring-staggers all matching childSel inside it with:
+   *   translateY: 36→0, scale: 0.97→1, opacity: 0→1
+   *   spring(stiffness:240, damping:22, mass:0.9) + stagger(staggerMs)
+   *
+   * Under reduced-motion: sets all children to final state immediately.
+   */
+  function springGrid(containerSel: string, childSel: string, staggerMs = 55): void {
+    const containers = Array.from(document.querySelectorAll<HTMLElement>(containerSel));
+    if (containers.length === 0) return;
+
+    if (prefersReducedMotion()) {
+      containers.forEach((container) => {
+        Array.from(container.querySelectorAll<HTMLElement>(childSel)).forEach((c) => {
+          c.style.opacity = '1';
+          c.style.transform = 'none';
+        });
+      });
+      return;
+    }
+
+    for (const container of containers) {
+      const children = Array.from(container.querySelectorAll<HTMLElement>(childSel));
+      if (children.length === 0) continue;
+
+      // Set initial hidden state
+      children.forEach((c) => {
+        c.style.opacity = '0';
+        c.style.transform = 'translateY(36px) scale(0.97)';
+      });
+
+      let fired = false;
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (!e.isIntersecting || fired) continue;
+            fired = true;
+            animate(children, {
+              opacity:    [0, 1],
+              translateY: [36, 0],
+              scale:      [0.97, 1],
+              delay:      stagger(staggerMs, { ease: 'out(2)' }),
+              ease:       spring({ stiffness: 240, damping: 22, mass: 0.9 }),
+            });
+            io.disconnect();
+          }
+        },
+        { threshold: 0.1 },
+      );
+      io.observe(container);
+    }
+  }
+
+  function init(): void {
+    // ── 1. Page-load boot: HUD brackets + nav ────────────────────────────────
+    // bootMotion safely no-ops on targets that don't exist on this page
+    // (no .hero__content / .hero__title). It still draws HUD corner brackets
+    // and fades the nav in — both present on every page.
+    bootMotion();
+
+    // ── 2. Sub-hero boot timeline ─────────────────────────────────────────────
+    // Cinematic cascade for SubHero elements: eyebrow → title (spring) →
+    // en-label → lede → stats strip → CTAs. Starts at 380ms to let the
+    // HUD brackets finish drawing first.
+    if (!prefersReducedMotion()) {
+      const subEyebrow = document.querySelector<HTMLElement>('.sub-hero__eyebrow');
+      const subTitle   = document.querySelector<HTMLElement>('.sub-hero__title');
+      const subEnLabel = document.querySelector<HTMLElement>('.sub-hero__en-label');
+      const subLede    = document.querySelector<HTMLElement>('.sub-hero__lede');
+      const subStats   = document.querySelector<HTMLElement>('.sub-hero__stats');
+      const subCtas    = document.querySelector<HTMLElement>('.sub-hero__ctas');
+
+      // Set initial hidden states
+      if (subEyebrow) { subEyebrow.style.opacity = '0'; }
+      if (subTitle)   { subTitle.style.opacity = '0'; subTitle.style.transform = 'translateY(28px)'; }
+      if (subEnLabel) { subEnLabel.style.opacity = '0'; }
+      if (subLede)    { subLede.style.opacity = '0'; }
+      if (subStats)   { subStats.style.opacity = '0'; subStats.style.transform = 'translateY(16px)'; }
+      if (subCtas)    { subCtas.style.opacity = '0'; }
+
+      const heroTl = createTimeline({ defaults: { ease: 'out(3)' } });
+      if (subEyebrow) {
+        heroTl.add(subEyebrow, { opacity: [0, 1], translateY: [12, 0], duration: 380 }, 380);
+      }
+      if (subTitle) {
+        heroTl.add(subTitle, {
+          opacity:    [0, 1],
+          translateY: [28, 0],
+          duration:   520,
+          ease:       spring({ stiffness: 260, damping: 22, mass: 0.9 }),
+        }, 470);
+      }
+      if (subEnLabel) {
+        heroTl.add(subEnLabel, { opacity: [0, 1], duration: 320 }, 640);
+      }
+      if (subLede) {
+        heroTl.add(subLede, { opacity: [0, 1], duration: 380 }, 700);
+      }
+      if (subStats) {
+        heroTl.add(subStats, {
+          opacity:    [0, 1],
+          translateY: [16, 0],
+          duration:   380,
+          ease:       spring({ stiffness: 300, damping: 24 }),
+        }, 780);
+      }
+      if (subCtas) {
+        heroTl.add(subCtas, { opacity: [0, 1], duration: 280 }, 920);
+      }
+    } else {
+      // Reduced-motion: force final states on sub-hero elements
+      ['.sub-hero__eyebrow', '.sub-hero__title', '.sub-hero__en-label',
+       '.sub-hero__lede', '.sub-hero__stats', '.sub-hero__ctas'].forEach((sel) => {
+        const el = document.querySelector<HTMLElement>(sel);
+        if (el) { el.style.opacity = '1'; el.style.transform = 'none'; }
+      });
+    }
+
+    // ── 3. Custom HUD cursor (gold ring + crosshair, pointer:fine only) ───────
+    initCursor();
+
+    // ── 4. Lenis smooth scroll ────────────────────────────────────────────────
+    initSmoothScroll();
+
+    // ── 5. Spring word-stagger on section headings ────────────────────────────
+    // All .section-header__zh h2 elements (§01–§05) split into word spans.
+    // Each word slides up from 110% with spring(280, 24, 0.9).
+    // Fires at threshold:0.25 — well after bootMotion finishes the hero.
+    revealAll('.section-header__zh', { mode: 'words', threshold: 0.25, staggerMs: 40 });
+
+    // ── 6. Parallax on ghost numerals + apply__numeral ────────────────────────
+    // Ghost numerals (.section-header__numeral) drift at 0.12× scroll speed.
+    // The apply section's giant "06" drifts at 0.10× (set via data-parallax-speed
+    // in the HTML; we also add data-parallax here to the section numerals).
+    document.querySelectorAll<HTMLElement>('.section-header__numeral').forEach((el) => {
+      el.setAttribute('data-parallax', '');
+      el.setAttribute('data-parallax-speed', '0.12');
+    });
+    initParallax();
+
+    // ── 7. Spring-stagger for all card grids ──────────────────────────────────
+    // Each grid fires independently when its section scrolls into view.
+    // Cards spring from translateY(36px) scale(0.97) → origin with stagger.
+
+    // §01 — Tech domain cards (4 cards, 65ms stagger)
+    springGrid('.tech-domains', '.tech-domain', 65);
+
+    // §02 — Team function cards (8 cards, 40ms = fast ripple T1→T8)
+    springGrid('.team-grid', '.tfc', 40);
+
+    // §03 — Staffing phase cards (4 cards, 65ms P1→P4 cascade)
+    springGrid('.staffing-phases', '.sp', 65);
+
+    // §04 — Culture principle cards (3 cards, 80ms stagger)
+    springGrid('.principles', '.principle', 80);
+
+    // §05 — Open role cards (N cards, 40ms stagger)
+    springGrid('.roles-grid', '.job-card', 40);
+
+    // APPLY — body content cascade (en label → body → actions, 80ms stagger)
+    springGrid('.apply', '.apply__en, .apply__body, .apply__actions', 80);
+
+    // ── 8. Spring count-up on operating norm values ───────────────────────────
+    // .btn__value[data-to] elements in the norms strip count up with spring
+    // overshoot (stiffness:160, damping:14, mass:1.2). The ≤/≥ prefix symbols
+    // stroke-draw in first if present.
+    initCountUp();
+
+    // ── 9. Word-stagger reveal on the apply CTA title ────────────────────────
+    // .apply__title has data-reveal="words". Fires at threshold:0.3 — a dramatic
+    // reveal as the big CTA heading enters frame.
+    revealAll('[data-reveal]', { threshold: 0.3 });
+
+    // ── 10. Magnetic pull on clay CTAs + apply contact link ──────────────────
+    // On fine-pointer devices only. Element springs toward cursor within 1.5×
+    // bounding box, snaps back with spring(350, 26, 0.8) on leave.
+    document.querySelectorAll<HTMLElement>('.cta--clay, .apply__contact').forEach((el) => {
+      bindMagnetic(el, { strength: 0.38, maxDisp: 20 });
+    });
+
+    // ── 11. Gold stroke-draw underlines on nav + footer links ─────────────────
+    initLinkUnderlines();
+
+    // ── Only mount dot-fields if motion is allowed ────────────────────────────
+    if (prefersReducedMotion()) return;
+
+    // ── 12. Cursor-reactive ember dot-field behind sub-hero content ───────────
+    // Injected as z:-1 inside .sub-hero__inner (position:relative; z-index:1),
+    // which creates a stacking context. The canvas renders BELOW the in-flow
+    // text but ABOVE the static SVG poster backdrop.
+    const subHeroInner = document.querySelector<HTMLElement>('.sub-hero__inner');
+    if (subHeroInner) {
+      const heroDotBg = document.createElement('div');
+      heroDotBg.setAttribute('aria-hidden', 'true');
+      heroDotBg.style.cssText =
+        'position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden;';
+      subHeroInner.insertBefore(heroDotBg, subHeroInner.firstChild);
+      mountDotField(heroDotBg, {
+        cols:           32,
+        rows:           16,
+        dotRadius:      1.5,
+        interactRadius: 110,
+      });
+    }
+
+    // ── 13. Cursor-reactive dot-field behind §04 culture/norms section ────────
+    // .section--culture has isolation:isolate (CSS) which creates a stacking
+    // context. The z:-1 wrapper canvas is contained here, rendering ember dots
+    // BELOW the SectionHeader and principles/norms in-flow content.
+    const cultureSection = document.querySelector<HTMLElement>('.section--culture');
+    if (cultureSection) {
+      const cultureDotBg = document.createElement('div');
+      cultureDotBg.setAttribute('aria-hidden', 'true');
+      cultureDotBg.style.cssText =
+        'position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden;';
+      cultureSection.insertBefore(cultureDotBg, cultureSection.firstChild);
+      mountDotField(cultureDotBg, {
+        cols:           20,
+        rows:           10,
+        dotRadius:      2.2,
+        interactRadius: 130,
+      });
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 </script>
 
 <style>
@@ -573,6 +888,18 @@ const norms = [
   .sp__accent-label--sun  { color: var(--sun);  }
   .sp__accent-label--clay { color: var(--clay); }
 
+  /* ── 04 Culture section — stacking context for z:-1 dot-field ──────────── */
+  /*
+   * position:relative + isolation:isolate creates a stacking context so
+   * the z:-1 dot-field wrapper injected by the page script is contained
+   * here, rendering ember dots BELOW principles/norms in-flow content.
+   */
+  .section--culture {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+
   /* ── 04 Principles ── */
   .principles {
     display: grid;
@@ -750,8 +1077,38 @@ const norms = [
   }
 
   /* ── APPLY section ── */
+  /*
+   * position:relative + overflow:hidden contain the .apply__numeral giant faint
+   * background digit (position:absolute) and its parallax transform.
+   */
   .apply {
     text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /*
+   * Giant faint background numeral "06" — parallax-shifted by initParallax()
+   * (data-parallax + data-parallax-speed="0.10" in HTML).
+   * Font-size clamp creates a large editorial digit without breaking layout.
+   */
+  .apply__numeral {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+    font-family: var(--font-display);
+    font-size: clamp(8rem, 26vw, 20rem);
+    font-weight: 900;
+    line-height: 1;
+    color: var(--ink);
+    opacity: 0.025;
+    pointer-events: none;
+    user-select: none;
+    white-space: nowrap;
+    z-index: 0;
+    /* Optical-size axis for maximum drama */
+    font-variation-settings: 'opsz' 144;
   }
 
   .apply__en {
@@ -760,11 +1117,15 @@ const norms = [
     letter-spacing: 0.22em;
     color: var(--sun);
     margin: 0 0 1rem;
+    position: relative;
+    z-index: 1;
   }
 
   .apply__title {
     font-size: clamp(2rem, 6vw, 3.5rem);
     margin: 0 0 1.25rem;
+    position: relative;
+    z-index: 1;
   }
 
   .apply__body {
@@ -773,6 +1134,8 @@ const norms = [
     max-width: 52ch;
     margin: 0 auto 2.5rem;
     line-height: 1.65;
+    position: relative;
+    z-index: 1;
   }
 
   .apply__email {
@@ -788,6 +1151,8 @@ const norms = [
     gap: 1.25rem;
     justify-content: center;
     align-items: center;
+    position: relative;
+    z-index: 1;
   }
 
   .apply__contact {
@@ -810,8 +1175,17 @@ const norms = [
     .tech-domain,
     .sp,
     .principle,
-    .norm {
+    .norm,
+    .tfc,
+    .job-card {
       transition: none;
     }
+
+    /* apply__numeral: no parallax shift (transform stays neutral) */
+    .apply__numeral {
+      translate: -50% -50%;
+    }
+
+    /* Dot-fields are never mounted under reduced-motion (handled in script). */
   }
 </style>
