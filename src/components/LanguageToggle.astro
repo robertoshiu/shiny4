@@ -1,0 +1,62 @@
+---
+import type { Locale } from '../i18n/utils';
+interface Props {
+  locale: Locale;
+  path?: string;
+}
+const { locale, path = '/' } = Astro.props;
+// 繁中 is unprefixed at root; localized variants live under /en and /zh-hans (Plan 3).
+const segs = [
+  { code: 'zh-Hant', label: '繁', href: path },
+  { code: 'en', label: 'EN', href: `/en${path}` },
+  { code: 'zh-Hans', label: '简', href: `/zh-hans${path}` },
+] as const;
+---
+
+<div class="lang-toggle" role="group" aria-label="語言選擇">
+  {
+    segs.map((s) =>
+      s.code === locale ? (
+        <span class="lang-toggle__seg is-active" aria-current="true">
+          {s.label}
+        </span>
+      ) : (
+        <a class="lang-toggle__seg" href={s.href} hreflang={s.code} lang={s.code}>
+          {s.label}
+        </a>
+      ),
+    )
+  }
+</div>
+
+<style>
+  .lang-toggle {
+    display: inline-flex;
+    border: 1px solid var(--border-strong);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .lang-toggle__seg {
+    min-width: 44px;
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.4rem 0.7rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    text-decoration: none;
+    color: var(--ink-muted);
+  }
+  .lang-toggle__seg.is-active {
+    background: var(--surface-raised);
+    color: var(--sun);
+  }
+  .lang-toggle__seg:not(.is-active):hover {
+    color: var(--ink);
+  }
+  .lang-toggle__seg:focus-visible {
+    outline: 2px solid var(--sun);
+    outline-offset: -2px;
+  }
+</style>

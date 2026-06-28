@@ -1,0 +1,46 @@
+---
+const text = 'FAB300 REFERENCE BUILD · IT/OT+AI 全棧整合 · 直接交付晶圓廠 · 100% 歸檔';
+---
+
+<div class="ticker" aria-hidden="true">
+  <div class="ticker__track">
+    <span>{text}</span>
+    <span>{text}</span>
+  </div>
+</div>
+
+<style>
+  .ticker {
+    overflow: hidden;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 0.6rem 0;
+  }
+  .ticker__track {
+    display: inline-flex;
+    white-space: nowrap;
+    animation: ticker 40s linear infinite;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--ink-muted);
+  }
+  .ticker__track span {
+    padding-right: 3rem;
+  }
+  @keyframes ticker {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  :global(html.reduced-motion) .ticker__track {
+    animation: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ticker__track {
+      animation: none;
+    }
+  }
+</style>

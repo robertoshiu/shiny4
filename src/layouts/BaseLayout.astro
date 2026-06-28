@@ -1,0 +1,58 @@
+---
+import '../styles/tokens.css';
+import '../styles/fonts.css';
+import '../styles/global.css';
+import SkipLink from '../components/SkipLink.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import type { Locale } from '../i18n/utils';
+
+interface Props {
+  title: string;
+  description: string;
+  locale?: Locale;
+}
+const { title, description, locale = 'zh-Hant' } = Astro.props;
+const htmlLang = locale === 'zh-Hans' ? 'zh-Hans' : locale === 'en' ? 'en' : 'zh-Hant';
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const ogImage = new URL('/og-image.png', Astro.site).href;
+---
+
+<!doctype html>
+<html lang={htmlLang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <link rel="alternate" hreflang="zh-Hant" href={new URL('/', Astro.site).href} />
+    <link rel="alternate" hreflang="en" href={new URL('/en/', Astro.site).href} />
+    <link rel="alternate" hreflang="zh-Hans" href={new URL('/zh-hans/', Astro.site).href} />
+    <link rel="alternate" hreflang="x-default" href={new URL('/', Astro.site).href} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&family=Nunito+Sans:wght@400;600;700&family=Spline+Sans+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <script is:inline>
+      try {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          document.documentElement.classList.add('reduced-motion');
+        }
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <SkipLink locale={locale} />
+    <Header locale={locale} />
+    <slot />
+    <Footer locale={locale} />
+  </body>
+</html>

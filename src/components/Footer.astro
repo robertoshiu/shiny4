@@ -1,0 +1,111 @@
+---
+import FooterTicker from './FooterTicker.astro';
+import LanguageToggle from './LanguageToggle.astro';
+import type { Locale } from '../i18n/utils';
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+---
+
+<footer class="site-footer">
+  <FooterTicker />
+  <div class="site-footer__inner">
+    <div class="site-footer__brand">
+      <p class="site-footer__name">SHINYLOGIC 顯藝科技</p>
+      <p class="site-footer__tagline">
+        We build the intelligence layer of the modern wafer fab. 把設備數據，鍛造成可決策的智能。
+      </p>
+    </div>
+    <nav class="site-footer__col" aria-label="公司">
+      <p class="site-footer__h">公司</p>
+      <a href="/about/">關於</a>
+      <a href="/careers/">招募</a>
+    </nav>
+    <nav class="site-footer__col" aria-label="能力">
+      <p class="site-footer__h">能力</p>
+      <a href="/solutions/">解決方案</a>
+      <a href="/technology/">技術</a>
+      <a href="/methodology/">方法論</a>
+    </nav>
+    <div class="site-footer__col">
+      <p class="site-footer__h">聯絡</p>
+      <a href="mailto:hello@shinylogic.tech">hello@shinylogic.tech</a>
+      <div class="site-footer__lang">
+        <p class="site-footer__h">語言 / LANGUAGE</p>
+        <LanguageToggle locale={locale} path="/" />
+      </div>
+    </div>
+  </div>
+  <div class="site-footer__legal">
+    <span>交付範疇依合約確認</span>
+    <span>© 2026 顯藝科技 ShinyLogic. All rights reserved.</span>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--bg-deep);
+    border-top: 1px solid var(--border);
+  }
+  .site-footer__inner {
+    max-width: var(--maxw);
+    margin-inline: auto;
+    padding: clamp(3rem, 7vw, 5rem) var(--gutter);
+    display: grid;
+    gap: 2.5rem;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 768px) {
+    .site-footer__inner {
+      grid-template-columns: 2fr 1fr 1fr 1.5fr;
+    }
+  }
+  .site-footer__name {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    margin: 0 0 0.75rem;
+  }
+  .site-footer__tagline {
+    color: var(--ink-muted);
+    max-width: 36ch;
+  }
+  .site-footer__col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .site-footer__col a {
+    color: var(--ink-muted);
+    text-decoration: none;
+  }
+  .site-footer__col a:hover {
+    color: var(--ink);
+  }
+  .site-footer__h {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    margin: 0 0 0.3rem;
+  }
+  .site-footer__lang {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .site-footer__legal {
+    max-width: var(--maxw);
+    margin-inline: auto;
+    padding: 1.5rem var(--gutter);
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+  }
+</style>

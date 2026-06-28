@@ -1,0 +1,30 @@
+---
+import { t } from '../i18n/utils';
+import type { Locale } from '../i18n/utils';
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+---
+
+<a class="skip-link" href="#main-content">{t('aria.skipToContent', locale)}</a>
+
+<style>
+  .skip-link {
+    position: absolute;
+    left: 1rem;
+    top: -3.5rem;
+    z-index: 100;
+    background: var(--surface-raised);
+    color: var(--ink);
+    padding: 0.6rem 1rem;
+    border-radius: 2px;
+    text-decoration: none;
+    transition: top var(--dur-quick) var(--ease-out);
+  }
+  .skip-link:focus {
+    top: 1rem;
+    outline: 2px solid var(--sun);
+    outline-offset: 2px;
+  }
+</style>

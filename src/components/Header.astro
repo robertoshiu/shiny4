@@ -1,0 +1,182 @@
+---
+import Nav from './Nav.astro';
+import LanguageToggle from './LanguageToggle.astro';
+import CTAButton from './CTAButton.astro';
+import { t } from '../i18n/utils';
+import type { Locale } from '../i18n/utils';
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+---
+
+<header class="site-header" data-header>
+  <div class="site-header__inner">
+    <a class="brand" href="/" aria-label="SHINYLOGIC 顯藝科技 首頁">
+      <span class="brand__name">SHINYLOGIC</span>
+      <span class="brand__zh">顯藝科技</span>
+      <span class="brand__sub" aria-hidden="true">INTELLIGENT WAFER FAB SYSTEMS</span>
+    </a>
+    <div class="site-header__desktop">
+      <Nav locale={locale} />
+      <LanguageToggle locale={locale} path="/" />
+      <CTAButton variant="clay" href="/contact/" label={t('cta.consult', locale)} />
+    </div>
+    <button
+      class="site-header__burger"
+      data-burger
+      aria-expanded="false"
+      aria-controls="mobile-drawer"
+      aria-label={t('aria.openMenu', locale)}
+    >
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+
+  <div class="drawer" id="mobile-drawer" data-drawer hidden>
+    <Nav locale={locale} />
+    <div class="drawer__footer">
+      <LanguageToggle locale={locale} path="/" />
+      <CTAButton variant="clay" href="/contact/" label={t('cta.consult', locale)} />
+    </div>
+  </div>
+</header>
+
+<script>
+  const header = document.querySelector('[data-header]') as HTMLElement;
+  const burger = document.querySelector('[data-burger]') as HTMLButtonElement;
+  const drawer = document.querySelector('[data-drawer]') as HTMLElement;
+
+  // Scroll state: surface past hero + hide-on-down / reveal-on-up.
+  let lastY = window.scrollY;
+  function onScroll() {
+    const y = window.scrollY;
+    header.classList.toggle('is-scrolled', y > 80);
+    if (y > lastY && y > 200) header.classList.add('is-hidden');
+    else header.classList.remove('is-hidden');
+    lastY = y;
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  // Mobile drawer.
+  function setOpen(open: boolean) {
+    burger.setAttribute('aria-expanded', String(open));
+    if (open) {
+      drawer.hidden = false;
+      document.body.style.overflow = 'hidden';
+    } else {
+      drawer.hidden = true;
+      document.body.style.overflow = '';
+    }
+  }
+  burger.addEventListener('click', () =>
+    setOpen(burger.getAttribute('aria-expanded') !== 'true'),
+  );
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') setOpen(false);
+  });
+  drawer.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).closest('a')) setOpen(false);
+  });
+</script>
+
+<style>
+  .site-header {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 50;
+    transition:
+      transform var(--dur-base) var(--ease-out),
+      background-color var(--dur-base) var(--ease-out),
+      border-color var(--dur-base) var(--ease-out);
+    border-bottom: 1px solid transparent;
+  }
+  .site-header.is-scrolled {
+    background: color-mix(in srgb, var(--surface) 88%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom-color: var(--border-strong);
+  }
+  .site-header.is-hidden {
+    transform: translateY(-100%);
+  }
+  .site-header__inner {
+    max-width: var(--maxw);
+    margin-inline: auto;
+    padding: 1rem var(--gutter);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+  .brand {
+    display: grid;
+    text-decoration: none;
+    line-height: 1.05;
+  }
+  .brand__name {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 1.15rem;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+  }
+  .brand__zh {
+    font-family: var(--font-serif-tc);
+    font-size: 0.95rem;
+    color: var(--ink);
+  }
+  .brand__sub {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    color: var(--ink-faint);
+    margin-top: 0.2rem;
+  }
+  .site-header__desktop {
+    display: none;
+    align-items: center;
+    gap: clamp(1rem, 2.5vw, 2rem);
+  }
+  .site-header__burger {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 5px;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid var(--border-strong);
+    border-radius: 2px;
+    cursor: pointer;
+  }
+  .site-header__burger span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: var(--ink);
+  }
+  .drawer {
+    background: var(--bg-deep);
+    border-top: 1px solid var(--border);
+    padding: 2rem var(--gutter) 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  .drawer__footer {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: flex-start;
+  }
+  @media (min-width: 768px) {
+    .site-header__desktop {
+      display: flex;
+    }
+    .site-header__burger,
+    .drawer {
+      display: none;
+    }
+  }
+</style>
