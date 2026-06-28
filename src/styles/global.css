@@ -65,6 +65,17 @@ canvas {
   padding: clamp(4rem, 10vw, 8rem) var(--gutter);
 }
 
+/* Label / kicker / mono-nav utility.
+   --ink-faint (#6e6157) fails AA at small sizes; .label uses --ink-muted
+   (#a9988a on #14100d ≈ 5.5:1) and enforces a minimum legible size. */
+.label {
+  font-size: 0.8125rem; /* 13px */
+  font-family: var(--font-mono);
+  color: var(--ink-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 /* Progressive-enhancement reveal: visible by default (no-JS safe). JS sets the
    hidden initial state only when motion is allowed. */
 .reveal {

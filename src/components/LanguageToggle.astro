@@ -38,7 +38,7 @@ const segs = [
   }
   .lang-toggle__seg {
     min-width: 44px;
-    min-height: 36px;
+    min-height: 44px; /* WCAG 2.5.5 — was 36px, too small */
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -56,7 +56,10 @@ const segs = [
     color: var(--ink);
   }
   .lang-toggle__seg:focus-visible {
-    outline: 2px solid var(--sun);
-    outline-offset: -2px;
+    /* Use inset box-shadow instead of outline — parent overflow:hidden clips
+       child outlines in some browsers. Sun (#E9C46A) on dark bg ≈12:1;
+       on surface-raised (#2a2018) ≈10.5:1. Both well above 3:1. */
+    outline: none;
+    box-shadow: inset 0 0 0 2px var(--sun);
   }
 </style>

@@ -48,6 +48,10 @@ const slas = (await getCollection('slas')).sort((a, b) => a.data.order - b.data.
     gap: 1px;
     background: var(--border);
     border: 1px solid var(--border);
+    /* Direction C: restrained elevation */
+    box-shadow:
+      0 2px 8px rgba(0, 0, 0, 0.3),
+      0 8px 32px rgba(0, 0, 0, 0.25);
   }
   @media (min-width: 768px) {
     .sla-strip {
@@ -60,6 +64,16 @@ const slas = (await getCollection('slas')).sort((a, b) => a.data.order - b.data.
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
+  }
+  /* Accent hairline: inset so it never fights the 1px gap-border trick */
+  .sla--clay {
+    box-shadow: inset 0 2px 0 var(--clay);
+  }
+  .sla--gold {
+    box-shadow: inset 0 2px 0 var(--sun);
+  }
+  .sla--sage {
+    box-shadow: inset 0 2px 0 var(--sage);
   }
   .sla__value {
     font-family: var(--font-mono);

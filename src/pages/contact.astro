@@ -1,0 +1,503 @@
+---
+/**
+ * Contact 預約諮詢 — /contact/
+ *
+ * Primary conversion page. Section order per §7[7] of the design spec:
+ *   SubHero (N24°08′ E120°41′)
+ *   → ENGAGE.00 四步交付流程  (ProcessSteps)
+ *   → FORM.01   諮詢表單      (ContactForm)
+ *   → DIRECT.02 直接聯絡      (handcrafted contact block)
+ *   → INFO.03   諮詢類型說明  (InquiryTypeCard ×5)
+ *   → CTA       3 stat badges + 2 CTAs + coordinate
+ *   → footer (global, via BaseLayout)
+ *
+ * Tri-accent rule (locked tokens, DESIGN.md):
+ *   clay  → resilience / DR   (RTO/RPO)
+ *   sun   → service / perf    (SLO / response time / process SLA step)
+ *   sage  → coverage / gov    (100% 歸檔 / languages / process archive step)
+ * All accent colours are accompanied by a text label — enforced throughout.
+ */
+
+import PageLayout from '../layouts/PageLayout.astro';
+import SubHero from '../components/SubHero.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import ProcessSteps from '../components/ProcessSteps.astro';
+import ContactForm from '../components/ContactForm.astro';
+import InquiryTypeCard from '../components/InquiryTypeCard.astro';
+import CTAButton from '../components/CTAButton.astro';
+import HudCoordinate from '../components/HudCoordinate.astro';
+import { getCollection } from 'astro:content';
+
+const locale = 'zh-Hant' as const;
+
+const inquiryTypes = (await getCollection('inquiryTypes')).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+---
+
+<PageLayout
+  title="預約諮詢 — 顯藝科技 SHINYLOGIC"
+  description="與顯藝科技展開規劃對談：釐清 IT/OT+AI 全棧需求、L1–L6 交付範圍、SLA 指標與 Gate 里程碑。服務據點：臺灣新竹，兩個工作天內回覆。"
+  locale={locale}
+>
+  <!-- ── Hero ─────────────────────────────────────────────────────── -->
+  <Fragment slot="hero">
+    <SubHero
+      eyebrow="09 · ENGAGE"
+      zhTitle="規劃您的智能晶圓廠"
+      enLabel="CONTACT // PLAN YOUR INTELLIGENT WAFER FAB"
+      lede="與我們展開一通對談，釐清建置需求與全棧交付範圍。服務據點：臺灣 · 新竹 · N 24°08′ E 120°41′。"
+      ctas={[
+        { href: '#form',    label: '填寫諮詢表單',   variant: 'clay'  },
+        { href: '#direct',  label: '直接寄信聯絡',   variant: 'ghost' },
+      ]}
+    />
+  </Fragment>
+
+  <!-- ── ENGAGE.00 四步交付流程 ─────────────────────────────────── -->
+  <section class="section" id="process" aria-labelledby="heading-00">
+    <SectionHeader index="00" zh="四步交付流程" en="FOUR-STEP PROCESS" />
+    <ProcessSteps />
+    <p class="process-note reveal">
+      競爭基準是貴廠的內部自建團隊 —— 我們提供的是委外給專業全棧團隊的替代選項，從首次對談到 100% 歸檔，全程透明無灰色地帶。
+    </p>
+  </section>
+
+  <!-- ── FORM.01 諮詢表單 ────────────────────────────────────────── -->
+  <section class="section" id="form" aria-labelledby="heading-01">
+    <SectionHeader index="01" zh="諮詢表單" en="INQUIRY FORM" />
+    <ContactForm />
+  </section>
+
+  <!-- ── DIRECT.02 直接聯絡 ─────────────────────────────────────── -->
+  <section class="section" id="direct" aria-labelledby="heading-02">
+    <SectionHeader index="02" zh="直接聯絡" en="DIRECT CONTACT" />
+    <div class="direct-grid reveal" role="list" aria-label="聯絡資訊">
+
+      <!-- Email (primary) -->
+      <div class="direct-card" role="listitem">
+        <p class="direct-card__kicker">電子郵件 · EMAIL</p>
+        <a class="direct-card__value direct-card__email" href="mailto:hello@shinylogic.tech">
+          hello@shinylogic.tech
+        </a>
+        <p class="direct-card__sub">寄送諮詢、媒體或招募詢問，我們均以同一信箱接收並分類回覆。</p>
+      </div>
+
+      <!-- Response time — sun (service-level / performance) -->
+      <div class="direct-card direct-card--sun" role="listitem">
+        <p class="direct-card__kicker">回覆時效 · RESPONSE TIME</p>
+        <p class="direct-card__value">2 個工作天以內</p>
+        <p class="direct-card__sub">收信後優先確認諮詢類型，若需補件將於首次回信說明。</p>
+        <span class="accent-tag accent-tag--sun" aria-label="服務水準指標">PERFORMANCE</span>
+      </div>
+
+      <!-- Languages — sage (coverage / governance) -->
+      <div class="direct-card direct-card--sage" role="listitem">
+        <p class="direct-card__kicker">服務語言 · LANGUAGES</p>
+        <p class="direct-card__value">繁體中文 · 英文 · 简体中文</p>
+        <p class="direct-card__sub">以貴方慣用語言進行對談，技術規格文件同步提供三語版本。</p>
+        <span class="accent-tag accent-tag--sage" aria-label="語言覆蓋範圍">COVERAGE</span>
+      </div>
+
+      <!-- Coordinates / location -->
+      <div class="direct-card direct-card--coord" role="listitem">
+        <p class="direct-card__kicker">座標 · COORDINATES</p>
+        <p class="direct-card__value direct-card__coords">N 24°08′ E 120°41′</p>
+        <p class="direct-card__sub">TAIWAN · HSINCHU SCIENCE PARK</p>
+        <span class="active-badge">[ ACTIVE ]</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── INFO.03 諮詢類型說明 ───────────────────────────────────── -->
+  <section class="section" id="inquiry-types" aria-labelledby="heading-03">
+    <SectionHeader index="03" zh="諮詢類型說明" en="INQUIRY TYPES" />
+    <p class="types-intro reveal">
+      依貴廠現況選擇最適合的諮詢切入點。每種類型均對應不同技術深度與商務路徑；歡迎複選，初次對談將進一步釐清範圍。
+    </p>
+    <div class="inq-grid reveal" role="list" aria-label="五種諮詢類型">
+      {inquiryTypes.map((type) => (
+        <div role="listitem">
+          <InquiryTypeCard
+            order={type.data.order}
+            zhName={type.data.zhName}
+            enLabel={type.data.enLabel}
+            description={type.data.description}
+            target={type.data.target}
+          />
+        </div>
+      ))}
+    </div>
+    <p class="section-hud" aria-hidden="true">
+      <HudCoordinate text="X:0903 Y:TYPE · 5 INQUIRY TYPES DEFINED" />
+    </p>
+  </section>
+
+  <!-- ── CTA 規劃您的智能晶圓廠 ─────────────────────────────────── -->
+  <div class="cta-bleed">
+    <section class="cta-inner reveal" aria-label="預約諮詢 — 規劃您的智能晶圓廠">
+      <p class="cta-eyebrow" aria-hidden="true">ENGAGE</p>
+      <h2 class="cta-title">規劃您的智能晶圓廠</h2>
+
+      <!-- 3 stat badges — all tri-accents present with labels -->
+      <div class="cta-stats" role="list" aria-label="交付承諾指標">
+
+        <div class="cta-stat cta-stat--sage" role="listitem">
+          <span class="cta-stat__value">全棧交付</span>
+          <span class="cta-stat__label">IT/OT+AI 整合，L1–L6</span>
+          <span class="cta-stat__tag cta-stat__tag--sage" aria-label="治理覆蓋">COVERAGE</span>
+        </div>
+
+        <div class="cta-stat cta-stat--clay" role="listitem">
+          <span class="cta-stat__value">RTO ≤ 4hr</span>
+          <span class="cta-stat__label">DR 備援恢復時間上限</span>
+          <span class="cta-stat__tag cta-stat__tag--clay" aria-label="韌性指標">RESILIENCE</span>
+        </div>
+
+        <div class="cta-stat cta-stat--sun" role="listitem">
+          <span class="cta-stat__value">SLO ≥ 95%</span>
+          <span class="cta-stat__label">量產期系統服務水準</span>
+          <span class="cta-stat__tag cta-stat__tag--sun" aria-label="效能承諾">PERFORMANCE</span>
+        </div>
+
+      </div>
+
+      <div class="cta-actions">
+        <CTAButton variant="clay" href="#form" label="送出諮詢 →" />
+        <a class="cta-secondary" href="#process">查看交付流程</a>
+      </div>
+
+      <p class="cta-coord" aria-hidden="true">
+        <HudCoordinate text="N 24°08′ E 120°41′ · TAIWAN · HSINCHU" />
+      </p>
+    </section>
+  </div>
+
+</PageLayout>
+
+<script>
+  import { revealOnEnter } from '../scripts/theme-motion';
+  revealOnEnter('.reveal');
+</script>
+
+<style>
+  /* ─────────────────────────────────────────────────────────────────
+     ENGAGE.00 — Process note
+  ───────────────────────────────────────────────────────────────── */
+  .process-note {
+    margin-top: clamp(1.5rem, 4vw, 2.5rem);
+    max-width: 64ch;
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+    color: var(--ink-faint);
+    line-height: 1.65;
+    border-left: 2px solid var(--border-strong);
+    padding-left: 1.1rem;
+  }
+
+  /* ─────────────────────────────────────────────────────────────────
+     DIRECT.02 — Contact grid
+  ───────────────────────────────────────────────────────────────── */
+
+  /* Gap-as-border: 1px gaps on dark bg create hairline dividers */
+  .direct-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  @media (min-width: 640px) {
+    .direct-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  /* ── Card shell ── */
+  .direct-card {
+    background: var(--surface);
+    padding: clamp(1.25rem, 4vw, 2rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+
+  /* Accent top-hairline stripes */
+  .direct-card--sun  { box-shadow: inset 0 2px 0 var(--sun);  }
+  .direct-card--sage { box-shadow: inset 0 2px 0 var(--sage); }
+
+  /* ── Kicker (label row above value) ── */
+  .direct-card__kicker {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+    color: var(--ink-faint);
+    margin: 0;
+  }
+
+  /* ── Primary value ── */
+  .direct-card__value {
+    font-size: clamp(1rem, 2.5vw, 1.3rem);
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  /* Email link styling */
+  .direct-card__email {
+    color: var(--sun);
+    text-decoration: none;
+    border-bottom: 1px solid color-mix(in srgb, var(--sun) 40%, transparent);
+    padding-bottom: 0.15rem;
+    word-break: break-all;
+    transition:
+      color var(--dur-quick) var(--ease-out),
+      border-color var(--dur-quick) var(--ease-out);
+  }
+  .direct-card__email:hover {
+    color: var(--ink);
+    border-color: var(--ink-muted);
+  }
+  .direct-card__email:focus-visible {
+    outline: 2px solid var(--sun);
+    outline-offset: 3px;
+  }
+
+  /* Monospaced geo-coordinate value */
+  .direct-card__coords {
+    font-family: var(--font-mono);
+    font-size: clamp(1.1rem, 3.5vw, 1.5rem);
+    letter-spacing: 0.05em;
+  }
+
+  /* ── Sub / secondary text ── */
+  .direct-card__sub {
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  /* ── Shared accent tag (sun / sage) ── */
+  .accent-tag {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    font-weight: 600;
+    padding: 0.14em 0.48em;
+    border-radius: 2px;
+    border: 1px solid;
+    align-self: flex-start;
+    margin-top: auto;
+  }
+  .accent-tag--sun {
+    color: var(--sun);
+    border-color: color-mix(in srgb, var(--sun) 40%, transparent);
+    background: color-mix(in srgb, var(--sun) 8%, transparent);
+  }
+  .accent-tag--sage {
+    color: var(--sage);
+    border-color: color-mix(in srgb, var(--sage) 40%, transparent);
+    background: color-mix(in srgb, var(--sage) 8%, transparent);
+  }
+
+  /* ── [ ACTIVE ] badge on coordinates card ── */
+  .active-badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--sage);
+    border: 1px solid color-mix(in srgb, var(--sage) 40%, transparent);
+    background: color-mix(in srgb, var(--sage) 8%, transparent);
+    padding: 0.15em 0.45em;
+    border-radius: 2px;
+    align-self: flex-start;
+    margin-top: auto;
+  }
+
+  /* ─────────────────────────────────────────────────────────────────
+     INFO.03 — Inquiry types grid
+  ───────────────────────────────────────────────────────────────── */
+
+  .types-intro {
+    max-width: 58ch;
+    font-size: 0.95rem;
+    color: var(--ink-muted);
+    line-height: 1.65;
+    margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+  }
+
+  /* Auto-fit: fills all 5 cards without orphan issues at mid widths */
+  .inq-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(0.65rem, 1.5vw, 1rem);
+  }
+  @media (min-width: 560px) {
+    .inq-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 1024px) {
+    .inq-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    /* Cards 4 & 5 (0-indexed: 3 & 4) — centre the bottom row of 2 */
+    .inq-grid > :nth-child(4) { grid-column: 1 / 2; }
+    .inq-grid > :nth-child(5) { grid-column: 2 / 3; }
+  }
+
+  .section-hud {
+    margin-top: 2rem;
+    text-align: right;
+  }
+
+  /* ─────────────────────────────────────────────────────────────────
+     CTA — Closing conversion section
+  ───────────────────────────────────────────────────────────────── */
+
+  /* Full-bleed background wrapper */
+  .cta-bleed {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+  }
+
+  /* Constrained inner — mirrors .section but text-centered */
+  .cta-inner {
+    max-width: var(--maxw);
+    margin-inline: auto;
+    padding: clamp(4rem, 10vw, 8rem) var(--gutter);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  .cta-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.22em;
+    color: var(--sun);
+    margin: 0 0 1rem;
+  }
+
+  .cta-title {
+    font-size: clamp(1.8rem, 5vw, 3.2rem);
+    font-weight: 600;
+    margin: 0 0 2.5rem;
+    text-wrap: balance;
+  }
+
+  /* ── Stat badges (3-up, gap-as-border) ── */
+  .cta-stats {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-bottom: 2.5rem;
+    width: 100%;
+    max-width: 720px;
+  }
+
+  .cta-stat {
+    flex: 1;
+    min-width: 160px;
+    background: var(--bg);
+    padding: clamp(1rem, 3vw, 1.5rem) clamp(1.25rem, 3vw, 1.75rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  /* Accent top hairlines */
+  .cta-stat--clay { box-shadow: inset 0 2px 0 var(--clay); }
+  .cta-stat--sun  { box-shadow: inset 0 2px 0 var(--sun); }
+  .cta-stat--sage { box-shadow: inset 0 2px 0 var(--sage); }
+
+  .cta-stat__value {
+    font-family: var(--font-mono);
+    font-size: clamp(1.1rem, 3vw, 1.5rem);
+    font-weight: 500;
+    line-height: 1;
+  }
+  .cta-stat--clay .cta-stat__value { color: var(--clay); }
+  .cta-stat--sun  .cta-stat__value { color: var(--sun);  }
+  .cta-stat--sage .cta-stat__value { color: var(--sage); }
+
+  .cta-stat__label {
+    font-size: 0.78rem;
+    color: var(--ink-muted);
+    line-height: 1.3;
+    text-align: center;
+  }
+
+  .cta-stat__tag {
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.14em;
+    font-weight: 600;
+    padding: 0.13em 0.45em;
+    border-radius: 2px;
+    border: 1px solid;
+    margin-top: 0.2rem;
+  }
+  .cta-stat__tag--clay {
+    color: var(--clay);
+    border-color: color-mix(in srgb, var(--clay) 40%, transparent);
+    background: color-mix(in srgb, var(--clay) 8%, transparent);
+  }
+  .cta-stat__tag--sun {
+    color: var(--sun);
+    border-color: color-mix(in srgb, var(--sun) 40%, transparent);
+    background: color-mix(in srgb, var(--sun) 8%, transparent);
+  }
+  .cta-stat__tag--sage {
+    color: var(--sage);
+    border-color: color-mix(in srgb, var(--sage) 40%, transparent);
+    background: color-mix(in srgb, var(--sage) 8%, transparent);
+  }
+
+  /* ── CTA buttons row ── */
+  .cta-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+
+  .cta-secondary {
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+    color: var(--ink-muted);
+    text-decoration: none;
+    border-bottom: 1px solid var(--border-strong);
+    padding-bottom: 0.2rem;
+    transition:
+      color var(--dur-quick) var(--ease-out),
+      border-color var(--dur-quick) var(--ease-out);
+  }
+  .cta-secondary:hover {
+    color: var(--ink);
+    border-color: var(--sun);
+  }
+  .cta-secondary:focus-visible {
+    outline: 2px solid var(--sun);
+    outline-offset: 3px;
+  }
+
+  .cta-coord {
+    margin: 0;
+    opacity: 0.6;
+  }
+</style>

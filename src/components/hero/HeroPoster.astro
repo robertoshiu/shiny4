@@ -10,23 +10,71 @@ import HudCoordinate from '../HudCoordinate.astro';
     role="presentation"
   >
     <defs>
-      <radialGradient id="emberGrad" cx="50%" cy="46%" r="60%">
-        <stop offset="0%" stop-color="#E9C46A" stop-opacity="0.22"></stop>
-        <stop offset="55%" stop-color="#E07A5F" stop-opacity="0.10"></stop>
+      <!--
+        Tamed central bloom: inner stop reduced from 0.22→0.12 and the
+        mid-stop at 40% carries the clay warmth so the core reads
+        "foundry ember" rather than a piercing LED hotspot.
+      -->
+      <radialGradient id="emberGrad" cx="50%" cy="46%" r="62%">
+        <stop offset="0%"   stop-color="#E9C46A" stop-opacity="0.12"></stop>
+        <stop offset="40%"  stop-color="#E07A5F" stop-opacity="0.14"></stop>
         <stop offset="100%" stop-color="#14100D" stop-opacity="0"></stop>
       </radialGradient>
+
+      <!-- Dot-matrix tile (gold base; diagonal mask drives the fade) -->
       <pattern id="dotMatrix" width="34" height="34" patternUnits="userSpaceOnUse">
-        <circle cx="2" cy="2" r="1.4" fill="#E9C46A" fill-opacity="0.16"></circle>
+        <circle cx="2" cy="2" r="1.4" fill="#E9C46A" fill-opacity="0.18"></circle>
       </pattern>
+
+      <!--
+        Diagonal fade mask: bottom-left is dense (foundry floor),
+        top-right is sparse. Mirrors shader diagFade direction.
+        SVG y=0 is top, so bottom-left = x1="0%" y1="100%".
+      -->
+      <linearGradient id="dotFade" x1="0%" y1="100%" x2="100%" y2="0%">
+        <stop offset="0%"   stop-color="white" stop-opacity="0.88"></stop>
+        <stop offset="100%" stop-color="white" stop-opacity="0.10"></stop>
+      </linearGradient>
+      <mask id="dotFadeMask">
+        <rect width="1440" height="900" fill="url(#dotFade)"></rect>
+      </mask>
+
+      <!--
+        Subtle ring-glow filter (static fallback only — no cost concern).
+        Each ring gets a soft halo that mimics the shader's pow(rings, 2.8)
+        soft-peak shape.
+      -->
+      <filter id="ringGlow" x="-12%" y="-12%" width="124%" height="124%">
+        <feGaussianBlur stdDeviation="1.8" result="blur"/>
+        <feMerge>
+          <feMergeNode in="blur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
     </defs>
+
+    <!-- Background -->
     <rect width="1440" height="900" fill="#14100D"></rect>
-    <rect width="1440" height="900" fill="url(#dotMatrix)"></rect>
-    <circle cx="720" cy="414" r="300" fill="url(#emberGrad)"></circle>
-    <g fill="none" stroke="#E9C46A" stroke-opacity="0.12">
-      <circle cx="720" cy="414" r="120"></circle>
-      <circle cx="720" cy="414" r="180"></circle>
-      <circle cx="720" cy="414" r="240"></circle>
-      <circle cx="720" cy="414" r="300"></circle>
+
+    <!-- Ember dot-matrix with diagonal fade mask -->
+    <rect width="1440" height="900" fill="url(#dotMatrix)" mask="url(#dotFadeMask)"></rect>
+
+    <!-- Central ember bloom (tamed) -->
+    <circle cx="720" cy="414" r="360" fill="url(#emberGrad)"></circle>
+
+    <!--
+      Diffraction rings: non-uniform spacing + depth-based opacity.
+      Gaps: 68, 76, 84, 96 px — progressively wider outward, matching
+      the shader's quadratic rr = r*46 - r²*28 character.
+      Opacity peaks at the mid-annulus (r=224) and falls toward both edges.
+      Inner-most ring uses gold; outer rings shade toward clay.
+    -->
+    <g fill="none" filter="url(#ringGlow)">
+      <circle cx="720" cy="414" r="80"  stroke="#E9C46A" stroke-opacity="0.08" stroke-width="0.8"></circle>
+      <circle cx="720" cy="414" r="148" stroke="#E9C46A" stroke-opacity="0.16" stroke-width="1.0"></circle>
+      <circle cx="720" cy="414" r="224" stroke="#E9C46A" stroke-opacity="0.18" stroke-width="1.2"></circle>
+      <circle cx="720" cy="414" r="308" stroke="#E07A5F" stroke-opacity="0.12" stroke-width="1.0"></circle>
+      <circle cx="720" cy="414" r="404" stroke="#E07A5F" stroke-opacity="0.07" stroke-width="0.8"></circle>
     </g>
   </svg>
   <span class="hero-poster__hud">

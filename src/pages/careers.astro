@@ -1,0 +1,810 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import SubHero from '../components/SubHero.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import TeamFunctionCard from '../components/TeamFunctionCard.astro';
+import JobCard from '../components/JobCard.astro';
+import EngageCTA from '../components/EngageCTA.astro';
+import CTAButton from '../components/CTAButton.astro';
+import { getCollection } from 'astro:content';
+
+const locale = 'zh-Hant' as const;
+
+const teams = (await getCollection('teams')).sort((a, b) =>
+  a.data.id.localeCompare(b.data.id)
+);
+
+const roles = (await getCollection('roles')).sort((a, b) =>
+  a.data.id.localeCompare(b.data.id)
+);
+
+// Tri-accent per team function card
+// clay = resilience/DR · sun = service/performance · sage = governance/coverage
+const teamAccents: Record<string, 'clay' | 'sun' | 'sage'> = {
+  T1: 'sage',  // Architecture & Governance → governance
+  T2: 'sun',   // MES → yield/performance
+  T3: 'sun',   // AI/MLOps → compute performance
+  T4: 'sun',   // Network Fabric → throughput performance
+  T5: 'sage',  // Security/SOC → coverage/compliance
+  T6: 'clay',  // DR Business Continuity → resilience
+  T7: 'sage',  // Enterprise Integration → coverage
+  T8: 'sage',  // CCC Central Command → governance
+};
+
+// 01 — Four technology-domain cards (WHY SHINYLOGIC)
+const techDomains = [
+  {
+    en:    'GB300 AI COMPUTE',
+    zh:    'GB300 NVL72 AI算力底座',
+    desc:  '在真實晶圓廠環境中部署 3× GB300 NVL72 液冷節點與 4× HGX B300 推理；Quantum-X800 800Gb/s XDR InfiniBand AI Fabric — 不是沙盒，是量產規格。',
+    tag:   'COMPUTE · AI FABRIC',
+    accent: 'sun' as const,
+  },
+  {
+    en:    'FAB300 MES PLATFORM',
+    zh:    '高量產MES — FAB300',
+    desc:  'SECS-GEM / GEM300 機台聯調、WIP 調度優化、APC R2R+FDC 閉環 — 在真實晶圓廠量產負載下完成全系統整合，不是 demo 環境。',
+    tag:   'MES · SECS-GEM',
+    accent: 'sun' as const,
+  },
+  {
+    en:    'DIGITAL TWIN & AGENTIC AI',
+    zh:    'Digital Twin 數位孿生',
+    desc:  '以 NVIDIA Omniverse 為基礎的 Digital Twin 結合 Agentic RAG，將設備感測數據從 NVMe Lakehouse 一路鍛造成可決策的 AI 智能。',
+    tag:   'OMNIVERSE · AGENTIC RAG',
+    accent: 'sage' as const,
+  },
+  {
+    en:    'OT SECURITY / SOC 24×7',
+    zh:    'OT資安與SOC 24×7',
+    desc:  'OT 入侵偵測、資產可視化、SIEM/SOAR 全天候運營、NGFW/EDR/IAM/PAM — 對齊 IEC 62443 與等保 2.0 三級，L1 設備到 L5 治理層縱深防禦。',
+    tag:   'IEC 62443 · SOC 24×7',
+    accent: 'clay' as const,
+  },
+];
+
+// 03 — Staffing phases (P1–P4 hiring cadence)
+const staffingPhases = [
+  {
+    code:    'P1',
+    zhName:  '建廠期',
+    label:   '先鋒編組',
+    months:  'M1–M6',
+    gate:    'Gate 1–2',
+    desc:    '核心架構師與 MES/網絡先鋒率先到位，制定 IT/OT 六層技術藍圖，完成機房選址與基礎設施規劃。',
+    tags:    ['架構治理', '基建規劃'],
+    accent:  'sage' as const,
+  },
+  {
+    code:    'P2',
+    zhName:  '裝機期',
+    label:   '主力編組',
+    months:  'M7–M15',
+    gate:    'Gate 3–5',
+    desc:    'GB300 NVL72 主交付、AI Fabric 建置、高量產MES平台上線；網絡、資安、MLOps 團隊主力全面加入。',
+    tags:    ['GB300 AI Fabric', 'MES', '資安SOC'],
+    accent:  'sun' as const,
+  },
+  {
+    code:    'P3',
+    zhName:  '試產期',
+    label:   '全員編組',
+    months:  'M16–M21',
+    gate:    'Gate 6–7',
+    desc:    'DR 首輪演練、Digital Twin 上線、良率優化閉環啟動；AI/MLOps 與 CCC 中控全員到位，試產驗收。',
+    tags:    ['DR演練', 'Digital Twin', '良率優化'],
+    accent:  'clay' as const,
+  },
+  {
+    code:    'P4',
+    zhName:  '量產期',
+    label:   '常態編組',
+    months:  'M22+',
+    gate:    'Gate 8',
+    desc:    '全員就位，持續維運與優化；SLO ≥ 95%、良率 ≥ 90% 承諾生效，跨廠模板 100% 歸檔，確保知識資產留存。',
+    tags:    ['SLO ≥ 95%', '持續優化', '跨廠複製'],
+    accent:  'sun' as const,
+  },
+];
+
+const ACCENT_LABEL: Record<string, string> = {
+  clay: 'RESILIENCE',
+  sun:  'PERFORMANCE',
+  sage: 'GOVERNANCE',
+};
+
+// 04 — Culture principles & operating norms
+const principles = [
+  {
+    num:  '01',
+    zh:   '授權不是口號',
+    body: '每個技術決策都有且只有一個 A（Accountable Owner）。以合約 Gate 確認推進資格，不以層級審批代替工程判斷。',
+  },
+  {
+    num:  '02',
+    zh:   '責任由架構承諾',
+    body: 'SLO ≥ 95%、RTO ≤ 4hr、良率 ≥ 90% 寫入合約 — 不是期望管理文件，是可驗收、有演練為憑的交付標準。',
+  },
+  {
+    num:  '03',
+    zh:   '數字說話，風險透明',
+    body: '三級風險升級（紅/黃/綠），黃級 48 小時升級至項目委員會；DR 季度演練結果存檔；跨廠模板 100% 歸檔，無知識孤島。',
+  },
+];
+
+const norms = [
+  { value: '8',   label: 'Gate',    sub: '四階段逐道把關推進',         accent: 'sage' as const },
+  { value: '1',   label: 'A / 議題', sub: 'RACI 唯一 Accountable Owner', accent: 'sage' as const },
+  { value: '3',   label: '級',       sub: '風險升級 紅/黃/綠 透明化',    accent: 'clay' as const },
+  { value: '季度', label: 'DR演練',  sub: '納入季度 Review 閉環',        accent: 'clay' as const },
+  { value: '100%', label: '歸檔',   sub: '跨廠模板，無知識孤島',         accent: 'sage' as const },
+];
+---
+
+<PageLayout
+  title="招募 IT智能部 — 顯藝科技 SHINYLOGIC"
+  description="加入顯藝科技 IT 智能部 — 八大職能團隊、四階段組建、六層架構真實場景。開放職缺：IT/OT架構師、MES工程師、AI/MLOps、OT資安、網絡工程師、DR工程師。"
+>
+  <Fragment slot="hero">
+    <SubHero
+      eyebrow="招募 · IT智能部 // JOIN THE BUILD"
+      zhTitle="加入顯藝科技，建構晶圓廠AI智能層"
+      enLabel="IT INTELLIGENCE DIVISION — OPEN FOR TALENT"
+      lede="我們正在為真實晶圓廠量產建置 IT/OT+AI 全棧 — GB300 NVL72、FAB300 MES、Digital Twin、SOC 24×7。這不是展示環境，是八大職能、四階段組建、六層架構的真實現場。"
+      stats={[
+        {
+          value: 'IT智能部',
+          label: '工程核心部門',
+          sub:   'TEAMS: 8 · STATUS [ ACTIVE ]',
+        },
+        {
+          value:  '4',
+          label:  '階段組建',
+          sub:    'P1 建廠 → P4 量產',
+          accent: 'sun',
+        },
+        {
+          value:  '8',
+          label:  '功能團隊',
+          sub:    'T1–T8 覆蓋全棧',
+          accent: 'sage',
+        },
+      ]}
+      ctas={[
+        { href: 'mailto:hello@shinylogic.tech?subject=履歷投遞', label: '立即投遞履歷', variant: 'clay' },
+        { href: '#open-roles', label: '查看代表性職缺', variant: 'ghost' },
+      ]}
+    />
+  </Fragment>
+
+  <!-- 01 前沿技術，真實場景 -->
+  <section class="section" id="why-shinylogic" aria-labelledby="heading-01">
+    <SectionHeader index="01" zh="前沿技術，真實場景" en="WHY SHINYLOGIC" />
+    <div class="tech-domains">
+      {techDomains.map((d) => (
+        <article class={`tech-domain tech-domain--${d.accent} reveal`} aria-label={d.zh}>
+          <p class="tech-domain__en">{d.en}</p>
+          <h3 class="tech-domain__zh">{d.zh}</h3>
+          <p class="tech-domain__desc">{d.desc}</p>
+          <p class={`tech-domain__tag tech-domain__tag--${d.accent}`}>
+            <span class="tech-domain__tag-accent">
+              {d.accent === 'clay' ? 'RESILIENCE' : d.accent === 'sun' ? 'PERFORMANCE' : 'COVERAGE'}
+            </span>
+            {d.tag}
+          </p>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <!-- 02 IT智能部，八大職能 -->
+  <section class="section" id="team-functions" aria-labelledby="heading-02">
+    <SectionHeader index="02" zh="IT智能部，八大職能" en="TEAM FUNCTIONS" />
+    <div class="team-grid">
+      {teams.map((t) => (
+        <TeamFunctionCard
+          id={t.data.id}
+          zhName={t.data.zhName}
+          enLabel={t.data.enLabel}
+          description={t.data.description}
+          tags={t.data.tags as [string, string, string]}
+          accent={teamAccents[t.data.id]}
+        />
+      ))}
+    </div>
+  </section>
+
+  <!-- 03 四階段組建，逐步到位 -->
+  <section class="section" id="hiring-rhythm" aria-labelledby="heading-03">
+    <SectionHeader index="03" zh="四階段組建，逐步到位" en="HIRING RHYTHM" />
+    <div class="staffing-phases" role="list" aria-label="四階段組建時程">
+      {staffingPhases.map((p) => (
+        <article
+          class={`sp sp--${p.accent}`}
+          role="listitem"
+          aria-label={`${p.code} ${p.zhName} ${p.label}`}
+        >
+          <div class="sp__header">
+            <span class="sp__code">{p.code}</span>
+            <span class="sp__months">{p.months}</span>
+            <span class="sp__gate">{p.gate}</span>
+          </div>
+          <h3 class="sp__name">{p.zhName}</h3>
+          <p class={`sp__formation sp__formation--${p.accent}`}>{p.label}</p>
+          <p class="sp__desc">{p.desc}</p>
+          <div class="sp__tags" aria-label="人力標籤">
+            {p.tags.map((tag) => (
+              <span class="sp__tag">{tag}</span>
+            ))}
+          </div>
+          <p class={`sp__accent-label sp__accent-label--${p.accent}`}>
+            {ACCENT_LABEL[p.accent]}
+          </p>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <!-- 04 拿授權，拿責任 -->
+  <section class="section" id="culture" aria-labelledby="heading-04">
+    <SectionHeader index="04" zh="拿授權，拿責任" en="CULTURE &amp; VALUES" />
+
+    <div class="principles">
+      {principles.map((p) => (
+        <article class="principle reveal">
+          <span class="principle__num">PRINCIPLE {p.num}</span>
+          <h3 class="principle__zh">{p.zh}</h3>
+          <p class="principle__body">{p.body}</p>
+        </article>
+      ))}
+    </div>
+
+    <div class="norms" role="list" aria-label="作業規範指標">
+      {norms.map((n) => (
+        <div class={`norm norm--${n.accent}`} role="listitem">
+          <span class="norm__value">{n.value}</span>
+          <span class="norm__label">{n.label}</span>
+          <span class="norm__sub">{n.sub}</span>
+          <span class={`norm__tag norm__tag--${n.accent}`}>
+            {n.accent === 'clay' ? 'RESILIENCE' : 'COVERAGE'}
+          </span>
+        </div>
+      ))}
+    </div>
+
+    <p class="compliance-line">
+      <span class="compliance-line__label">合規底座</span>
+      等保 2.0 三級 · IEC 62443 · SEMI E187 · ISA-95 · 密評 ——
+      合規是工程紀律，不是事後補票。
+    </p>
+  </section>
+
+  <!-- 05 代表性職缺 -->
+  <section class="section" id="open-roles" aria-labelledby="heading-05">
+    <SectionHeader index="05" zh="代表性職缺" en="OPEN ROLES" />
+    <div class="roles-grid">
+      {roles.map((r) => (
+        <JobCard role={r} />
+      ))}
+    </div>
+    <p class="roles-note">
+      未見到您的專業？我們對所有具備晶圓廠 IT/OT 背景的工程師開放 — 歡迎主動聯絡。
+    </p>
+  </section>
+
+  <!-- APPLY -->
+  <section class="section apply" id="apply" aria-labelledby="apply-heading">
+    <p class="apply__en" aria-hidden="true">APPLY</p>
+    <h2 id="apply-heading" class="apply__title">投遞履歷</h2>
+    <p class="apply__body">
+      履歷直接發送至
+      <a class="apply__email" href="mailto:hello@shinylogic.tech">hello@shinylogic.tech</a>
+      — 無填表、無 ATS 迷宮，直接聯繫負責人。
+    </p>
+    <div class="apply__actions">
+      <CTAButton
+        variant="clay"
+        href="mailto:hello@shinylogic.tech?subject=履歷投遞"
+        label="立即投遞履歷"
+      />
+      <a class="apply__contact" href="/contact/">諮詢合作機會 →</a>
+    </div>
+  </section>
+
+  <EngageCTA locale={locale} />
+</PageLayout>
+
+<script>
+  import { revealOnEnter } from '../scripts/theme-motion';
+  revealOnEnter('.reveal');
+</script>
+
+<style>
+  /* ── 01 Tech Domain cards ── */
+  .tech-domains {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  @media (min-width: 640px) {
+    .tech-domains {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .tech-domains {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .tech-domain {
+    background: var(--surface);
+    padding: clamp(1.5rem, 4vw, 2rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    position: relative;
+  }
+
+  /* Inset top accent stripe */
+  .tech-domain--clay { box-shadow: inset 0 3px 0 var(--clay); }
+  .tech-domain--sun  { box-shadow: inset 0 3px 0 var(--sun);  }
+  .tech-domain--sage { box-shadow: inset 0 3px 0 var(--sage); }
+
+  .tech-domain__en {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    color: var(--ink-muted);
+    margin: 0;
+  }
+
+  .tech-domain__zh {
+    font-size: clamp(1.1rem, 3vw, 1.35rem);
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  .tech-domain__desc {
+    font-size: 0.88rem;
+    line-height: 1.65;
+    color: var(--ink-muted);
+    margin: 0.25rem 0 0;
+    flex: 1;
+  }
+
+  .tech-domain__tag {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    margin: 0.5rem 0 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .tech-domain__tag-accent {
+    font-size: 0.60rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    padding: 0.12em 0.45em;
+    border-radius: 2px;
+    border: 1px solid;
+  }
+
+  .tech-domain--clay .tech-domain__tag,
+  .tech-domain--clay .tech-domain__tag-accent { color: var(--clay); }
+  .tech-domain--clay .tech-domain__tag-accent {
+    border-color: color-mix(in srgb, var(--clay) 40%, transparent);
+    background: color-mix(in srgb, var(--clay) 8%, transparent);
+  }
+
+  .tech-domain--sun .tech-domain__tag,
+  .tech-domain--sun .tech-domain__tag-accent { color: var(--sun); }
+  .tech-domain--sun .tech-domain__tag-accent {
+    border-color: color-mix(in srgb, var(--sun) 40%, transparent);
+    background: color-mix(in srgb, var(--sun) 8%, transparent);
+  }
+
+  .tech-domain--sage .tech-domain__tag,
+  .tech-domain--sage .tech-domain__tag-accent { color: var(--sage); }
+  .tech-domain--sage .tech-domain__tag-accent {
+    border-color: color-mix(in srgb, var(--sage) 40%, transparent);
+    background: color-mix(in srgb, var(--sage) 8%, transparent);
+  }
+
+  /* ── 02 Team grid — 4-col at wide ── */
+  .team-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(0.75rem, 2vw, 1rem);
+  }
+
+  @media (min-width: 600px) {
+    .team-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 900px) {
+    .team-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  /* ── 03 Staffing phases ── */
+  .staffing-phases {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  @media (min-width: 600px) {
+    .staffing-phases {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .staffing-phases {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  /* sp = staffing phase card */
+  .sp {
+    background: var(--surface);
+    padding: clamp(1.25rem, 3vw, 1.75rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    position: relative;
+  }
+
+  /* Left accent bar */
+  .sp::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 2px;
+    height: 100%;
+  }
+  .sp--sage::before { background: var(--sage); }
+  .sp--sun::before  { background: var(--sun);  }
+  .sp--clay::before { background: var(--clay); }
+
+  .sp__header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .sp__code {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    font-weight: 600;
+  }
+  .sp--sage .sp__code { color: var(--sage); }
+  .sp--sun  .sp__code { color: var(--sun);  }
+  .sp--clay .sp__code { color: var(--clay); }
+
+  .sp__months,
+  .sp__gate {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+    padding: 0.12em 0.45em;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+  }
+
+  .sp__name {
+    font-size: clamp(1.05rem, 2.5vw, 1.2rem);
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.25;
+    margin: 0;
+  }
+
+  .sp__formation {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    font-weight: 600;
+    margin: 0;
+  }
+  .sp__formation--sage { color: var(--sage); }
+  .sp__formation--sun  { color: var(--sun);  }
+  .sp__formation--clay { color: var(--clay); }
+
+  .sp__desc {
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--ink-muted);
+    margin: 0.2rem 0 0;
+    flex: 1;
+  }
+
+  .sp__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+  }
+
+  .sp__tag {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    color: var(--ink-faint);
+    padding: 0.2em 0.55em;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: var(--bg-deep);
+  }
+
+  .sp__accent-label {
+    font-family: var(--font-mono);
+    font-size: 0.60rem;
+    letter-spacing: 0.2em;
+    font-weight: 600;
+    margin: 0.25rem 0 0;
+  }
+  .sp__accent-label--sage { color: var(--sage); }
+  .sp__accent-label--sun  { color: var(--sun);  }
+  .sp__accent-label--clay { color: var(--clay); }
+
+  /* ── 04 Principles ── */
+  .principles {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(1.5rem, 4vw, 2.5rem);
+    margin-bottom: clamp(3rem, 7vw, 5rem);
+  }
+
+  @media (min-width: 768px) {
+    .principles {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .principle {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-left: 1.25rem;
+    border-left: 2px solid var(--sun);
+  }
+
+  .principle__num {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    color: var(--sun);
+  }
+
+  .principle__zh {
+    font-size: clamp(1.15rem, 3vw, 1.45rem);
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  .principle__body {
+    font-size: 0.9rem;
+    line-height: 1.65;
+    color: var(--ink-muted);
+    margin: 0;
+  }
+
+  /* ── 04 Operating norms strip ── */
+  .norms {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    margin-bottom: 2.5rem;
+  }
+
+  .norm {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: clamp(1rem, 3vw, 1.5rem) clamp(1rem, 3vw, 1.75rem);
+    flex: 1 1 auto;
+    border-right: 1px solid var(--border);
+    position: relative;
+  }
+  .norm:last-child {
+    border-right: none;
+  }
+
+  .norm--clay { box-shadow: inset 0 2px 0 var(--clay); }
+  .norm--sage { box-shadow: inset 0 2px 0 var(--sage); }
+
+  .norm__value {
+    font-family: var(--font-mono);
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 500;
+    line-height: 1;
+  }
+  .norm--clay .norm__value { color: var(--clay); }
+  .norm--sage .norm__value { color: var(--sage); }
+
+  .norm__label {
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+
+  .norm__sub {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--ink-muted);
+    line-height: 1.4;
+    letter-spacing: 0.05em;
+  }
+
+  .norm__tag {
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.14em;
+    font-weight: 600;
+    padding: 0.12em 0.45em;
+    border-radius: 2px;
+    border: 1px solid;
+    align-self: flex-start;
+    margin-top: 0.1em;
+  }
+  .norm__tag--clay {
+    color: var(--clay);
+    border-color: color-mix(in srgb, var(--clay) 40%, transparent);
+    background: color-mix(in srgb, var(--clay) 8%, transparent);
+  }
+  .norm__tag--sage {
+    color: var(--sage);
+    border-color: color-mix(in srgb, var(--sage) 40%, transparent);
+    background: color-mix(in srgb, var(--sage) 8%, transparent);
+  }
+
+  @media (max-width: 600px) {
+    .norms {
+      flex-direction: column;
+    }
+    .norm {
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+    }
+    .norm:last-child {
+      border-bottom: none;
+    }
+  }
+
+  /* ── Compliance line ── */
+  .compliance-line {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    letter-spacing: 0.06em;
+    color: var(--ink-muted);
+    line-height: 1.65;
+    margin: 0;
+    border-left: 2px solid var(--sage);
+    padding-left: 1rem;
+  }
+
+  .compliance-line__label {
+    color: var(--sage);
+    font-weight: 600;
+    margin-right: 0.5rem;
+  }
+
+  /* ── 05 Roles grid ── */
+  .roles-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(0.75rem, 2vw, 1.25rem);
+  }
+
+  @media (min-width: 600px) {
+    .roles-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .roles-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .roles-note {
+    margin-top: clamp(2rem, 5vw, 3rem);
+    font-size: 0.95rem;
+    color: var(--ink-muted);
+    border-left: 2px solid var(--sun);
+    padding-left: 1rem;
+    max-width: 62ch;
+  }
+
+  /* ── APPLY section ── */
+  .apply {
+    text-align: center;
+  }
+
+  .apply__en {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.22em;
+    color: var(--sun);
+    margin: 0 0 1rem;
+  }
+
+  .apply__title {
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    margin: 0 0 1.25rem;
+  }
+
+  .apply__body {
+    font-size: 1.05rem;
+    color: var(--ink-muted);
+    max-width: 52ch;
+    margin: 0 auto 2.5rem;
+    line-height: 1.65;
+  }
+
+  .apply__email {
+    color: var(--sun);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-family: var(--font-mono);
+  }
+
+  .apply__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .apply__contact {
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+    letter-spacing: 0.1em;
+    color: var(--ink-muted);
+    text-decoration: none;
+    border-bottom: 1px solid var(--sun);
+    padding-bottom: 0.2rem;
+    transition: color var(--dur-quick) var(--ease-out);
+  }
+
+  .apply__contact:hover {
+    color: var(--sun);
+  }
+
+  /* ── Reduced motion ── */
+  @media (prefers-reduced-motion: reduce) {
+    .tech-domain,
+    .sp,
+    .principle,
+    .norm {
+      transition: none;
+    }
+  }
+</style>

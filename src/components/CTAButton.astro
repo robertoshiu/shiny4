@@ -51,4 +51,13 @@ const { variant, href, label } = Astro.props;
     outline: 2px solid var(--sun);
     outline-offset: 3px;
   }
+  /* On the clay pill, sun (#E9C46A) vs clay (#E07A5F) ≈ 1.8:1 — fails 3:1.
+     Double-ring: 2px dark halo seats on clay (high contrast), sun ring sits
+     on dark bg (≈12:1). Outline is suppressed to avoid the same problem. */
+  .cta--clay:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px var(--bg),
+      0 0 0 4px var(--sun);
+  }
 </style>

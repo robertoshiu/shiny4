@@ -1,0 +1,627 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import SubHero from '../components/SubHero.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import DeliveryMatrix from '../components/DeliveryMatrix.astro';
+import PhaseTimeline from '../components/PhaseTimeline.astro';
+import SlaStrip from '../components/SlaStrip.astro';
+import ComplianceBadges from '../components/ComplianceBadges.astro';
+import RiskCard from '../components/RiskCard.astro';
+import EngageCTA from '../components/EngageCTA.astro';
+import { getCollection } from 'astro:content';
+
+const locale = 'zh-Hant' as const;
+
+const risks = (await getCollection('risks')).sort((a, b) =>
+  a.data.id.localeCompare(b.data.id),
+);
+
+const heroStats = [
+  {
+    value: '六層',
+    label: '全棧架構覆蓋',
+    sub: '輸入·數據·算力·應用·治理·備援',
+    accent: 'sage' as const,
+  },
+  {
+    value: 'GB300',
+    label: 'NVL72 AI Fabric',
+    sub: '+ 4×HGX B300推理節點',
+  },
+  {
+    value: '≤4hr',
+    label: 'DR RTO',
+    sub: 'RPO ≤ 15min · 溫備援跨區域',
+    accent: 'clay' as const,
+  },
+  {
+    value: '≥95%',
+    label: '系統SLO',
+    sub: '量產期SOC 24×7持續監控',
+    accent: 'sun' as const,
+  },
+];
+
+const replSteps = [
+  {
+    num: '01',
+    zh: '範本歸檔',
+    en: 'TEMPLATE ARCHIVE',
+    body: '量產期結束後，全套建置設定、流程文件與AI模型完整歸檔，形成跨廠複製基線。',
+  },
+  {
+    num: '02',
+    zh: '差異評估',
+    en: 'GAP ASSESSMENT',
+    body: '對新廠房進行機台廠商、製程節點、廠房條件與法規環境差異評估，確認定制範圍。',
+  },
+  {
+    num: '03',
+    zh: '快速部署',
+    en: 'ACCELERATED DEPLOY',
+    body: '依差異評估結果裁剪範本，執行新廠建置；裝機期預計縮短20–30%，試產聯調縮短15–25%。',
+  },
+];
+
+const templateItems = [
+  '六層架構設計文件與BOM',
+  'MES FAB300設定基線（7模組）',
+  'AI模型基線（良率/DR預測）',
+  'OT安全Zone/Conduit策略',
+  'DR演練腳本與驗收標準',
+];
+---
+
+<PageLayout
+  title="方法論 · FAB300 — 顯藝科技智能晶圓廠交付方法論"
+  description="FAB300參考方法論：六層×四階段交付矩陣、8道Gate把關、RTO ≤ 4hr DR、系統SLO ≥ 95%、100%跨廠歸檔。顯藝科技為晶圓廠提供可複製的IT/OT+AI全棧整合方法論。"
+  locale={locale}
+>
+  <Fragment slot="hero">
+    <SubHero
+      eyebrow="FAB300 REFERENCE METHODOLOGY // SYSTEMS INTEGRATOR"
+      zhTitle="FAB300 參考方法論"
+      enLabel="INTELLIGENT WAFER FAB IT/OT+AI INTEGRATION METHODOLOGY"
+      lede="以高量產MES平台（FAB300）為核心，GB300 NVL72 AI Fabric為算力底座，端到端覆蓋六層架構的可複製交付系統 — 四階段、8道Gate、明確SLA，100%歸檔。"
+      stats={heroStats}
+      ctas={[
+        { href: '/contact/', label: '預約諮詢', variant: 'clay' },
+        { href: '#matrix', label: '查看交付矩陣 →', variant: 'ghost' },
+      ]}
+    />
+  </Fragment>
+
+  <!-- FIG.02: 六層×階段交付矩陣 ─────────────────────────── -->
+  <section class="section" id="matrix" aria-labelledby="heading-02">
+    <SectionHeader index="02" zh="六層×階段交付矩陣" en="DELIVERY SCOPE MATRIX" />
+    <p class="fig-lede reveal">
+      10個交付類別橫跨P1–P4四階段的完整矩陣 — 每格均為合約可追溯的交付里程碑。
+      依六層架構對齊 · 交付範疇依合約確認。
+    </p>
+    <div class="reveal">
+      <DeliveryMatrix />
+    </div>
+  </section>
+
+  <!-- FIG.03: 四階段交付 ──────────────────────────────────── -->
+  <section class="section" id="timeline" aria-labelledby="heading-03">
+    <SectionHeader index="03" zh="四階段交付" en="DELIVERY TIMELINE" />
+    <p class="fig-lede reveal">
+      P1建廠→P2裝機→P3試產→P4量產，共計M1至M22+、8道Gate逐階確認。
+      維運自裝機期起算；DR於試產期完成首輪演練。
+    </p>
+    <div class="reveal">
+      <PhaseTimeline />
+    </div>
+    <div class="phase-detail reveal" aria-label="各階段交付細節">
+      <div class="phase-detail__row">
+        <span class="phase-detail__tag phase-detail__tag--sage">P1 建廠期 M1–M6</span>
+        <p class="phase-detail__body">廠房改建、液冷機房、供電系統、基礎網絡鋪設；Gate 1–2完成環境驗收</p>
+      </div>
+      <div class="phase-detail__row">
+        <span class="phase-detail__tag phase-detail__tag--gold">P2 裝機期 M7–M15</span>
+        <p class="phase-detail__body">GB300 NVL72主交付與上架、AI Fabric建設、高量產MES平台上線、OT安全整合；Gate 3–5</p>
+      </div>
+      <div class="phase-detail__row">
+        <span class="phase-detail__tag phase-detail__tag--clay">P3 試產期 M16–M21</span>
+        <p class="phase-detail__body">系統聯調、AI模型訓練、DR首輪演練、良率爬坡驗收；Gate 6–7</p>
+      </div>
+      <div class="phase-detail__row">
+        <span class="phase-detail__tag phase-detail__tag--gold">P4 量產期 M22+</span>
+        <p class="phase-detail__body">全速量產、SOC 24×7接管、SLO ≥ 95%持續監控、DR季度演練固化、跨廠範本100%歸檔；Gate 8</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FIG.04: 成果與承諾 ──────────────────────────────────── -->
+  <section class="section" id="sla" aria-labelledby="heading-04">
+    <SectionHeader index="04" zh="成果與承諾" en="OUTCOMES & SLA" />
+    <p class="fig-lede reveal">
+      五項KPI承諾寫入合約，以8道Gate逐階驗收為機制保障。
+    </p>
+    <div class="reveal">
+      <SlaStrip />
+    </div>
+    <div class="kpi-detail reveal" aria-label="SLA詳細說明">
+      <div class="kpi-row">
+        <span class="kpi-row__code kpi-row__code--gold">YLD.01</span>
+        <div>
+          <strong>良率目標 ≥ 90%</strong>
+          <p>AI輔助製程調控，SPC/YMS即時回饋，量產爬坡期即介入。</p>
+        </div>
+      </div>
+      <div class="kpi-row">
+        <span class="kpi-row__code kpi-row__code--gold">SLO.02</span>
+        <div>
+          <strong>系統SLO ≥ 95%</strong>
+          <p>全棧六層系統可用率承諾，SOC 24×7監控保障，覆蓋MES及AI Fabric。</p>
+        </div>
+      </div>
+      <div class="kpi-row">
+        <span class="kpi-row__code kpi-row__code--clay">DR.03</span>
+        <div>
+          <strong>DR RTO ≤ 4hr</strong>
+          <p>關鍵系統恢復時間目標；溫備援架構+SD-WAN雙ISP冗餘保障，季度實測演練。</p>
+        </div>
+      </div>
+      <div class="kpi-row">
+        <span class="kpi-row__code kpi-row__code--clay">DR.04</span>
+        <div>
+          <strong>DR RPO ≤ 15min</strong>
+          <p>資料復原點目標；異步複製確保生產數據損失不超過15分鐘。</p>
+        </div>
+      </div>
+      <div class="kpi-row">
+        <span class="kpi-row__code kpi-row__code--sage">TPL.05</span>
+        <div>
+          <strong>跨廠模板歸檔 100%</strong>
+          <p>量產期結束後，全套建置設定、流程與AI模型完整歸檔為跨廠複製範本。</p>
+        </div>
+      </div>
+    </div>
+    <div class="compliance-wrap reveal">
+      <p class="compliance-label">合規底座</p>
+      <ComplianceBadges />
+    </div>
+    <p class="governance-note reveal">
+      8道Gate對齊四階段建置 · RACI每議題唯一責任人（A）· 風險三級（紅/黃/綠）升級機制 ·
+      DR演練納入季度Review閉環 · 跨廠模板100%歸檔備查
+    </p>
+  </section>
+
+  <!-- FIG.05: 風險與合規 ──────────────────────────────────── -->
+  <section class="section section--deep" id="risk" aria-labelledby="heading-05">
+    <SectionHeader index="05" zh="風險與合規" en="RISK & COMPLIANCE" />
+    <p class="fig-lede reveal">
+      六個風險域、逐一對策 — 供應鏈到人力，全程透明。
+      三級升級（紅/黃/綠）機制：黃級48小時升級至項目委員會，紅級即時上報廠方決策者。
+    </p>
+    <div class="risk-grid reveal" role="list" aria-label="風險登記冊 R.01–R.06">
+      {risks.map((r) => (
+        <div role="listitem">
+          <RiskCard
+            id={r.data.id}
+            zhRisk={r.data.zhRisk}
+            mitigation={r.data.mitigation}
+            tier={r.data.tier}
+          />
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- FIG.06: 跨廠複製藍圖 ────────────────────────────────── -->
+  <section class="section" id="replication" aria-labelledby="heading-06">
+    <SectionHeader index="06" zh="跨廠複製藍圖" en="CROSS-FAB REPLICATION" />
+    <p class="fig-lede reveal">
+      第一廠建置完成後，知識資產以100%歸檔的形式移交 — 範本讓第二廠啟動更快、試產更準。
+    </p>
+
+    <!-- 3-step process -->
+    <ol class="repl-steps" aria-label="跨廠複製三步驟">
+      {replSteps.map((s) => (
+        <li class="repl-step reveal">
+          <div class="repl-step__num" aria-hidden="true">{s.num}</div>
+          <div class="repl-step__content">
+            <h3 class="repl-step__zh">{s.zh}</h3>
+            <p class="repl-step__en" aria-hidden="true">{s.en}</p>
+            <p class="repl-step__body">{s.body}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+
+    <!-- Template content checklist -->
+    <div class="checklist-wrap reveal">
+      <p class="checklist-label">
+        <span class="checklist-label__dot" aria-hidden="true"></span>
+        範本內容清單
+        <span class="checklist-label__en" aria-hidden="true">TEMPLATE CONTENT</span>
+        <span class="checklist-badge checklist-badge--sage">COVERAGE</span>
+      </p>
+      <ul class="checklist" aria-label="跨廠複製範本清單">
+        {templateItems.map((item) => (
+          <li class="checklist__item">
+            <span class="checklist__status checklist__status--sage" aria-label="已歸檔">歸檔</span>
+            <span class="checklist__text">{item}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <!-- Honest disclaimer -->
+    <div class="disclaimer reveal" role="note" aria-label="範本複製說明">
+      <span class="disclaimer__label" aria-hidden="true">// NOTE</span>
+      <p class="disclaimer__text">
+        範本降低複製成本，但不等於零定制工作。每廠的機台廠商、製程節點與廠房條件不同，
+        需經差異評估後方能確認定制範圍與工期。第二廠預計裝機期縮短20–30%，
+        試產期聯調週期縮短15–25%（視差異度而定）。
+      </p>
+    </div>
+  </section>
+
+  <!-- ENGAGE CTA -->
+  <EngageCTA locale={locale} />
+</PageLayout>
+
+<script>
+  import { revealOnEnter } from '../scripts/theme-motion';
+  revealOnEnter('.reveal');
+</script>
+
+<style>
+  /* ── Section intro lede ───────────────────────────────── */
+  .fig-lede {
+    max-width: 64ch;
+    color: var(--ink-muted);
+    font-size: clamp(0.95rem, 2vw, 1.05rem);
+    line-height: 1.7;
+    margin-bottom: clamp(1.75rem, 4vw, 2.5rem);
+  }
+
+  /* ── Deep background for risk section ────────────────── */
+  .section--deep {
+    background: var(--bg-deep);
+  }
+
+  /* ── Phase detail rows (FIG.03 supplement) ───────────── */
+  .phase-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 2rem;
+    border: 1px solid var(--border);
+  }
+
+  .phase-detail__row {
+    display: grid;
+    grid-template-columns: 14rem 1fr;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    align-items: start;
+  }
+  .phase-detail__row:last-child {
+    border-bottom: none;
+  }
+
+  .phase-detail__tag {
+    font-family: var(--font-mono);
+    font-size: 0.73rem;
+    letter-spacing: 0.12em;
+    font-weight: 600;
+    padding: clamp(0.75rem, 2vw, 1.1rem) clamp(0.85rem, 2vw, 1.25rem);
+    border-right: 1px solid var(--border);
+    line-height: 1.5;
+    background: var(--surface);
+  }
+  .phase-detail__tag--sage { color: var(--sage); }
+  .phase-detail__tag--gold { color: var(--sun); }
+  .phase-detail__tag--clay { color: var(--clay); }
+
+  .phase-detail__body {
+    font-size: 0.875rem;
+    color: var(--ink-muted);
+    line-height: 1.65;
+    padding: clamp(0.75rem, 2vw, 1.1rem) clamp(0.85rem, 2vw, 1.25rem);
+    margin: 0;
+  }
+
+  @media (max-width: 600px) {
+    .phase-detail__row {
+      grid-template-columns: 1fr;
+    }
+    .phase-detail__tag {
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+    }
+  }
+
+  /* ── KPI detail rows (FIG.04) ────────────────────────── */
+  .kpi-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 2rem 0;
+    border: 1px solid var(--border);
+  }
+
+  .kpi-row {
+    display: grid;
+    grid-template-columns: 7rem 1fr;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    align-items: start;
+  }
+  .kpi-row:last-child {
+    border-bottom: none;
+  }
+
+  .kpi-row__code {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    font-weight: 700;
+    padding: clamp(0.85rem, 2vw, 1.25rem);
+    border-right: 1px solid var(--border);
+    background: var(--surface);
+    display: flex;
+    align-items: flex-start;
+    padding-top: clamp(0.85rem, 2vw, 1.3rem);
+  }
+  .kpi-row__code--clay { color: var(--clay); }
+  .kpi-row__code--gold { color: var(--sun); }
+  .kpi-row__code--sage { color: var(--sage); }
+
+  .kpi-row > div {
+    padding: clamp(0.75rem, 2vw, 1.1rem) clamp(0.85rem, 2vw, 1.25rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .kpi-row strong {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .kpi-row p {
+    font-size: 0.82rem;
+    color: var(--ink-muted);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  @media (max-width: 480px) {
+    .kpi-row {
+      grid-template-columns: 1fr;
+    }
+    .kpi-row__code {
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+    }
+  }
+
+  /* ── Compliance wrap (FIG.04) ─────────────────────────── */
+  .compliance-wrap {
+    margin-top: 2.5rem;
+  }
+  .compliance-label {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    color: var(--sage);
+    font-weight: 600;
+    margin-bottom: 0.85rem;
+  }
+
+  /* ── Governance note (FIG.04) ────────────────────────── */
+  .governance-note {
+    margin-top: 1.5rem;
+    max-width: 72ch;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    color: var(--ink-muted);
+    line-height: 1.8;
+    border-left: 2px solid var(--border-strong);
+    padding-left: 1rem;
+  }
+
+  /* ── Risk grid (FIG.05) ──────────────────────────────── */
+  .risk-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+    gap: 1.25rem;
+  }
+
+  /* ── Replication steps (FIG.06) ──────────────────────── */
+  .repl-steps {
+    list-style: none;
+    margin: 0 0 2.5rem;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+    gap: 0;
+    border: 1px solid var(--border);
+    counter-reset: repl-counter;
+  }
+
+  .repl-step {
+    display: flex;
+    gap: 1.25rem;
+    padding: clamp(1.25rem, 3vw, 1.75rem);
+    border-right: 1px solid var(--border);
+    background: var(--surface);
+    position: relative;
+  }
+  .repl-step:last-child {
+    border-right: none;
+  }
+
+  @media (max-width: 640px) {
+    .repl-steps {
+      grid-template-columns: 1fr;
+    }
+    .repl-step {
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+    }
+    .repl-step:last-child {
+      border-bottom: none;
+    }
+  }
+
+  /* step number large numeral — gold accent = performance/delivery */
+  .repl-step__num {
+    font-family: var(--font-mono);
+    font-size: clamp(2rem, 5vw, 2.75rem);
+    font-weight: 500;
+    color: var(--sun);
+    line-height: 1;
+    flex-shrink: 0;
+    opacity: 0.55;
+    min-width: 2.5rem;
+  }
+
+  .repl-step__content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .repl-step__zh {
+    font-size: clamp(1rem, 2.5vw, 1.15rem);
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  .repl-step__en {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.16em;
+    color: var(--ink-faint);
+    margin: 0;
+  }
+
+  .repl-step__body {
+    font-size: 0.875rem;
+    color: var(--ink-muted);
+    line-height: 1.65;
+    margin: 0.3rem 0 0;
+  }
+
+  /* ── Template checklist (FIG.06) ─────────────────────── */
+  .checklist-wrap {
+    margin-bottom: 2rem;
+    border: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .checklist-label {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    color: var(--sage);
+    font-weight: 600;
+    padding: 0.85rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    margin: 0;
+  }
+
+  .checklist-label__dot {
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    background: var(--sage);
+    border-radius: 1px;
+    flex-shrink: 0;
+  }
+
+  .checklist-label__en {
+    opacity: 0.55;
+    font-weight: 400;
+  }
+
+  .checklist-badge {
+    font-family: var(--font-mono);
+    font-size: 0.60rem;
+    letter-spacing: 0.14em;
+    font-weight: 600;
+    padding: 0.12em 0.45em;
+    border-radius: 2px;
+    border: 1px solid;
+    margin-left: auto;
+  }
+  .checklist-badge--sage {
+    color: var(--sage);
+    border-color: color-mix(in srgb, var(--sage) 40%, transparent);
+    background: color-mix(in srgb, var(--sage) 8%, transparent);
+  }
+
+  .checklist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .checklist__item {
+    display: flex;
+    align-items: baseline;
+    gap: 0.85rem;
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+  .checklist__item:last-child {
+    border-bottom: none;
+  }
+
+  .checklist__status {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .checklist__status--sage {
+    color: var(--sage);
+  }
+
+  .checklist__text {
+    color: var(--ink);
+  }
+
+  /* ── Honest disclaimer (FIG.06) ──────────────────────── */
+  .disclaimer {
+    background: color-mix(in srgb, var(--surface) 60%, transparent);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--border-strong);
+    padding: clamp(1rem, 3vw, 1.5rem) clamp(1rem, 3vw, 1.5rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .disclaimer__label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--ink-faint);
+    font-weight: 600;
+  }
+
+  .disclaimer__text {
+    font-size: 0.875rem;
+    color: var(--ink-muted);
+    line-height: 1.7;
+    max-width: 68ch;
+    margin: 0;
+  }
+</style>
