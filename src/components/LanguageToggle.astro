@@ -20,9 +20,15 @@ const segs = [
   {
     segs.map((s) =>
       s.code === locale ? (
-        <span class="lang-toggle__seg is-active" aria-current="true">
+        <a
+          class="lang-toggle__seg is-active"
+          href={s.href}
+          hreflang={s.code}
+          lang={s.code}
+          aria-current="true"
+        >
           {s.label}
-        </span>
+        </a>
       ) : (
         <a class="lang-toggle__seg" href={s.href} hreflang={s.code} lang={s.code}>
           {s.label}
