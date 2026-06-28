@@ -1,0 +1,6 @@
+{
+  "id": "DR-AsyncReplication",
+  "domain": "DR",
+  "zhName": "異步複製",
+  "spec": "關鍵DB延遲 ≤ 15min · 涵蓋MES數據、Historian、Lakehouse"
+}

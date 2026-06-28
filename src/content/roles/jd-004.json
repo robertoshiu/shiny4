@@ -1,0 +1,10 @@
+{
+  "id": "JD-004",
+  "zhTitle": "OT資安工程師/SOC分析師",
+  "enTitle": "OT SECURITY ENGINEER / SOC ANALYST",
+  "functionTeam": "T5",
+  "level": "中級/Mid",
+  "priorityPhase": "裝機期優先",
+  "summary": "維運OT入侵偵測與SOC 24×7 SIEM/SOAR，對齊IEC 62443與等保2.0三級合規要求。",
+  "tags": ["IEC 62443", "SIEM/SOAR", "等保2.0"]
+}

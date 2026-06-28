@@ -1,0 +1,6 @@
+{
+  "id": "DR-WarmStandby",
+  "domain": "DR",
+  "zhName": "溫備援跨區域架構",
+  "spec": "溫備援（Warm Standby）· 跨區域 · RTO ≤ 4hr · RPO ≤ 15min"
+}

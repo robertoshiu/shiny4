@@ -1,0 +1,7 @@
+{
+  "id": "T6",
+  "zhName": "DR業務連續性",
+  "enLabel": "DISASTER RECOVERY",
+  "description": "溫備援跨區域架構、異步複製、SD-WAN雙ISP；保障RTO ≤ 4hr/RPO ≤ 15min，DR演練納入季度Review。",
+  "tags": ["RTO ≤ 4hr", "RPO ≤ 15min", "SD-WAN"]
+}

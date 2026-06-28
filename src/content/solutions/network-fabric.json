@@ -1,0 +1,12 @@
+{
+  "id": "高速網絡Fabric",
+  "zhName": "高速網絡Fabric",
+  "enLabel": "HIGH-SPEED NETWORK FABRIC",
+  "problem": "AI Fabric東西向計算互聯與生產網南北向流量需要800Gb/s超低延遲高頻寬支撐。",
+  "scope": "Quantum-X800 InfiniBand 144-port 800Gb/s XDR交換矩陣，覆蓋AI Fabric東西向計算網；Spectrum-X SN5600 800Gb/s乙太網絡，覆蓋生產網南北向與存儲網；ConnectX-8 SuperNIC + LinkX高速電纜與光纖佈線；SD-WAN雙ISP廣域鏈路設計（DR路徑冗餘）",
+  "keySpecs": [
+    "Quantum-X800（InfiniBand 800Gb/s XDR · 144-port）",
+    "Spectrum-X（SN5600 800Gb/s生產網）",
+    "ConnectX-8（SuperNIC端點網卡）"
+  ]
+}

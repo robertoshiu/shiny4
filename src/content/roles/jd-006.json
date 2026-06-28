@@ -1,0 +1,10 @@
+{
+  "id": "JD-006",
+  "zhTitle": "DR/業務連續性工程師",
+  "enTitle": "DR & BUSINESS CONTINUITY ENGINEER",
+  "functionTeam": "T6",
+  "level": "中高級",
+  "priorityPhase": "試產期優先",
+  "summary": "建置溫備援跨區域架構、異步複製與SD-WAN雙ISP；保障RTO ≤ 4hr/RPO ≤ 15min，兼負ISA-95企業整合接口。",
+  "tags": ["RTO ≤ 4hr", "SD-WAN", "ISA-95"]
+}

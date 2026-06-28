@@ -1,0 +1,7 @@
+{
+  "id": "T2",
+  "zhName": "MES/EAP",
+  "enLabel": "MANUFACTURING EXECUTION",
+  "description": "高量產MES平台（FAB300）實施、SECS-GEM/GEM300機台聯調、WIP調度優化與APC R2R+FDC閉環。",
+  "tags": ["FAB300", "SECS-GEM", "APC FDC"]
+}

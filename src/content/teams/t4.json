@@ -1,0 +1,7 @@
+{
+  "id": "T4",
+  "zhName": "網絡",
+  "enLabel": "NETWORK FABRIC",
+  "description": "Quantum-X800 InfiniBand 800Gb/s AI Fabric、Spectrum-X東西向交換及南北向生產網設計與維運。",
+  "tags": ["Quantum-X800", "Spectrum-X", "OT網段"]
+}

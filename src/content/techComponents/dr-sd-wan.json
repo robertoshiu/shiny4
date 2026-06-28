@@ -1,0 +1,6 @@
+{
+  "id": "DR-SDWAN",
+  "domain": "DR",
+  "zhName": "SD-WAN雙ISP",
+  "spec": "廣域鏈路 · SD-WAN雙ISP · 自動切換 · DR路徑冗餘"
+}

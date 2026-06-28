@@ -1,0 +1,13 @@
+{
+  "id": "異地備援DR",
+  "zhName": "異地備援DR",
+  "enLabel": "DISASTER RECOVERY",
+  "problem": "晶圓廠停機成本極高，業務連續性需要架構級保障。",
+  "scope": "異地溫備援機房選址、網絡設計與基礎設施建置；2×HGX B300關鍵推理備援節點（確保AI決策在DR期間維持）；異步複製架構設計，涵蓋MES數據、Historian、Lakehouse；SD-WAN雙ISP廣域鏈路冗餘；DR季度演練計劃與SLA文件",
+  "keySpecs": [
+    "RTO ≤ 4hr（關鍵系統）",
+    "RPO ≤ 15min（異步複製）",
+    "備援架構（溫備援跨區域 · SD-WAN雙ISP）",
+    "DR維運（依合約確認）"
+  ]
+}

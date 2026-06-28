@@ -1,0 +1,7 @@
+{
+  "id": "Digital-Twin",
+  "domain": "data-AI",
+  "zhName": "Digital Twin（Omniverse）",
+  "spec": "NVIDIA Omniverse · 即時3D產線數位映像 · 機台狀態/WIP流/製程配方即時同步",
+  "note": "支援虛擬除錯與排程模擬。"
+}

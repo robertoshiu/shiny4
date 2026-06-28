@@ -1,0 +1,7 @@
+{
+  "id": "DR-HGX-B300",
+  "domain": "DR",
+  "zhName": "HGX B300 DR備援節點",
+  "spec": "×2 關鍵推理保留 · 確保AI決策在DR期間維持",
+  "note": "DR維運依合約DR SLA；DR演練納入季度Review。"
+}

@@ -1,0 +1,12 @@
+{
+  "id": "資訊安全OT-IT",
+  "zhName": "資訊安全OT/IT",
+  "enLabel": "SECURITY — OT & IT",
+  "problem": "OT與IT網絡邊界模糊，合規多軌並行。",
+  "scope": "OT入侵偵測與資產可視化，資產盤點與行為基線，覆蓋全廠OT網段；NGFW部署（OT/IT邊界防護）+ EDR端點防護 + IAM/PAM特權存取；SIEM/SOAR平台整合，CCC中控台統一告警管理；SOC 24×7服務（含OT事件響應SLA），對齊IEC 62443/SEMI E187/等保2.0三級",
+  "keySpecs": [
+    "OT可視化（OT入侵偵測與資產可視化）",
+    "SOC（24×7 SIEM/SOAR驅動）",
+    "合規底座（IEC 62443 · SEMI E187 · 等保2.0三級）"
+  ]
+}

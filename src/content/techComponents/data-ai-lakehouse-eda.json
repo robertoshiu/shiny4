@@ -1,0 +1,6 @@
+{
+  "id": "Lakehouse-EDA",
+  "domain": "data-AI",
+  "zhName": "Lakehouse EDA",
+  "spec": "Delta Lake架構統一批次與串流 · EDA高頻波形採集"
+}

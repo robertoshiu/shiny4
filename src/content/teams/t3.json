@@ -1,0 +1,7 @@
+{
+  "id": "T3",
+  "zhName": "AI/MLOps",
+  "enLabel": "AI & MLOPS",
+  "description": "模型訓練與部署平台（基於GB300 AI Fabric）、Agentic RAG開發、Digital Twin算力供給與MLOps流水線。",
+  "tags": ["GB300 NVL72", "Agentic RAG", "Omniverse"]
+}

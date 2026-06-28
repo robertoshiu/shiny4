@@ -1,0 +1,7 @@
+{
+  "id": "Quantum-X800",
+  "domain": "network",
+  "zhName": "Quantum-X800",
+  "spec": "InfiniBand · 144-port · 800Gb/s XDR · 東西向AI計算互聯",
+  "note": "支撐高頻張量並行訓練與Digital Twin即時數據流。"
+}

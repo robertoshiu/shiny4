@@ -1,0 +1,7 @@
+{
+  "id": "T8",
+  "zhName": "中控CCC",
+  "enLabel": "CENTRAL COMMAND & CONTROL",
+  "description": "整合全廠事件告警、KPI看板、異常升級與跨部門協調；CCC中控台是全廠可觀測性的單一入口。",
+  "tags": ["CCC中控台", "全廠告警", "KPI看板"]
+}

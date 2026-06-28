@@ -1,0 +1,7 @@
+{
+  "id": "T1",
+  "zhName": "架構治理",
+  "enLabel": "ARCHITECTURE & GOVERNANCE",
+  "description": "制定IT/OT六層技術堆疊藍圖、標準與Gate審查流程；RACI管理與跨廠知識模板歸檔。",
+  "tags": ["企業架構", "RACI", "Gate Review"]
+}

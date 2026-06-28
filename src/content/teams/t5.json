@@ -1,0 +1,7 @@
+{
+  "id": "T5",
+  "zhName": "資安/SOC",
+  "enLabel": "SECURITY & SOC",
+  "description": "OT入侵偵測與資產可視化、SOC 24×7 SIEM/SOAR運營、NGFW/EDR/IAM/PAM，對齊IEC 62443與等保2.0三級。",
+  "tags": ["IEC 62443", "SIEM/SOAR", "等保2.0"]
+}

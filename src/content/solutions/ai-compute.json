@@ -1,0 +1,12 @@
+{
+  "id": "AI算力與儲存",
+  "zhName": "AI算力與儲存",
+  "enLabel": "AI COMPUTE & STORAGE",
+  "problem": "AI訓練與即時推理需要超算級算力。",
+  "scope": "3×GB300 NVL72整機櫃AI系統，液冷全套設計與施工；4×HGX B300推理節點，承擔邊緣決策與備援推理；NVMe數據湖，覆蓋EDA高頻波形至訓練特徵全鏈路儲存；機房液冷基礎設施設計，依液冷規格規劃總供電",
+  "keySpecs": [
+    "GB300 NVL72×3（液冷AI Fabric · Blackwell Ultra）",
+    "HGX B300×4（邊緣推理 · Blackwell Ultra）",
+    "儲存 NVMe數據湖"
+  ]
+}

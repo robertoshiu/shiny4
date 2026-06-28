@@ -1,0 +1,12 @@
+{
+  "id": "企業整合",
+  "zhName": "企業整合",
+  "enLabel": "ENTERPRISE INTEGRATION",
+  "problem": "ISA-95 L3↔L4數據流缺乏標準化架構，MES與ERP/PLM間存在數據孤島。",
+  "scope": "ISA-95 L3↔L4數據流架構設計與實施，對齊MES FAB300接口規範；ERP/PLM雙向接口（工單、BOM、庫存、良率報表）；AMHS/MCS自動物料搬運系統整合，LIMS實驗室信息管理接口；FMCS廠務管控系統OPC UA接口，統一進入數據層",
+  "keySpecs": [
+    "標準架構（ISA-95 L3↔L4雙向）",
+    "整合系統（ERP · PLM · AMHS/MCS · LIMS · FMCS）",
+    "通訊協議（OPC UA · SECS-GEM · REST API）"
+  ]
+}

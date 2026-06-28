@@ -1,0 +1,8 @@
+{
+  "order": 2,
+  "id": "技術諮詢",
+  "zhName": "技術諮詢",
+  "enLabel": "TECHNICAL ADVISORY",
+  "description": "針對AI算力（GB300/HGX B300）、MES（FAB300）、OT安全（IEC 62443）或DR架構的深度技術評估。",
+  "target": "架構評估、技術選型、POC規劃"
+}

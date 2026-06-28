@@ -1,0 +1,10 @@
+{
+  "id": "JD-005",
+  "zhTitle": "網絡工程師（InfiniBand/OT）",
+  "enTitle": "NETWORK ENGINEER — INFINIBAND & OT",
+  "functionTeam": "T4",
+  "level": "中高級",
+  "priorityPhase": "建廠—裝機期",
+  "summary": "設計與維運Quantum-X800 InfiniBand 800Gb/s AI Fabric及Spectrum-X南北向生產網。",
+  "tags": ["Quantum-X800", "Spectrum-X", "OT網段"]
+}

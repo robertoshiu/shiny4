@@ -1,0 +1,7 @@
+{
+  "id": "T7",
+  "zhName": "企業整合",
+  "enLabel": "ENTERPRISE INTEGRATION",
+  "description": "打通ISA-95 L3↔L4數據流：ERP/PLM接口、AMHS/MCS、LIMS、FMCS；確保跨系統數據完整性。",
+  "tags": ["ISA-95", "ERP/PLM", "AMHS/MCS"]
+}

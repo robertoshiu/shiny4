@@ -1,0 +1,5 @@
+{
+  "id": "R.05",
+  "zhRisk": "系統整合風險 / INTEGRATION：六層架構跨越OT/IT邊界，SECS-GEM/GEM300聯調涉及8類機台廠商。",
+  "mitigation": "接口凍結於建廠期Gate 2，EAP聯調M5啟動"
+}
