@@ -79,6 +79,8 @@ export const solutionSchema = z.object({
   scope_en: z.string().optional(),
   'scope_zh-Hans': z.string().optional(),
   keySpecs: z.array(z.string()),
+  keySpecs_en: z.array(z.string()).optional(),
+  'keySpecs_zh-Hans': z.array(z.string()).optional(),
   /** Proportional gauge weight; not in source inventory — populate before launch. */
   sharePct: z.number().optional(),
 });
@@ -173,6 +175,8 @@ export const techComponentSchema = z.object({
   zhName_en: z.string().optional(),
   'zhName_zh-Hans': z.string().optional(),
   spec: z.string(),
+  spec_en: z.string().optional(),
+  'spec_zh-Hans': z.string().optional(),
   note: z.string().optional(),
   note_en: z.string().optional(),
   'note_zh-Hans': z.string().optional(),

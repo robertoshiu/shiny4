@@ -7,6 +7,10 @@
  * Compliance alignment (IEC 62443 / SEMI E187 / ISA-95 / 等保2.0三級 / 密評)
  * Decorative SVG shapes are aria-hidden; all labels are real DOM text.
  */
+import { t, type Locale } from '../i18n/utils';
+
+interface Props { locale?: Locale }
+const { locale = 'zh-Hant' } = Astro.props;
 
 const zones = [
   {
@@ -14,12 +18,13 @@ const zones = [
     accent: 'clay' as const,
     badge: 'RESILIENCE',
     zh: 'OT 域',
+    zhHans: 'OT 域',
     en: 'OT DOMAIN',
     std: 'IEC 62443 Zone 1',
     items: [
-      { zh: 'OT 入侵偵測與資產可視化', en: 'IDS · Asset Visibility' },
-      { zh: 'SECS-GEM / OPC UA 監控', en: 'Protocol Monitoring' },
-      { zh: '設備固件完整性驗證', en: 'Firmware Integrity' },
+      { zh: 'OT 入侵偵測與資產可視化', zhHans: 'OT 入侵侦测与资产可视化', en: 'IDS · Asset Visibility' },
+      { zh: 'SECS-GEM / OPC UA 監控', zhHans: 'SECS-GEM / OPC UA 监控', en: 'Protocol Monitoring' },
+      { zh: '設備固件完整性驗證', zhHans: '设备固件完整性验证', en: 'Firmware Integrity' },
     ],
     compliance: ['IEC 62443', 'SEMI E187'],
   },
@@ -28,13 +33,14 @@ const zones = [
     accent: 'sage' as const,
     badge: 'GOVERNANCE',
     zh: 'IT/OT 邊界',
+    zhHans: 'IT/OT 边界',
     en: 'BOUNDARY · CONDUIT',
     std: 'IEC 62443 Conduit',
     items: [
-      { zh: 'NGFW 下一代防火牆', en: 'Next-Gen Firewall' },
-      { zh: 'ISA-95 L3/L4 分段', en: 'Layer Segmentation' },
-      { zh: 'VLAN 隔離', en: 'VLAN Isolation' },
-      { zh: '加密傳輸 TLS 1.3', en: 'Encrypted Transport' },
+      { zh: 'NGFW 下一代防火牆', zhHans: 'NGFW 下一代防火墙', en: 'Next-Gen Firewall' },
+      { zh: 'ISA-95 L3/L4 分段', zhHans: 'ISA-95 L3/L4 分段', en: 'Layer Segmentation' },
+      { zh: 'VLAN 隔離', zhHans: 'VLAN 隔离', en: 'VLAN Isolation' },
+      { zh: '加密傳輸 TLS 1.3', zhHans: '加密传输 TLS 1.3', en: 'Encrypted Transport' },
     ],
     compliance: ['ISA-95', 'IEC 62443'],
   },
@@ -43,28 +49,75 @@ const zones = [
     accent: 'sun' as const,
     badge: 'PERFORMANCE',
     zh: 'IT 域',
+    zhHans: 'IT 域',
     en: 'IT DOMAIN',
     std: 'IEC 62443 Zone 2',
     items: [
-      { zh: 'SIEM / SOAR 平台', en: 'Security Operations' },
-      { zh: 'SOC 24×7', en: 'Round-the-Clock SOC' },
-      { zh: 'EDR / IAM / PAM', en: 'Endpoint & Access' },
-      { zh: '威脅情報訂閱', en: 'Threat Intelligence' },
+      { zh: 'SIEM / SOAR 平台', zhHans: 'SIEM / SOAR 平台', en: 'Security Operations' },
+      { zh: 'SOC 24×7', zhHans: 'SOC 24×7', en: 'Round-the-Clock SOC' },
+      { zh: 'EDR / IAM / PAM', zhHans: 'EDR / IAM / PAM', en: 'Endpoint & Access' },
+      { zh: '威脅情報訂閱', zhHans: '威胁情报订阅', en: 'Threat Intelligence' },
     ],
     compliance: ['等保2.0三級', '密評'],
   },
-] as const;
+];
+
+// Helper: pick the locale-appropriate label for a zone
+const zoneLabel = (zone: typeof zones[number]) =>
+  locale === 'en' ? zone.en : locale === 'zh-Hans' ? zone.zhHans : zone.zh;
+
+// Helper: pick the locale-appropriate item primary text
+const itemLabel = (item: { zh: string; zhHans: string; en: string }) =>
+  locale === 'en' ? item.en : locale === 'zh-Hans' ? item.zhHans : item.zh;
 
 const complianceMatrix = [
-  { std: 'IEC 62443', desc: '工業控制系統安全 · Zone/Conduit/SL 模型', zones: ['ot', 'boundary'] },
-  { std: 'SEMI E187',  desc: '晶圓廠設備網路安全規範 · SECS-GEM 通訊安全', zones: ['ot'] },
-  { std: 'ISA-95',     desc: 'L3↔L4 整合標準 · MES/ERP 資訊交換模型', zones: ['boundary'] },
-  { std: '等保2.0三級', desc: '關鍵資訊基礎設施安全等級保護', zones: ['it', 'boundary'] },
-  { std: '密評',       desc: '商用密碼算法（SM2/SM3/SM4）應用安全評估', zones: ['it'] },
-] as const;
+  {
+    std: 'IEC 62443',
+    desc: '工業控制系統安全 · Zone/Conduit/SL 模型',
+    desc_en: 'Industrial Control Systems Security · Zone/Conduit/SL Model',
+    'desc_zh-Hans': '工业控制系统安全 · Zone/Conduit/SL 模型',
+    zones: ['ot', 'boundary'],
+  },
+  {
+    std: 'SEMI E187',
+    desc: '晶圓廠設備網路安全規範 · SECS-GEM 通訊安全',
+    desc_en: 'Wafer Fab Equipment Cybersecurity Spec · SECS-GEM Communication Security',
+    'desc_zh-Hans': '晶圆厂设备网络安全规范 · SECS-GEM 通信安全',
+    zones: ['ot'],
+  },
+  {
+    std: 'ISA-95',
+    desc: 'L3↔L4 整合標準 · MES/ERP 資訊交換模型',
+    desc_en: 'L3↔L4 Integration Standard · MES/ERP Information Exchange Model',
+    'desc_zh-Hans': 'L3↔L4 整合标准 · MES/ERP 信息交换模型',
+    zones: ['boundary'],
+  },
+  {
+    std: '等保2.0三級',
+    desc: '關鍵資訊基礎設施安全等級保護',
+    desc_en: 'Critical Information Infrastructure Security Level Protection',
+    'desc_zh-Hans': '关键信息基础设施安全等级保护',
+    zones: ['it', 'boundary'],
+  },
+  {
+    std: '密評',
+    desc: '商用密碼算法（SM2/SM3/SM4）應用安全評估',
+    desc_en: 'Commercial Cryptographic Algorithm (SM2/SM3/SM4) Application Security Evaluation',
+    'desc_zh-Hans': '商用密码算法（SM2/SM3/SM4）应用安全评估',
+    zones: ['it'],
+  },
+];
+
+// Helper: pick locale-appropriate desc from complianceMatrix row
+const cmDesc = (row: typeof complianceMatrix[number]) =>
+  locale === 'en'
+    ? row.desc_en
+    : locale === 'zh-Hans'
+    ? row['desc_zh-Hans']
+    : row.desc;
 ---
 
-<figure class="szd" aria-label="資訊安全 OT/IT 三域架構圖">
+<figure class="szd" aria-label={t('comp.c.szd.ariaLabel', locale)}>
 
   {/* ── Section label ── */}
   <div class="szd__heading" aria-hidden="true">
@@ -73,13 +126,13 @@ const complianceMatrix = [
   </div>
 
   {/* ── Main zone diagram ── */}
-  <div class="szd__diagram" role="list" aria-label="三安全域">
+  <div class="szd__diagram" role="list" aria-label={t('comp.c.szd.zonesAriaLabel', locale)}>
 
     {zones.map((zone, i) => (
       <article
         class={`szd__zone szd__zone--${zone.accent}`}
         role="listitem"
-        aria-label={`${zone.zh} ${zone.en}`}
+        aria-label={locale === 'en' ? zone.en : `${zoneLabel(zone)} ${zone.en}`}
       >
 
         {/* Decorative background SVG — aria-hidden */}
@@ -117,17 +170,17 @@ const complianceMatrix = [
             </span>
             <span class="szd__zone-std">{zone.std}</span>
           </div>
-          <h3 class="szd__zone-zh">{zone.zh}</h3>
+          <h3 class="szd__zone-zh">{zoneLabel(zone)}</h3>
           <p class="szd__zone-en-label">{zone.en}</p>
         </header>
 
         {/* Component list */}
-        <ul class="szd__items" aria-label={`${zone.zh} 元件`}>
+        <ul class="szd__items" aria-label={`${zoneLabel(zone)} ${t('comp.c.szd.components', locale)}`}>
           {zone.items.map(item => (
             <li class="szd__item">
               <span class={`szd__item-dot szd__item-dot--${zone.accent}`} aria-hidden="true" />
               <span class="szd__item-body">
-                <span class="szd__item-zh">{item.zh}</span>
+                <span class="szd__item-zh">{itemLabel(item)}</span>
                 <span class="szd__item-en">{item.en}</span>
               </span>
             </li>
@@ -156,22 +209,22 @@ const complianceMatrix = [
   </div>
 
   {/* ── Compliance alignment matrix ── */}
-  <div class="szd__compliance" aria-label="合規標準對應">
+  <div class="szd__compliance" aria-label={t('comp.c.szd.complianceAriaLabel', locale)}>
     <p class="szd__compliance-heading" aria-hidden="true">
       <span class="szd__compliance-label">COMPLIANCE ALIGNMENT</span>
-      <span class="szd__compliance-note">所有架構層均對齊以下標準 · 合規文件於 8 道 Gate 逐階驗證</span>
+      <span class="szd__compliance-note">{t('comp.c.szd.complianceNote', locale)}</span>
     </p>
     <ul class="szd__matrix" role="list">
       {complianceMatrix.map(row => (
         <li class="szd__matrix-row" role="listitem">
           <span class="szd__matrix-std">{row.std}</span>
-          <span class="szd__matrix-desc">{row.desc}</span>
-          <span class="szd__matrix-zones" aria-label="適用域">
+          <span class="szd__matrix-desc">{cmDesc(row)}</span>
+          <span class="szd__matrix-zones" aria-label="applicable zones">
             {row.zones.map(z => {
               const zone = zones.find(zn => zn.id === z)!;
               return (
                 <span class={`szd__matrix-zone szd__matrix-zone--${zone.accent}`}>
-                  {zone.zh}
+                  {zoneLabel(zone)}
                 </span>
               );
             })}

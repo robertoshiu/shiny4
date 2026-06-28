@@ -1,5 +1,9 @@
 ---
 import { getCollection } from 'astro:content';
+import { t, localized, type Locale } from '../i18n/utils';
+
+interface Props { locale?: Locale }
+const { locale = 'zh-Hant' } = Astro.props;
 
 const rows = (await getCollection('deliveryMatrix')).sort(
   (a, b) => a.data.order - b.data.order,
@@ -19,17 +23,17 @@ const PHASE_CELL = ['p1', 'p2', 'p3', 'p4'] as const;
 
 <div class="dm-wrap">
   <!-- mobile scroll hint: fade edge visible on overflow -->
-  <div class="dm-scroll" role="region" aria-label="交付里程碑矩陣" tabindex="0">
+  <div class="dm-scroll" role="region" aria-label={t('comp.c.dm.ariaLabel', locale)} tabindex="0">
     <table class="dm-table">
       <thead>
         <tr>
           <th class="dm-th dm-th--cat" scope="col">
-            <span class="dm-th__label">交付項目</span>
+            <span class="dm-th__label">{t('comp.c.dm.category', locale)}</span>
           </th>
           {phases.map((ph) => (
             <th class="dm-th dm-th--phase" scope="col" data-phase={ph.data.code}>
               <span class="dm-th__code">{ph.data.code}</span>
-              <span class="dm-th__zh">{ph.data.zhName}</span>
+              <span class="dm-th__zh">{localized(ph.data, 'zhName', locale)}</span>
               <span class="dm-th__months">{ph.data.months}</span>
               <span class="dm-th__gate">{ph.data.gate}</span>
             </th>
@@ -45,13 +49,13 @@ const PHASE_CELL = ['p1', 'p2', 'p3', 'p4'] as const;
                 <span class="dm-cat__idx">
                   {String(row.data.order).padStart(2, '0')}
                 </span>
-                <span class="dm-cat__name">{row.data.category}</span>
+                <span class="dm-cat__name">{localized(row.data, 'category', locale)}</span>
                 {meta && (
                   <span class={`dm-tag dm-tag--${meta.accent}`}>{meta.label}</span>
                 )}
               </th>
               {PHASE_CELL.map((key) => (
-                <td class="dm-cell">{row.data[key]}</td>
+                <td class="dm-cell">{localized(row.data, key, locale)}</td>
               ))}
             </tr>
           );

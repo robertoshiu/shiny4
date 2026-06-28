@@ -8,16 +8,19 @@
  *   sun  = service / perf   (order 3, 4: coordination & talent pipeline)
  *   sage = coverage / gov   (order 1, 5: planning governance & media archive)
  */
+import { t } from '../i18n/utils';
+import type { Locale } from '../i18n/utils';
 
 interface Props {
   order: number;
-  zhName: string;
+  zhName: string;      // caller resolves via localized()
   enLabel: string;
-  description: string;
-  target: string;
+  description: string; // caller resolves via localized()
+  target: string;      // caller resolves via localized()
+  locale?: Locale;
 }
 
-const { order, zhName, enLabel, description, target } = Astro.props;
+const { order, zhName, enLabel, description, target, locale = 'zh-Hant' } = Astro.props;
 
 // Semantic accent mapping — no accent field in schema, computed here (like LayerStack.astro)
 const ACCENT_MAP: Record<number, 'clay' | 'sun' | 'sage' | null> = {
@@ -52,7 +55,7 @@ const orderStr = String(order).padStart(2, '0');
   <p class="inq-card__desc">{description}</p>
 
   <footer class="inq-card__footer">
-    <span class="inq-card__target-label" aria-hidden="true">適用</span>
+    <span class="inq-card__target-label" aria-hidden="true">{t('comp.b.suitableFor', locale)}</span>
     <span class="inq-card__target">{target}</span>
   </footer>
 </article>

@@ -44,13 +44,14 @@ const inquiryTypes = (await getCollection('inquiryTypes')).sort(
         { href: '#form',   label: t('contact.hero.cta.form', locale),   variant: 'clay'  },
         { href: '#direct', label: t('contact.hero.cta.direct', locale), variant: 'ghost' },
       ]}
+      locale={locale}
     />
   </Fragment>
 
   <!-- ── ENGAGE.00 四步交付流程 ─────────────────────────────────── -->
   <section class="section" id="process" aria-labelledby="heading-00">
     <SectionHeader index="00" zh={t('contact.section00.zh', locale)} en={t('contact.section00.en', locale)} />
-    <ProcessSteps />
+    <ProcessSteps locale={locale} />
     <p class="process-note reveal">
       {t('contact.section00.processNote', locale)}
     </p>
@@ -114,10 +115,11 @@ const inquiryTypes = (await getCollection('inquiryTypes')).sort(
         <div role="listitem">
           <InquiryTypeCard
             order={type.data.order}
-            zhName={type.data.zhName}
+            zhName={String(localized(type.data, 'zhName', locale))}
             enLabel={type.data.enLabel}
             description={String(localized(type.data, 'description', locale))}
             target={String(localized(type.data, 'target', locale))}
+            locale={locale}
           />
         </div>
       ))}

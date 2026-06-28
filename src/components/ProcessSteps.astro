@@ -1,5 +1,12 @@
 ---
 import { getCollection } from 'astro:content';
+import { t, localized } from '../i18n/utils';
+import type { Locale } from '../i18n/utils';
+
+interface Props {
+  locale?: Locale;
+}
+const { locale = 'zh-Hant' } = Astro.props;
 
 const steps = (await getCollection('processSteps')).sort((a, b) => a.data.order - b.data.order);
 
@@ -21,16 +28,19 @@ function pad(n: number) {
 }
 ---
 
-<div class="process-steps" role="list" aria-label="合作流程四步驟">
+<div class="process-steps" role="list" aria-label={t('comp.b.processAriaLabel', locale)}>
   {steps.map((step, i) => {
     const accent = STEP_ACCENT[step.data.order] ?? null;
     const isLast = i === steps.length - 1;
+    const stepZhName     = localized(step.data, 'zhName',      locale) as string;
+    const stepEnLabel    = localized(step.data, 'enLabel',     locale) as string;
+    const stepDescription= localized(step.data, 'description', locale) as string;
     return (
       <div class="process-steps__item-wrap">
         <article
           class={`ps-card${accent ? ` ps-card--${accent}` : ''}`}
           role="listitem"
-          aria-label={`Step ${pad(step.data.order)}: ${step.data.zhName}`}
+          aria-label={`Step ${pad(step.data.order)}: ${stepZhName}`}
         >
           {/* Step number — large mono, top-left */}
           <div class="ps-card__header">
@@ -44,14 +54,14 @@ function pad(n: number) {
             )}
           </div>
 
-          {/* Chinese name */}
-          <h3 class="ps-card__zh">{step.data.zhName}</h3>
+          {/* Name (localized) */}
+          <h3 class="ps-card__zh">{stepZhName}</h3>
 
-          {/* English label */}
-          <p class="ps-card__en" aria-hidden="true">{step.data.enLabel}</p>
+          {/* English label (localized) */}
+          <p class="ps-card__en" aria-hidden="true">{stepEnLabel}</p>
 
-          {/* Description */}
-          <p class="ps-card__desc">{step.data.description}</p>
+          {/* Description (localized) */}
+          <p class="ps-card__desc">{stepDescription}</p>
         </article>
 
         {/* Connector arrow between steps — hidden on last */}

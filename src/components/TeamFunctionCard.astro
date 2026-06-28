@@ -6,16 +6,20 @@
  * The parent page (getCollection → sort → map) passes all fields.
  * accent: clay = resilience/DR · sun = service/performance · sage = governance/coverage
  */
+import { t } from '../i18n/utils';
+import type { Locale } from '../i18n/utils';
+
 interface Props {
   id: string;          // e.g. "T1"
-  zhName: string;      // e.g. "架構治理"
+  zhName: string;      // e.g. "架構治理" — caller resolves via localized()
   enLabel: string;     // e.g. "ARCHITECTURE & GOVERNANCE"
-  description: string;
-  tags: [string, string, string]; // exactly 3
+  description: string; // caller resolves via localized()
+  tags: [string, string, string]; // exactly 3 — caller resolves via localized()
   accent?: 'clay' | 'sun' | 'sage';
+  locale?: Locale;
 }
 
-const { id, zhName, enLabel, description, tags, accent } = Astro.props;
+const { id, zhName, enLabel, description, tags, accent, locale = 'zh-Hant' } = Astro.props;
 
 const ACCENT_LABEL: Record<string, string> = {
   clay: 'RESILIENCE',
@@ -40,7 +44,7 @@ const ACCENT_LABEL: Record<string, string> = {
   <p  class="tfc__en">{enLabel}</p>
   <p  class="tfc__desc">{description}</p>
 
-  <footer class="tfc__tags" aria-label="功能標籤">
+  <footer class="tfc__tags" aria-label={t('comp.b.teamFuncTags', locale)}>
     {tags.map((tag) => (
       <span class="tfc__tag">{tag}</span>
     ))}

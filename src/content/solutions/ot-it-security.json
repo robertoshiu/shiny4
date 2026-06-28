@@ -16,5 +16,15 @@
     "OT可視化（OT入侵偵測與資產可視化）",
     "SOC（24×7 SIEM/SOAR驅動）",
     "合規底座（IEC 62443 · SEMI E187 · 等保2.0三級）"
+  ],
+  "keySpecs_en": [
+    "OT Visibility (OT Intrusion Detection & Asset Visibility)",
+    "SOC (24×7 SIEM/SOAR-Driven)",
+    "Compliance Foundation (IEC 62443 · SEMI E187 · MLPS 2.0 Level 3)"
+  ],
+  "keySpecs_zh-Hans": [
+    "OT可视化（OT入侵侦测与资产可视化）",
+    "SOC（24×7 SIEM/SOAR驱动）",
+    "合规底座（IEC 62443 · SEMI E187 · 等保2.0三级）"
   ]
 }

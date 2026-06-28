@@ -1,5 +1,11 @@
 ---
 import { getCollection } from 'astro:content';
+import { localized, type Locale } from '../i18n/utils';
+
+interface Props {
+  locale?: Locale;
+}
+const { locale = 'zh-Hant' } = Astro.props;
 
 const PICK = new Set(['DR.01', 'SLO.03', 'KNW.06']);
 const metrics = (await getCollection('slas'))
@@ -23,8 +29,8 @@ const metrics = (await getCollection('slas'))
           {s.data.value}
           {s.data.suffix}
         </p>
-        <p class="btn__label">{s.data.label}</p>
-        <p class="btn__sub">{s.data.sub}</p>
+        <p class="btn__label">{localized(s.data, 'label', locale) as string}</p>
+        <p class="btn__sub">{localized(s.data, 'sub', locale) as string}</p>
       </article>
     ))
   }

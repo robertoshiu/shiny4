@@ -6,15 +6,18 @@
  * Tier indicator is always text + icon — never color-only.
  * Sage accent is applied to the mitigation label (governance / coverage layer).
  */
+import { t } from '../i18n/utils';
+import type { Locale } from '../i18n/utils';
 
 interface Props {
   id: string;
   zhRisk: string;
   mitigation: string;
   tier?: '綠' | '黃' | '紅';
+  locale?: Locale;
 }
 
-const { id, zhRisk, mitigation, tier } = Astro.props;
+const { id, zhRisk, mitigation, tier, locale = 'zh-Hant' } = Astro.props;
 
 // zhRisk entries use full-width colon "：" to separate "category / EN" from description.
 // Split to render them at different typographic weights.
@@ -24,10 +27,11 @@ const description = colonIdx > -1 ? zhRisk.slice(colonIdx + 1).trim() : '';
 
 // Tier config — text label + distinct geometric icon + accent token.
 // Icon shapes are deliberately different so the distinction is never color-only.
-const TIER: Record<string, { zh: string; en: string; icon: string; accent: string }> = {
-  '綠': { zh: '低風險', en: 'LOW',  icon: '◆', accent: 'sage' },
-  '黃': { zh: '中風險', en: 'MED',  icon: '▲', accent: 'sun'  },
-  '紅': { zh: '高風險', en: 'HIGH', icon: '■', accent: 'clay' },
+// zh label is resolved via t() so it adapts to locale.
+const TIER: Record<string, { zhKey: string; en: string; icon: string; accent: string }> = {
+  '綠': { zhKey: 'comp.b.riskLow',  en: 'LOW',  icon: '◆', accent: 'sage' },
+  '黃': { zhKey: 'comp.b.riskMed',  en: 'MED',  icon: '▲', accent: 'sun'  },
+  '紅': { zhKey: 'comp.b.riskHigh', en: 'HIGH', icon: '■', accent: 'clay' },
 };
 
 const tierCfg = tier ? TIER[tier] : null;
@@ -36,14 +40,14 @@ const tierCfg = tier ? TIER[tier] : null;
 <article class={`risk-card${tierCfg ? ` risk-card--${tierCfg.accent}` : ''}`}>
   {/* ── Top row: id + tier badge ── */}
   <div class="risk-card__header">
-    <span class="risk-card__id" aria-label={`風險編號 ${id}`}>{id}</span>
+    <span class="risk-card__id" aria-label={`${t('comp.b.riskNum', locale)} ${id}`}>{id}</span>
     {tierCfg && (
       <span
         class={`risk-card__tier risk-card__tier--${tierCfg.accent}`}
-        aria-label={`風險等級：${tierCfg.zh}`}
+        aria-label={`${t('comp.b.riskLevel', locale)}${t(tierCfg.zhKey, locale)}`}
       >
         <span class="risk-card__tier-icon" aria-hidden="true">{tierCfg.icon}</span>
-        <span class="risk-card__tier-zh">{tierCfg.zh}</span>
+        <span class="risk-card__tier-zh">{t(tierCfg.zhKey, locale)}</span>
         <span class="risk-card__tier-en" aria-hidden="true">{tierCfg.en}</span>
       </span>
     )}
@@ -61,7 +65,7 @@ const tierCfg = tier ? TIER[tier] : null;
   <div class="risk-card__mitigation">
     <span class="risk-card__mit-label" aria-hidden="true">
       <span class="risk-card__mit-dot" aria-hidden="true"></span>
-      對策&thinsp;<span class="risk-card__mit-en">MITIGATION</span>
+      {t('comp.b.mitigation', locale)}&thinsp;<span class="risk-card__mit-en">MITIGATION</span>
     </span>
     <p class="risk-card__mit-text">{mitigation}</p>
   </div>

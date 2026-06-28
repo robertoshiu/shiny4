@@ -4,5 +4,7 @@
   "zhName": "ConnectX-8 SuperNIC",
   "zhName_en": "ConnectX-8 SuperNIC",
   "zhName_zh-Hans": "ConnectX-8 SuperNIC",
-  "spec": "RDMA卸載降低CPU負擔 · LinkX光纖模組低損耗傳輸"
+  "spec": "RDMA卸載降低CPU負擔 · LinkX光纖模組低損耗傳輸",
+  "spec_en": "RDMA offload reduces CPU overhead · LinkX fiber modules for low-loss transmission",
+  "spec_zh-Hans": "RDMA卸载降低CPU负担 · LinkX光纤模块低损耗传输"
 }

@@ -4,5 +4,7 @@
   "zhName": "Lakehouse EDA",
   "zhName_en": "Lakehouse EDA",
   "zhName_zh-Hans": "Lakehouse EDA",
-  "spec": "Delta Lake架構統一批次與串流 · EDA高頻波形採集"
+  "spec": "Delta Lake架構統一批次與串流 · EDA高頻波形採集",
+  "spec_en": "Delta Lake architecture unifying batch and streaming · EDA high-frequency waveform capture",
+  "spec_zh-Hans": "Delta Lake架构统一批次与串流 · EDA高频波形采集"
 }

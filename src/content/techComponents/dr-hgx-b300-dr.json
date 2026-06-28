@@ -5,6 +5,8 @@
   "zhName_en": "HGX B300 DR Failover Node",
   "zhName_zh-Hans": "HGX B300 DR备援节点",
   "spec": "×2 關鍵推理保留 · 確保AI決策在DR期間維持",
+  "spec_en": "×2 Critical Inference Reserved · Ensures AI Decisions Maintained During DR",
+  "spec_zh-Hans": "×2 关键推理保留 · 确保AI决策在DR期间维持",
   "note": "DR維運依合約DR SLA；DR演練納入季度Review。",
   "note_en": "DR operations per contract DR SLA; DR drills included in quarterly review.",
   "note_zh-Hans": "DR维运依合约DR SLA；DR演练纳入季度Review。"

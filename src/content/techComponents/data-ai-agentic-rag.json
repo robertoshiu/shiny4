@@ -4,5 +4,7 @@
   "zhName": "Agentic RAG",
   "zhName_en": "Agentic RAG",
   "zhName_zh-Hans": "Agentic RAG",
-  "spec": "LLM推理核心 · 接收製程異常訊號後自主查閱知識庫 · 推理根因並閉環回饋配方"
+  "spec": "LLM推理核心 · 接收製程異常訊號後自主查閱知識庫 · 推理根因並閉環回饋配方",
+  "spec_en": "LLM inference core · autonomously queries knowledge base on process anomaly signals · reasons root cause and closes feedback loop to recipe",
+  "spec_zh-Hans": "LLM推理核心 · 接收制程异常信号后自主查阅知识库 · 推理根因并闭环回馈配方"
 }

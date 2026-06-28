@@ -1,5 +1,10 @@
 ---
 import { getCollection } from 'astro:content';
+import { localized, type Locale } from '../i18n/utils';
+
+interface Props { locale?: Locale }
+const { locale = 'zh-Hant' } = Astro.props;
+
 const items = (await getCollection('compliance')).sort((a, b) => a.data.order - b.data.order);
 ---
 
@@ -8,7 +13,7 @@ const items = (await getCollection('compliance')).sort((a, b) => a.data.order - 
     items.map((c) => (
       <li class="compliance__badge">
         <span class="compliance__name">{c.data.name}</span>
-        <span class="compliance__full">{c.data.fullName}</span>
+        <span class="compliance__full">{localized(c.data, 'fullName', locale)}</span>
       </li>
     ))
   }

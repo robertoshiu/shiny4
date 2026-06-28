@@ -9,7 +9,7 @@ import ComplianceBadges from '../components/ComplianceBadges.astro';
 import RiskCard from '../components/RiskCard.astro';
 import EngageCTA from '../components/EngageCTA.astro';
 import { getCollection } from 'astro:content';
-import { t } from '../i18n/utils';
+import { t, localized } from '../i18n/utils';
 import type { Locale } from '../i18n/utils';
 
 interface Props {
@@ -93,6 +93,7 @@ const templateItems = [
         { href: '/contact/', label: t('cta.consult', locale), variant: 'clay' },
         { href: '#matrix', label: t('methodology.hero.cta2', locale), variant: 'ghost' },
       ]}
+      locale={locale}
     />
   </Fragment>
 
@@ -107,7 +108,7 @@ const templateItems = [
       {t('methodology.section02.lede', locale)}
     </p>
     <div class="reveal">
-      <DeliveryMatrix />
+      <DeliveryMatrix locale={locale} />
     </div>
   </section>
 
@@ -122,7 +123,7 @@ const templateItems = [
       {t('methodology.section03.lede', locale)}
     </p>
     <div class="reveal">
-      <PhaseTimeline />
+      <PhaseTimeline locale={locale} />
     </div>
     <div class="phase-detail reveal" aria-label={t('methodology.section03.phaseDetailAriaLabel', locale)}>
       <div class="phase-detail__row">
@@ -155,7 +156,7 @@ const templateItems = [
       {t('methodology.section04.lede', locale)}
     </p>
     <div class="reveal">
-      <SlaStrip />
+      <SlaStrip locale={locale} />
     </div>
     <div class="kpi-detail reveal" aria-label={t('methodology.section04.kpiAriaLabel', locale)}>
       <div class="kpi-row">
@@ -196,7 +197,7 @@ const templateItems = [
     </div>
     <div class="compliance-wrap reveal">
       <p class="compliance-label">{t('methodology.section04.complianceLabel', locale)}</p>
-      <ComplianceBadges />
+      <ComplianceBadges locale={locale} />
     </div>
     <p class="governance-note reveal">
       {t('methodology.section04.governanceNote', locale)}
@@ -218,9 +219,10 @@ const templateItems = [
         <div role="listitem">
           <RiskCard
             id={r.data.id}
-            zhRisk={r.data.zhRisk}
-            mitigation={r.data.mitigation}
+            zhRisk={localized(r.data, 'zhRisk', locale) as string}
+            mitigation={localized(r.data, 'mitigation', locale) as string}
             tier={r.data.tier}
+            locale={locale}
           />
         </div>
       ))}

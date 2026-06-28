@@ -6,14 +6,17 @@
  * Summary statement sourced verbatim from content-inventory.md §07.
  */
 import { getCollection } from 'astro:content';
+import { t, localized, type Locale } from '../i18n/utils';
+
+interface Props { locale?: Locale }
+const { locale = 'zh-Hant' } = Astro.props;
 
 const standards = (await getCollection('compliance')).sort(
   (a, b) => a.data.order - b.data.order,
 );
 
-// Domain → accent mapping.
-// All compliance standards represent coverage/archive/governance → sage.
-// Sub-labels distinguish OT, cryptographic, and enterprise-integration scope.
+// Domain → accent badge label (always uppercase English per design system).
+// Lookup key uses base domain (zh-Hant) since that is the stable key in all JSON files.
 const DOMAIN_LABEL: Record<string, string> = {
   'OT':       'OT COVERAGE',
   'OT / 設備': 'OT COVERAGE',
@@ -23,29 +26,30 @@ const DOMAIN_LABEL: Record<string, string> = {
 };
 ---
 
-<section class="cm" aria-label="合規基準矩陣">
+<section class="cm" aria-label={t('comp.c.cm.ariaLabel', locale)}>
   {/* Ambient HUD coordinate — decoration only */}
   <span class="cm__hud" aria-hidden="true">X:0720&nbsp;Y:GOV</span>
 
-  <div class="cm__table-wrap" role="region" aria-label="五項合規標準">
+  <div class="cm__table-wrap" role="region" aria-label={t('comp.c.cm.tableAriaLabel', locale)}>
     <table class="cm__table">
       <caption class="cm__caption">
-        五項合規標準 · FIVE COMPLIANCE STANDARDS
+        {t('comp.c.cm.caption', locale)}
       </caption>
 
       <thead>
         <tr>
-          <th class="cm__th cm__th--idx" scope="col" aria-label="序號">#</th>
-          <th class="cm__th cm__th--name" scope="col">標準</th>
-          <th class="cm__th cm__th--full" scope="col">全名</th>
-          <th class="cm__th cm__th--domain" scope="col">領域</th>
-          <th class="cm__th cm__th--def" scope="col">定義與範圍</th>
+          <th class="cm__th cm__th--idx" scope="col" aria-label={t('comp.c.cm.col.idx.ariaLabel', locale)}>#</th>
+          <th class="cm__th cm__th--name" scope="col">{t('comp.c.cm.col.standard', locale)}</th>
+          <th class="cm__th cm__th--full" scope="col">{t('comp.c.cm.col.fullName', locale)}</th>
+          <th class="cm__th cm__th--domain" scope="col">{t('comp.c.cm.col.domain', locale)}</th>
+          <th class="cm__th cm__th--def" scope="col">{t('comp.c.cm.col.definition', locale)}</th>
         </tr>
       </thead>
 
       <tbody>
         {standards.map((s) => {
           const domainLabel = DOMAIN_LABEL[s.data.domain] ?? 'COVERAGE';
+          const domainLocalized = String(localized(s.data, 'domain', locale));
           return (
             <tr class="cm__row">
               {/* Left accent rail rendered via ::before on <tr> */}
@@ -58,20 +62,20 @@ const DOMAIN_LABEL: Record<string, string> = {
               </td>
 
               <td class="cm__td cm__td--full">
-                <span class="cm__full">{s.data.fullName}</span>
+                <span class="cm__full">{localized(s.data, 'fullName', locale)}</span>
               </td>
 
               <td class="cm__td cm__td--domain">
                 {/* Sage accent badge with text label — required by tri-accent rule */}
-                <span class="cm__domain-badge" aria-label={`領域：${s.data.domain} · ${domainLabel}`}>
+                <span class="cm__domain-badge" aria-label={`${t('comp.c.cm.domainPrefix', locale)}${domainLocalized} · ${domainLabel}`}>
                   <span class="cm__domain-dot" aria-hidden="true" />
-                  <span class="cm__domain-zh">{s.data.domain}</span>
+                  <span class="cm__domain-zh">{domainLocalized}</span>
                   <span class="cm__domain-label" aria-hidden="true">{domainLabel}</span>
                 </span>
               </td>
 
               <td class="cm__td cm__td--def">
-                <p class="cm__def">{s.data.definition}</p>
+                <p class="cm__def">{localized(s.data, 'definition', locale)}</p>
               </td>
             </tr>
           );
@@ -83,7 +87,7 @@ const DOMAIN_LABEL: Record<string, string> = {
           <td class="cm__footer-cell" colspan="5">
             <span class="cm__footer-label" aria-hidden="true">COMPLIANCE NOTE</span>
             <span class="cm__footer-text">
-              所有架構層均對齊以上五項標準；合規文件於 8 道 Gate 逐階驗證。
+              {t('comp.c.cm.footerNote', locale)}
             </span>
             {/* Sage accent marker — tri-accent system requires text label when color is used */}
             <span class="cm__footer-badge">

@@ -16,5 +16,15 @@
     "GB300 NVL72×3（液冷AI Fabric · Blackwell Ultra）",
     "HGX B300×4（邊緣推理 · Blackwell Ultra）",
     "儲存 NVMe數據湖"
+  ],
+  "keySpecs_en": [
+    "GB300 NVL72×3 (Liquid-Cooled AI Fabric · Blackwell Ultra)",
+    "HGX B300×4 (Edge Inference · Blackwell Ultra)",
+    "Storage: NVMe Data Lake"
+  ],
+  "keySpecs_zh-Hans": [
+    "GB300 NVL72×3（液冷AI Fabric · Blackwell Ultra）",
+    "HGX B300×4（边缘推理 · Blackwell Ultra）",
+    "存储 NVMe数据湖"
   ]
 }

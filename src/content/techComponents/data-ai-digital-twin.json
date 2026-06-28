@@ -5,6 +5,8 @@
   "zhName_en": "Digital Twin (Omniverse)",
   "zhName_zh-Hans": "Digital Twin（Omniverse）",
   "spec": "NVIDIA Omniverse · 即時3D產線數位映像 · 機台狀態/WIP流/製程配方即時同步",
+  "spec_en": "NVIDIA Omniverse · Real-Time 3D Production-Line Digital Mirror · Machine Status / WIP Flow / Process Recipe Real-Time Sync",
+  "spec_zh-Hans": "NVIDIA Omniverse · 即时3D产线数字镜像 · 机台状态/WIP流/制程配方即时同步",
   "note": "支援虛擬除錯與排程模擬。",
   "note_en": "Supports virtual debugging and scheduling simulation.",
   "note_zh-Hans": "支持虚拟除错与排程模拟。"

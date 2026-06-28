@@ -4,5 +4,7 @@
   "zhName": "Historian時序歸檔",
   "zhName_en": "Historian Time-Series Archive",
   "zhName_zh-Hans": "Historian时序归档",
-  "spec": "製程參數 · 設備狀態 · 廠務數據 · 支援SOC 2合規數據留存"
+  "spec": "製程參數 · 設備狀態 · 廠務數據 · 支援SOC 2合規數據留存",
+  "spec_en": "Process Parameters · Equipment Status · Facility Data · SOC 2 Compliant Data Retention",
+  "spec_zh-Hans": "制程参数 · 设备状态 · 厂务数据 · 支持SOC 2合规数据留存"
 }

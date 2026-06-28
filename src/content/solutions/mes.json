@@ -17,5 +17,17 @@
     "產能驗證＝HVM高量產旗艦",
     "授權+實施＝完整License+7模組現場實施",
     "年維護＝依合約確認"
+  ],
+  "keySpecs_en": [
+    "MES Platform = High-Volume MES (FAB300)",
+    "Capacity Validation = HVM High-Volume Flagship",
+    "License + Implementation = Full License + 7-Module On-Site",
+    "Annual Maintenance = Per Contract SLA"
+  ],
+  "keySpecs_zh-Hans": [
+    "MES平台＝高量产MES平台（FAB300）",
+    "产能验证＝HVM高量产旗舰",
+    "授权+实施＝完整License+7模组现场实施",
+    "年维护＝依合约确认"
   ]
 }

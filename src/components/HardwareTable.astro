@@ -1,5 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
+import { t, localized, type Locale } from '../i18n/utils';
 
 /**
  * HardwareTable — FAB300 reference hardware configuration table.
@@ -13,6 +14,9 @@ import { getCollection } from 'astro:content';
  *   sun   = performance      → GB300 NVL72, NVMe Lake
  *   sage  = coverage/fabric  → Quantum-X800, Spectrum-X SN5600
  */
+
+interface Props { locale?: Locale }
+const { locale = 'zh-Hant' } = Astro.props;
 
 const TARGET_IDS = [
   'GB300-NVL72',
@@ -46,38 +50,38 @@ const ACCENT_LABEL: Record<string, string> = {
   sage: 'COVERAGE',
 };
 
-const DOMAIN_ZH: Record<string, string> = {
-  compute: '算力',
-  network: '網絡',
-  'data-AI': '數據·AI',
-  MES: 'MES',
-  security: '資安',
-  DR: '備援',
+// Maps collection domain values to comp.c.hw.domain.* i18n keys
+const DOMAIN_KEY: Record<string, string> = {
+  compute:  'comp.c.hw.domain.compute',
+  network:  'comp.c.hw.domain.network',
+  'data-AI': 'comp.c.hw.domain.dataAI',
+  MES:      'comp.c.hw.domain.MES',
+  security: 'comp.c.hw.domain.security',
+  DR:       'comp.c.hw.domain.DR',
 };
 
 const liquidCoolRow = rows.find((r) => r.data.id === 'GB300-NVL72');
-const liquidCoolNote = liquidCoolRow?.data.note;
 ---
 
 <div class="hw-wrap">
-  <div class="hw-scroll" role="region" aria-label="硬體配置規格表，可橫向捲動">
-    <table class="hw-table" aria-label="FAB300 硬體配置規格表">
+  <div class="hw-scroll" role="region" aria-label={t('comp.c.hw.scrollAriaLabel', locale)}>
+    <table class="hw-table" aria-label={t('comp.c.hw.tableAriaLabel', locale)}>
       <thead>
         <tr>
           <th scope="col" class="hw-th hw-th--component">
-            <span class="hw-th__zh">硬體</span>
+            <span class="hw-th__zh">{t('comp.c.hw.col.hardware', locale)}</span>
             <span class="hw-th__en">HARDWARE</span>
           </th>
           <th scope="col" class="hw-th hw-th--domain">
-            <span class="hw-th__zh">類型</span>
+            <span class="hw-th__zh">{t('comp.c.hw.col.domain', locale)}</span>
             <span class="hw-th__en">DOMAIN</span>
           </th>
           <th scope="col" class="hw-th hw-th--spec">
-            <span class="hw-th__zh">規格</span>
+            <span class="hw-th__zh">{t('comp.c.hw.col.spec', locale)}</span>
             <span class="hw-th__en">SPEC</span>
           </th>
           <th scope="col" class="hw-th hw-th--tag">
-            <span class="hw-th__zh">角色</span>
+            <span class="hw-th__zh">{t('comp.c.hw.col.role', locale)}</span>
             <span class="hw-th__en">ROLE</span>
           </th>
         </tr>
@@ -86,23 +90,24 @@ const liquidCoolNote = liquidCoolRow?.data.note;
         {
           rows.map((row) => {
             const accent = ACCENT[row.data.id] ?? 'sun';
+            const domainTKey = DOMAIN_KEY[row.data.domain] ?? 'comp.c.hw.domain.compute';
             return (
               <tr class={`hw-tr hw-tr--${accent}`}>
                 {/* Hardware name */}
                 <td class="hw-td hw-td--component">
-                  <span class="hw-name">{row.data.zhName}</span>
+                  <span class="hw-name">{localized(row.data, 'zhName', locale)}</span>
                 </td>
 
                 {/* Domain label */}
                 <td class="hw-td hw-td--domain">
                   <span class="hw-domain">
-                    {DOMAIN_ZH[row.data.domain] ?? row.data.domain}
+                    {t(domainTKey, locale)}
                   </span>
                 </td>
 
-                {/* Spec — mono, verbatim from collection */}
+                {/* Spec — localized per locale */}
                 <td class="hw-td hw-td--spec">
-                  <span class="hw-spec">{row.data.spec}</span>
+                  <span class="hw-spec">{localized(row.data, 'spec', locale) as string}</span>
                 </td>
 
                 {/* Semantic accent tag */}
@@ -121,10 +126,10 @@ const liquidCoolNote = liquidCoolRow?.data.note;
 
   {/* Liquid-cooling callout — from GB300 NVL72 note field */}
   {
-    liquidCoolNote && (
-      <aside class="hw-liquid-note" role="note" aria-label="液冷要求說明">
-        <span class="hw-liquid-note__badge" aria-hidden="true">液冷</span>
-        <p class="hw-liquid-note__text">{liquidCoolNote}</p>
+    liquidCoolRow?.data.note && (
+      <aside class="hw-liquid-note" role="note" aria-label={t('comp.c.hw.liquidNoteAriaLabel', locale)}>
+        <span class="hw-liquid-note__badge" aria-hidden="true">{t('comp.c.hw.liquidCool', locale)}</span>
+        <p class="hw-liquid-note__text">{localized(liquidCoolRow.data, 'note', locale)}</p>
       </aside>
     )
   }

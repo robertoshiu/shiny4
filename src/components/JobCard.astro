@@ -6,16 +6,25 @@
  *
  * Usage:
  *   const roles = await getCollection('roles');
- *   <JobCard role={roles[0]} />
+ *   <JobCard role={roles[0]} locale={locale} />
  */
 import type { CollectionEntry } from 'astro:content';
+import { t, localized } from '../i18n/utils';
+import type { Locale } from '../i18n/utils';
 
 interface Props {
   role: CollectionEntry<'roles'>;
+  locale?: Locale;
 }
 
-const { role } = Astro.props;
-const { id, zhTitle, enTitle, functionTeam, level, priorityPhase, summary, tags } = role.data;
+const { role, locale = 'zh-Hant' } = Astro.props;
+const { id, enTitle, functionTeam } = role.data;
+
+const zhTitle      = localized(role.data, 'zhTitle',       locale) as string;
+const level        = localized(role.data, 'level',         locale) as string;
+const priorityPhase= localized(role.data, 'priorityPhase', locale) as string;
+const summary      = localized(role.data, 'summary',       locale) as string;
+const tags         = localized(role.data, 'tags',          locale) as string[];
 
 const applyHref = `mailto:hello@shinylogic.tech?subject=${encodeURIComponent(`Application — ${enTitle} (${id})`)}`;
 ---
@@ -41,13 +50,13 @@ const applyHref = `mailto:hello@shinylogic.tech?subject=${encodeURIComponent(`Ap
   </div>
 
   <!-- Tags -->
-  <ul class="job-card__tags" aria-label="技能標籤">
+  <ul class="job-card__tags" aria-label={t('comp.b.skillTags', locale)}>
     {tags.map((tag) => <li class="job-card__tag">{tag}</li>)}
   </ul>
 
   <!-- Apply affordance -->
   <a class="job-card__apply" href={applyHref}>
-    <span class="job-card__apply-label">投遞履歷</span>
+    <span class="job-card__apply-label">{t('comp.b.jobApply', locale)}</span>
     <span class="job-card__apply-en" aria-hidden="true">APPLY →</span>
   </a>
 </article>

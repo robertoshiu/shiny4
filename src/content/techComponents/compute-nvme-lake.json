@@ -4,5 +4,7 @@
   "zhName": "NVMe數據湖",
   "zhName_en": "NVMe Data Lake",
   "zhName_zh-Hans": "NVMe数据湖",
-  "spec": "高速NVMe儲存 · EDA高頻波形至訓練特徵全鏈路"
+  "spec": "高速NVMe儲存 · EDA高頻波形至訓練特徵全鏈路",
+  "spec_en": "High-Speed NVMe Storage · EDA High-Frequency Waveforms to Training-Feature Full Pipeline",
+  "spec_zh-Hans": "高速NVMe存储 · EDA高频波形至训练特征全链路"
 }

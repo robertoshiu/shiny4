@@ -17,5 +17,17 @@
     "RPO ≤ 15min（異步複製）",
     "備援架構（溫備援跨區域 · SD-WAN雙ISP）",
     "DR維運（依合約確認）"
+  ],
+  "keySpecs_en": [
+    "RTO ≤ 4hr (Critical Systems)",
+    "RPO ≤ 15min (Async Replication)",
+    "Resilience Architecture (Warm Standby Cross-Region · SD-WAN Dual-ISP)",
+    "DR Operations (Per Contract)"
+  ],
+  "keySpecs_zh-Hans": [
+    "RTO ≤ 4hr（关键系统）",
+    "RPO ≤ 15min（异步复制）",
+    "备援架构（温备援跨区域 · SD-WAN双ISP）",
+    "DR维运（依合约确认）"
   ]
 }

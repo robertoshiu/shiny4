@@ -16,5 +16,15 @@
     "標準架構（ISA-95 L3↔L4雙向）",
     "整合系統（ERP · PLM · AMHS/MCS · LIMS · FMCS）",
     "通訊協議（OPC UA · SECS-GEM · REST API）"
+  ],
+  "keySpecs_en": [
+    "Standard Architecture (ISA-95 L3↔L4 Bidirectional)",
+    "Integrated Systems (ERP · PLM · AMHS/MCS · LIMS · FMCS)",
+    "Communication Protocols (OPC UA · SECS-GEM · REST API)"
+  ],
+  "keySpecs_zh-Hans": [
+    "标准架构（ISA-95 L3↔L4双向）",
+    "整合系统（ERP · PLM · AMHS/MCS · LIMS · FMCS）",
+    "通讯协议（OPC UA · SECS-GEM · REST API）"
   ]
 }

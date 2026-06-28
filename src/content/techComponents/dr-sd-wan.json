@@ -4,5 +4,7 @@
   "zhName": "SD-WAN雙ISP",
   "zhName_en": "SD-WAN Dual ISP",
   "zhName_zh-Hans": "SD-WAN双ISP",
-  "spec": "廣域鏈路 · SD-WAN雙ISP · 自動切換 · DR路徑冗餘"
+  "spec": "廣域鏈路 · SD-WAN雙ISP · 自動切換 · DR路徑冗餘",
+  "spec_en": "WAN Link · SD-WAN Dual ISP · Auto-Failover · DR Path Redundancy",
+  "spec_zh-Hans": "广域链路 · SD-WAN双ISP · 自动切换 · DR路径冗余"
 }

@@ -1,7 +1,19 @@
 ---
 import { getCollection } from 'astro:content';
+import { localized, type Locale } from '../i18n/utils';
+
+interface Props {
+  locale?: Locale;
+}
+const { locale = 'zh-Hant' } = Astro.props;
 
 const layers = (await getCollection('layers')).sort((a, b) => a.data.order - b.data.order);
+
+const STACK_ARIA: Record<Locale, string> = {
+  'zh-Hant': '六層架構',
+  en: 'Six-Layer Architecture',
+  'zh-Hans': '六层架构',
+};
 
 // Semantic accent mapping (locked per tri-accent system — no accent field in schema)
 // clay = resilience/DR · sun = service level/performance · sage = coverage/archive/governance
@@ -21,15 +33,16 @@ const ACCENT_LABEL: Record<string, string> = {
 };
 ---
 
-<div class="layer-stack" role="list" aria-label="六層架構">
+<div class="layer-stack" role="list" aria-label={STACK_ARIA[locale]}>
   {layers.map((layer, i) => {
     const accent = ACCENTS[layer.data.num] ?? null;
     const total  = layers.length;
+    const name   = localized(layer.data, 'zhName', locale) as string;
     return (
       <article
         class={`layer-chapter${accent ? ` layer-chapter--${accent}` : ''}`}
         role="listitem"
-        aria-label={`${layer.data.num} ${layer.data.zhName}`}
+        aria-label={`${layer.data.num} ${name}`}
       >
         {/* Left progress gutter */}
         <div class="layer-chapter__gutter" aria-hidden="true">
@@ -48,9 +61,9 @@ const ACCENT_LABEL: Record<string, string> = {
               </span>
             )}
           </div>
-          <h3 class="layer-chapter__zh">{layer.data.zhName}</h3>
-          <p  class="layer-chapter__en">{layer.data.enLabel}</p>
-          <p  class="layer-chapter__scope">{layer.data.scope}</p>
+          <h3 class="layer-chapter__zh">{name}</h3>
+          <p  class="layer-chapter__en">{localized(layer.data, 'enLabel', locale) as string}</p>
+          <p  class="layer-chapter__scope">{localized(layer.data, 'scope', locale) as string}</p>
         </div>
 
         {/* Ghost numeral — background decoration only */}

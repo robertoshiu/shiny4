@@ -23,6 +23,7 @@ const { locale } = Astro.props;
 >
   <Fragment slot="hero">
     <SubHero
+      locale={locale}
       eyebrow="WHO WE ARE // SYSTEMS INTEGRATOR"
       zhTitle={t('about.hero.zhTitle', locale)}
       enLabel="ABOUT SHINYLOGIC · INTELLIGENT WAFER FAB SYSTEMS"
@@ -53,10 +54,10 @@ const { locale } = Astro.props;
   <!-- 02 我們交付什麼 -->
   <section class="section" id="what-we-deliver" aria-labelledby="heading-02">
     <SectionHeader index="02" zh={t('about.section02.zh', locale)} en={t('about.section02.en', locale)} />
-    <LayerStack />
+    <LayerStack locale={locale} />
     <div class="compliance-row reveal">
       <p class="compliance-label">{t('about.section02.complianceLabel', locale)}</p>
-      <ComplianceBadges />
+      <ComplianceBadges locale={locale} />
     </div>
   </section>
 
@@ -95,7 +96,7 @@ const { locale } = Astro.props;
   <!-- 04 交付節奏 -->
   <section class="section" id="delivery-rhythm" aria-labelledby="heading-04">
     <SectionHeader index="04" zh={t('about.section04.zh', locale)} en={t('about.section04.en', locale)} />
-    <PhaseTimeline />
+    <PhaseTimeline locale={locale} />
   </section>
 
   <!-- 05 為何信任我們 -->

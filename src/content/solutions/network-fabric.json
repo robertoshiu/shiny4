@@ -16,5 +16,15 @@
     "Quantum-X800（InfiniBand 800Gb/s XDR · 144-port）",
     "Spectrum-X（SN5600 800Gb/s生產網）",
     "ConnectX-8（SuperNIC端點網卡）"
+  ],
+  "keySpecs_en": [
+    "Quantum-X800 (InfiniBand 800Gb/s XDR · 144-port)",
+    "Spectrum-X (SN5600 800Gb/s Production Network)",
+    "ConnectX-8 (SuperNIC Endpoint NIC)"
+  ],
+  "keySpecs_zh-Hans": [
+    "Quantum-X800（InfiniBand 800Gb/s XDR · 144-port）",
+    "Spectrum-X（SN5600 800Gb/s生产网）",
+    "ConnectX-8（SuperNIC端点网卡）"
   ]
 }

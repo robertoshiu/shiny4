@@ -1,52 +1,54 @@
 ---
 import SectionHeader from './SectionHeader.astro';
+import { t } from '../i18n/utils';
+import type { Locale } from '../i18n/utils';
 
 interface Props {
   index?: string;
+  locale?: Locale;
 }
-const { index = '07' } = Astro.props;
+const { index = '07', locale = 'zh-Hant' } = Astro.props;
 
 const pillars = [
   {
     accent: 'gold',
     code: 'TALENT',
-    zh: '人才稀缺',
-    en: 'Talent Scarcity',
+    title: t('buildvsbuy.talent.title', locale),
+    enSub: 'Talent Scarcity',
     metric: 'SLO ≥ 95%',
-    metricLabel: '服務水準保證',
-    body: '半導體資料工程師全球短缺。自建團隊平均需 9–14 個月才能招募到具備 EDA 域知識的工程師，期間系統無人維護，良率分析停擺。我們的專職團隊已到位，隨時可接手。',
-    baseline: '自建團隊平均招募期：9–14 個月',
+    metricLabel: t('buildvsbuy.talent.metricLabel', locale),
+    body: t('buildvsbuy.talent.body', locale),
+    baseline: t('buildvsbuy.talent.baseline', locale),
   },
   {
     accent: 'clay',
     code: 'SCHEDULE',
-    zh: '排程風險',
-    en: 'Schedule Risk',
+    title: t('buildvsbuy.schedule.title', locale),
+    enSub: 'Schedule Risk',
     metric: 'RTO ≤ 4hr',
-    metricLabel: '復原時間目標',
-    body: '在地團隊遇到人員異動、假期或緊急插件時，排程必然滑移。我們的異地備援架構與 on-call SLA 確保任何一點故障都在 4 小時內恢復，不因單一人員去留影響交付。',
-    baseline: '內部中斷平均延誤：+3–6 週',
+    metricLabel: t('buildvsbuy.schedule.metricLabel', locale),
+    body: t('buildvsbuy.schedule.body', locale),
+    baseline: t('buildvsbuy.schedule.baseline', locale),
   },
   {
     accent: 'sage',
     code: 'ARCHIVE',
-    zh: '無鎖定且 100% 歸檔',
-    en: 'No Lock-In · Full Archive',
-    metric: '100% 歸檔',
-    metricLabel: '合約結束後資料完整移交',
-    body: '所有程式碼、流程文件與歷史資料以開放格式存入客戶控管的儲存庫。合約任何時間點可終止，無遷移費、無專有格式綁定。您的資料永遠屬於您。',
-    baseline: '典型 SaaS 鎖定期：3–5 年',
+    title: t('buildvsbuy.archive.title', locale),
+    enSub: 'No Lock-In · Full Archive',
+    metric: t('buildvsbuy.archive.metric', locale),
+    metricLabel: t('buildvsbuy.archive.metricLabel', locale),
+    body: t('buildvsbuy.archive.body', locale),
+    baseline: t('buildvsbuy.archive.baseline', locale),
   },
-] as const;
+];
 ---
 
 <section class="bvb" aria-labelledby="heading-07">
   <div class="bvb__inner">
-    <SectionHeader index={index} zh="為何外包勝過自建" en="BUILD vs. BUY" />
+    <SectionHeader index={index} zh={t('buildvsbuy.heading', locale)} en="BUILD vs. BUY" />
 
     <p class="bvb__lead">
-      競爭基準：晶圓廠自有 IT 團隊。<br />
-      以下三項結構性差距，說明為何 SHINYLOGIC 是更快、更低風險的選擇。
+      {t('buildvsbuy.lead', locale)}
     </p>
 
     <div class="bvb__grid">
@@ -58,13 +60,13 @@ const pillars = [
             <span class="bvb__metric-label">{p.metricLabel}</span>
           </header>
 
-          <h3 class="bvb__zh">{p.zh}</h3>
-          <p class="bvb__en" aria-hidden="true">{p.en}</p>
+          <h3 class="bvb__zh">{p.title}</h3>
+          <p class="bvb__en" aria-hidden="true">{p.enSub}</p>
 
           <p class="bvb__body">{p.body}</p>
 
           <footer class="bvb__baseline">
-            <span class="bvb__baseline-label" aria-label="競爭基準">vs.</span>
+            <span class="bvb__baseline-label" aria-label={t('buildvsbuy.baseline.ariaLabel', locale)}>vs.</span>
             <span class="bvb__baseline-text">{p.baseline}</span>
           </footer>
         </article>

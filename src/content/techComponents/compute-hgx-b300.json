@@ -5,6 +5,8 @@
   "zhName_en": "HGX B300",
   "zhName_zh-Hans": "HGX B300",
   "spec": "×4 推理節點 · Blackwell Ultra · 邊緣推理與備援推理",
+  "spec_en": "×4 Inference Nodes · Blackwell Ultra · Edge Inference & Failover Inference",
+  "spec_zh-Hans": "×4 推理节点 · Blackwell Ultra · 边缘推理与备援推理",
   "note": "2×HGX B300額外保留作DR關鍵推理備援節點。",
   "note_en": "2×HGX B300 units are reserved as DR critical inference failover nodes.",
   "note_zh-Hans": "2×HGX B300额外保留作DR关键推理备援节点。"

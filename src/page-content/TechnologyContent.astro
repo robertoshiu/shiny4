@@ -107,6 +107,7 @@ const heroStats = [
   <!-- Hero slot: SubHero only (overflow:hidden on page-hero is safe here) -->
   <Fragment slot="hero">
     <SubHero
+      locale={locale}
       eyebrow={t('technology.hero.eyebrow', locale)}
       zhTitle={t('technology.hero.zhTitle', locale)}
       enLabel={t('technology.hero.enLabel', locale)}
@@ -134,7 +135,7 @@ const heroStats = [
     <p class="section-lede reveal">
       {t('technology.section01.lede', locale)}
     </p>
-    <HardwareTable />
+    <HardwareTable locale={locale} />
   </section>
 
   <!-- ── 02 高速網絡 Fabric ─────────────────────────────────────────────── -->
@@ -259,7 +260,7 @@ const heroStats = [
   <!-- ── 05 資訊安全 OT/IT ──────────────────────────────────────────────── -->
   <section class="section" id="security" aria-labelledby="heading-05">
     <SectionHeader index="05" zh={t('technology.section05.zh', locale)} en={t('technology.section05.en', locale)} />
-    <SecurityZoneDiagram />
+    <SecurityZoneDiagram locale={locale} />
   </section>
 
   <!-- ── 06 韌性與異地備援 ──────────────────────────────────────────────── -->
@@ -330,7 +331,7 @@ const heroStats = [
   <!-- ── 07 合規基準 ────────────────────────────────────────────────────── -->
   <section class="section" id="compliance" aria-labelledby="heading-07">
     <SectionHeader index="07" zh={t('technology.section07.zh', locale)} en={t('technology.section07.en', locale)} />
-    <ComplianceMatrix />
+    <ComplianceMatrix locale={locale} />
   </section>
 
   <EngageCTA locale={locale} />

@@ -17,6 +17,8 @@
 
 import CTAButton from './CTAButton.astro';
 import HudCoordinate from './HudCoordinate.astro';
+import { t } from '../i18n/utils';
+import type { Locale } from '../i18n/utils';
 
 interface Stat {
   value: string;
@@ -39,9 +41,10 @@ interface Props {
   lede?: string;
   stats?: Stat[];
   ctas?: CTA[];
+  locale?: Locale;
 }
 
-const { eyebrow, zhTitle, enLabel, lede, stats, ctas } = Astro.props;
+const { eyebrow, zhTitle, enLabel, lede, stats, ctas, locale = 'zh-Hant' } = Astro.props;
 
 // Semantic text labels for tri-accent tags (text always accompanies color)
 const ACCENT_LABEL: Record<string, string> = {
@@ -128,7 +131,7 @@ const ACCENT_LABEL: Record<string, string> = {
       {lede && <p class="sub-hero__lede">{lede}</p>}
 
       {stats && stats.length > 0 && (
-        <div class="sub-hero__stats" role="list" aria-label="關鍵指標">
+        <div class="sub-hero__stats" role="list" aria-label={t('subhero.stats.ariaLabel', locale)}>
           {stats.map((s) => (
             <div class={`sub-hero__stat${s.accent ? ` sub-hero__stat--${s.accent}` : ''}`} role="listitem">
               <span class="sub-hero__stat-value">{s.value}</span>

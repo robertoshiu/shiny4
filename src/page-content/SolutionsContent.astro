@@ -72,6 +72,7 @@ const govPillars = [
         { href: '#sol-blocks', label: t('solutions.hero.cta1', locale),  variant: 'clay' },
         { href: '/contact/',   label: t('cta.consult', locale),           variant: 'ghost' },
       ]}
+      locale={locale}
     />
   </Fragment>
 
@@ -80,7 +81,7 @@ const govPillars = [
     <div class="section__inner">
       <SectionHeader index="02" zh={t('solutions.section02.zh', locale)} en={t('solutions.section02.en', locale)} />
       <p class="section__lead reveal">{t('solutions.section02.lead', locale)}</p>
-      <LayerStack />
+      <LayerStack locale={locale} />
     </div>
   </section>
 
@@ -97,9 +98,10 @@ const govPillars = [
             enLabel={entry.data.enLabel}
             problem={localized(entry.data, 'problem', locale) as string}
             scope={localized(entry.data, 'scope', locale) as string}
-            keySpecs={entry.data.keySpecs}
+            keySpecs={localized(entry.data, 'keySpecs', locale) as string[]}
             sharePct={entry.data.sharePct}
             index={i}
+            locale={locale}
           />
         ))}
       </div>
@@ -114,7 +116,7 @@ const govPillars = [
 
       <!-- 6-KPI SLA strip -->
       <div class="outcomes__sla reveal">
-        <SlaStrip />
+        <SlaStrip locale={locale} />
       </div>
 
       <!-- Compliance badges -->
@@ -122,7 +124,7 @@ const govPillars = [
         <h3 class="outcomes__sub-heading">
           <span class="outcomes__sub-kicker">{t('solutions.section04.complianceKicker', locale)}</span>{t('solutions.section04.complianceHeading', locale)}
         </h3>
-        <ComplianceBadges />
+        <ComplianceBadges locale={locale} />
       </div>
 
       <!-- Governance summary — 5 pillars -->
@@ -146,7 +148,7 @@ const govPillars = [
   </section>
 
   <!-- ── SOL.05 為何委外而非自建 — BuildVsBuy (全頁共用元件) ── -->
-  <BuildVsBuy index="05" />
+  <BuildVsBuy index="05" locale={locale} />
 
   <!-- ── ENGAGE ── -->
   <EngageCTA locale={locale} />

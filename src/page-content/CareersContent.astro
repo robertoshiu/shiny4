@@ -7,7 +7,7 @@ import JobCard from '../components/JobCard.astro';
 import EngageCTA from '../components/EngageCTA.astro';
 import CTAButton from '../components/CTAButton.astro';
 import { getCollection } from 'astro:content';
-import { t } from '../i18n/utils';
+import { t, localized } from '../i18n/utils';
 import type { Locale } from '../i18n/utils';
 
 interface Props {
@@ -153,6 +153,7 @@ const norms = [
 >
   <Fragment slot="hero">
     <SubHero
+      locale={locale}
       eyebrow={t('careers.hero.eyebrow', locale)}
       zhTitle={t('careers.hero.zhTitle', locale)}
       enLabel={t('careers.hero.enLabel', locale)}
@@ -207,14 +208,15 @@ const norms = [
   <section class="section" id="team-functions" aria-labelledby="heading-02">
     <SectionHeader index="02" zh={t('careers.section02.zh', locale)} en={t('careers.section02.en', locale)} />
     <div class="team-grid">
-      {teams.map((t) => (
+      {teams.map((team) => (
         <TeamFunctionCard
-          id={t.data.id}
-          zhName={t.data.zhName}
-          enLabel={t.data.enLabel}
-          description={t.data.description}
-          tags={t.data.tags as [string, string, string]}
-          accent={teamAccents[t.data.id]}
+          id={team.data.id}
+          zhName={localized(team.data, 'zhName', locale) as string}
+          enLabel={team.data.enLabel}
+          description={localized(team.data, 'description', locale) as string}
+          tags={localized(team.data, 'tags', locale) as [string, string, string]}
+          accent={teamAccents[team.data.id]}
+          locale={locale}
         />
       ))}
     </div>
@@ -289,7 +291,7 @@ const norms = [
     <SectionHeader index="05" zh={t('careers.section05.zh', locale)} en={t('careers.section05.en', locale)} />
     <div class="roles-grid">
       {roles.map((r) => (
-        <JobCard role={r} />
+        <JobCard role={r} locale={locale} />
       ))}
     </div>
     <p class="roles-note">

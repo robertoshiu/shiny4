@@ -4,16 +4,18 @@
  *
  * Usage:
  *   const entries = (await getCollection('solutions'));
- *   <SolutionBlock {...entry.data} index={i} />
+ *   <SolutionBlock {...entry.data} index={i} locale={locale} />
  *
  * Tri-accent is applied per-spec, not per-block, because meaning lives in the
  * individual spec claim:
- *   clay  = RESILIENCE  (RTO / RPO / DR / 備援 / 異步複製)
- *   sun   = PERFORMANCE (GB300 / HGX / SLO / 良率 / Fabric)
- *   sage  = COVERAGE    (合規 / IEC / SEMI / ISA-95 / 等保 / SOC / 歸檔 / OT可視化)
+ *   clay  = RESILIENCE  (RTO / RPO / DR / 備援 / Standby / Replication)
+ *   sun   = PERFORMANCE (GB300 / HGX / SLO / 良率 / Fabric / inference)
+ *   sage  = COVERAGE    (合規 / IEC / SEMI / ISA-95 / 等保 / SOC / Compliance / Visibility)
  *
  * The block's top hairline infers the dominant accent across its specs.
  */
+import { t } from '../i18n/utils';
+import type { Locale } from '../i18n/utils';
 
 interface Props {
   id: string;
@@ -25,9 +27,10 @@ interface Props {
   sharePct?: number;
   /** 0-based insertion order — drives the ghost numeral. */
   index?: number;
+  locale?: Locale;
 }
 
-const { zhName, enLabel, problem, scope, keySpecs, sharePct, index = 0 } = Astro.props;
+const { zhName, enLabel, problem, scope, keySpecs, sharePct, index = 0, locale = 'zh-Hant' } = Astro.props;
 
 type Accent = 'clay' | 'sun' | 'sage';
 
@@ -39,12 +42,12 @@ const ACCENT_LABEL: Record<Accent, string> = {
 
 /** Map a single keySpec string to its semantic tri-accent. */
 function accentFor(spec: string): Accent | null {
-  // clay = resilience / DR / RTO / RPO
-  if (/RTO|RPO|備援|DR維運|異步複製|SD-WAN|跨區域/.test(spec)) return 'clay';
-  // sun = performance / compute / SLO / yield
-  if (/GB300|HGX|NVL72|推理|SLO|良率|800Gb|Fabric/.test(spec)) return 'sun';
-  // sage = coverage / compliance / governance / archive
-  if (/合規|IEC|SEMI|ISA-95|等保|密評|SOC|24×7|歸檔|OT可視化|OT入侵|資產可視/.test(spec)) return 'sage';
+  // clay = resilience / DR / RTO / RPO (also English equivalents)
+  if (/RTO|RPO|備援|DR維運|\bDR\b|異步複製|Replication|Standby|SD-WAN|跨區域/.test(spec)) return 'clay';
+  // sun = performance / compute / SLO / yield (also English equivalents)
+  if (/GB300|HGX|NVL72|推理|inference|SLO|良率|yield|800Gb|Fabric/.test(spec)) return 'sun';
+  // sage = coverage / compliance / governance / archive (also English equivalents)
+  if (/合規|Compliance|IEC|SEMI|ISA-95|等保|密評|SOC|24×7|歸檔|Archive|OT可視化|OT入侵|Visibility|Intrusion|資產可視/.test(spec)) return 'sage';
   return null;
 }
 
@@ -66,6 +69,7 @@ const ghostNum   = String(index + 1).padStart(2, '0');
 <article
   class={`sol-block${blockAccent ? ` sol-block--${blockAccent}` : ''}`}
   aria-label={zhName}
+  lang={locale === 'en' ? 'en' : locale === 'zh-Hans' ? 'zh-Hans' : 'zh-Hant'}
 >
   {/* Ghost numeral — ambient decoration only, never semantic */}
   <span class="sol-block__ghost" aria-hidden="true">{ghostNum}</span>
@@ -84,7 +88,7 @@ const ghostNum   = String(index + 1).padStart(2, '0');
     <h3 class="sol-block__zh">{zhName}</h3>
 
     <div class="sol-block__problem">
-      <span class="sol-block__problem-kicker">問題</span>
+      <span class="sol-block__problem-kicker">{t('comp.b.problem', locale)}</span>
       <p class="sol-block__problem-text">{problem}</p>
     </div>
   </div>
@@ -92,7 +96,7 @@ const ghostNum   = String(index + 1).padStart(2, '0');
   {/* ── Expandable: scope + specs + gauge ── */}
   <details class="sol-block__details">
     <summary class="sol-block__toggle">
-      <span class="sol-block__toggle-label">交付範圍 · 關鍵規格</span>
+      <span class="sol-block__toggle-label">{t('comp.b.scopeSpecs', locale)}</span>
       <span class="sol-block__toggle-icon" aria-hidden="true">
         <span class="sol-block__toggle-bar sol-block__toggle-bar--h" />
         <span class="sol-block__toggle-bar sol-block__toggle-bar--v" />
@@ -104,17 +108,17 @@ const ghostNum   = String(index + 1).padStart(2, '0');
       <div class="sol-block__body">
 
         {/* Scope */}
-        <section class="sol-block__section" aria-label="交付範圍">
+        <section class="sol-block__section" aria-label={t('comp.b.scope', locale)}>
           <h4 class="sol-block__section-label">
-            <span class="sol-block__section-kicker">SCOPE</span>交付範圍
+            <span class="sol-block__section-kicker">SCOPE</span>{t('comp.b.scope', locale)}
           </h4>
           <p class="sol-block__scope">{scope}</p>
         </section>
 
         {/* Key specs */}
-        <section class="sol-block__section" aria-label="關鍵規格">
+        <section class="sol-block__section" aria-label={t('comp.b.keySpecs', locale)}>
           <h4 class="sol-block__section-label">
-            <span class="sol-block__section-kicker">SPECS</span>關鍵規格
+            <span class="sol-block__section-kicker">SPECS</span>{t('comp.b.keySpecs', locale)}
           </h4>
           <ul class="sol-block__specs" role="list">
             {keySpecs.map((spec) => {
@@ -139,9 +143,9 @@ const ghostNum   = String(index + 1).padStart(2, '0');
 
         {/* sharePct gauge — only when populated */}
         {sharePct !== undefined && (
-          <section class="sol-block__section sol-block__section--gauge" aria-label="解決方案佔比">
+          <section class="sol-block__section sol-block__section--gauge" aria-label={t('comp.b.shareRatio', locale)}>
             <h4 class="sol-block__section-label">
-              <span class="sol-block__section-kicker">SHARE</span>佔比
+              <span class="sol-block__section-kicker">SHARE</span>{t('comp.b.sharePct', locale)}
             </h4>
             <div
               class="sol-block__gauge"
@@ -149,7 +153,7 @@ const ghostNum   = String(index + 1).padStart(2, '0');
               aria-valuenow={sharePct}
               aria-valuemin={0}
               aria-valuemax={100}
-              aria-label={`解決方案佔比 ${sharePct}%`}
+              aria-label={`${t('comp.b.shareRatio', locale)} ${sharePct}%`}
             >
               <div class="sol-block__gauge-track">
                 <div

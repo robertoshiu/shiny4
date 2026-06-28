@@ -1,5 +1,12 @@
 ---
 import { getCollection } from 'astro:content';
+import { localized, type Locale } from '../i18n/utils';
+
+interface Props {
+  locale?: Locale;
+}
+const { locale = 'zh-Hant' } = Astro.props;
+
 const slas = (await getCollection('slas')).sort((a, b) => a.data.order - b.data.order);
 ---
 
@@ -13,8 +20,8 @@ const slas = (await getCollection('slas')).sort((a, b) => a.data.order - b.data.
           data-prefix={s.data.prefix}
           data-suffix={s.data.suffix}
         >{`${s.data.prefix ?? ''}${s.data.value}${s.data.suffix ?? ''}`}</span>
-        <span class="sla__label">{s.data.label}</span>
-        <span class="sla__sub">{s.data.sub}</span>
+        <span class="sla__label">{localized(s.data, 'label', locale) as string}</span>
+        <span class="sla__sub">{localized(s.data, 'sub', locale) as string}</span>
       </div>
     ))
   }

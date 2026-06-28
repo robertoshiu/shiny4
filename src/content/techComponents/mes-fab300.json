@@ -5,6 +5,8 @@
   "zhName_en": "High-Volume Manufacturing MES Platform (FAB300)",
   "zhName_zh-Hans": "高量产MES平台（FAB300）",
   "spec": "HVM旗艦MES · 7核心模組 · 完整License+現場實施",
+  "spec_en": "HVM Flagship MES · 7 Core Modules · Full License + On-Site Implementation",
+  "spec_zh-Hans": "HVM旗舰MES · 7核心模块 · 完整License+现场实施",
   "note": "7模組：Dispatching / Genealogy / APC R2R+FDC / Recipe/RMS / Scheduling/APS / SPC/YMS / EAP/SECS-GEM。EAP聯調：8工藝機台SECS-GEM/GEM300。年維護依合約SLA。",
   "note_en": "7 modules: Dispatching / Genealogy / APC R2R+FDC / Recipe/RMS / Scheduling/APS / SPC/YMS / EAP/SECS-GEM. EAP commissioning: 8 process tools SECS-GEM/GEM300. Annual maintenance per contract SLA.",
   "note_zh-Hans": "7模块：Dispatching / Genealogy / APC R2R+FDC / Recipe/RMS / Scheduling/APS / SPC/YMS / EAP/SECS-GEM。EAP联调：8工艺机台SECS-GEM/GEM300。年维护依合约SLA。"

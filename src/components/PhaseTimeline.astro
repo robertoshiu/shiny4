@@ -1,5 +1,11 @@
 ---
 import { getCollection } from 'astro:content';
+import { localized, type Locale } from '../i18n/utils';
+
+interface Props {
+  locale?: Locale;
+}
+const { locale = 'zh-Hant' } = Astro.props;
 
 const phases = (await getCollection('phases')).sort((a, b) => a.data.order - b.data.order);
 
@@ -18,15 +24,27 @@ function gateCount(str: string): number {
   return 1;
 }
 
-// Accent label for semantic text
+// Accent label for semantic text (design-token badges — intentionally uppercase English)
 const accentLabel: Record<'clay' | 'gold' | 'sage', string> = {
   clay: 'RESILIENCE',
   gold: 'PERFORMANCE',
   sage: 'GOVERNANCE',
 };
+
+const TIMELINE_ARIA: Record<Locale, string> = {
+  'zh-Hant': '專案時程 P1–P4',
+  en: 'Project Timeline P1–P4',
+  'zh-Hans': '项目时程 P1–P4',
+};
+
+function moreLabel(n: number): string {
+  if (locale === 'en') return `+${n} more`;
+  if (locale === 'zh-Hans') return `+${n} 项`;
+  return `+${n} 項`;
+}
 ---
 
-<div class="phase-timeline" role="list" aria-label="專案時程 P1–P4">
+<div class="phase-timeline" role="list" aria-label={TIMELINE_ARIA[locale]}>
   <!-- Horizontal track with phase nodes -->
   <div class="phase-track" aria-hidden="true">
     {phases.map((p, i) => {
@@ -44,22 +62,25 @@ const accentLabel: Record<'clay' | 'gold' | 'sage', string> = {
   <div class="phase-cards">
     {phases.map((p) => {
       const accent = accentMap[p.data.code] ?? 'sage';
-      const dots = gateCount(p.data.gate);
+      const pName  = localized(p.data, 'zhName', locale) as string;
+      const pGate  = localized(p.data, 'gate', locale) as string;
+      const pDelivs = localized(p.data, 'deliverables', locale) as string[];
+      const dots = gateCount(pGate);
       return (
         <article
           class={`phase-card phase-card--${accent}`}
           role="listitem"
-          aria-label={`${p.data.code} ${p.data.zhName}`}
+          aria-label={`${p.data.code} ${pName}`}
         >
           <!-- Month range -->
           <p class="phase-card__months">{p.data.months}</p>
 
           <!-- Phase name -->
-          <h3 class="phase-card__name">{p.data.zhName}</h3>
+          <h3 class="phase-card__name">{pName}</h3>
 
           <!-- Gate row -->
           <div class="phase-card__gates">
-            <span class="phase-card__gate-label">{p.data.gate}</span>
+            <span class="phase-card__gate-label">{pGate}</span>
             <span class="phase-card__gate-dots" aria-hidden="true">
               {Array.from({ length: dots }).map(() => (
                 <span class={`gate-dot gate-dot--${accent}`} />
@@ -74,12 +95,12 @@ const accentLabel: Record<'clay' | 'gold' | 'sage', string> = {
 
           <!-- Deliverables teaser (first 2 only) -->
           <ul class="phase-card__deliverables">
-            {p.data.deliverables.slice(0, 2).map((d) => (
+            {pDelivs.slice(0, 2).map((d) => (
               <li class="phase-card__deliverable">{d}</li>
             ))}
-            {p.data.deliverables.length > 2 && (
+            {pDelivs.length > 2 && (
               <li class="phase-card__deliverable phase-card__deliverable--more">
-                +{p.data.deliverables.length - 2} more
+                {moreLabel(pDelivs.length - 2)}
               </li>
             )}
           </ul>

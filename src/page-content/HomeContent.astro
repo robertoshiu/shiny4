@@ -77,7 +77,7 @@ const chips = [
       zh={t('home.section02.zh', locale)}
       en={t('home.section02.en', locale)}
     />
-    <LayerStack />
+    <LayerStack locale={locale} />
   </section>
 
   <!-- 03 Universal SLA strip -->
@@ -87,7 +87,7 @@ const chips = [
       zh={t('home.section03.zh', locale)}
       en={t('home.section03.en', locale)}
     />
-    <SlaStrip />
+    <SlaStrip locale={locale} />
   </section>
 
   <!-- 04 FAB300 4-phase / 8-gate teaser -->
@@ -97,7 +97,7 @@ const chips = [
       zh={t('home.section04.zh', locale)}
       en={t('home.section04.en', locale)}
     />
-    <PhaseTimeline />
+    <PhaseTimeline locale={locale} />
   </section>
 
   <!-- 05 By the Numbers -->
@@ -107,7 +107,7 @@ const chips = [
       zh={t('home.section05.zh', locale)}
       en={t('home.section05.en', locale)}
     />
-    <ByTheNumbers />
+    <ByTheNumbers locale={locale} />
   </section>
 
   <!-- 06 Compliance cluster + NVIDIA Blackwell / GB300 ecosystem signal -->
@@ -117,12 +117,12 @@ const chips = [
       zh={t('home.section06.zh', locale)}
       en={t('home.section06.en', locale)}
     />
-    <ComplianceBadges />
+    <ComplianceBadges locale={locale} />
     <p class="ecosystem reveal">{t('home.section06.ecosystem', locale)}</p>
   </section>
 
   <!-- 07 Build vs Buy -->
-  <BuildVsBuy />
+  <BuildVsBuy locale={locale} />
 
   <!-- 08 ENGAGE -->
   <EngageCTA locale={locale} />

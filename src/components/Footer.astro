@@ -1,6 +1,7 @@
 ---
 import FooterTicker from './FooterTicker.astro';
 import LanguageToggle from './LanguageToggle.astro';
+import { t } from '../i18n/utils';
 import type { Locale } from '../i18n/utils';
 interface Props {
   locale: Locale;
@@ -12,34 +13,34 @@ const { locale } = Astro.props;
   <FooterTicker />
   <div class="site-footer__inner">
     <div class="site-footer__brand">
-      <p class="site-footer__name">SHINYLOGIC 顯藝科技</p>
+      <p class="site-footer__name">{t('footer.brand', locale)}</p>
       <p class="site-footer__tagline">
-        We build the intelligence layer of the modern wafer fab. 把設備數據，鍛造成可決策的智能。
+        {t('footer.tagline', locale)}
       </p>
     </div>
-    <nav class="site-footer__col" aria-label="公司">
-      <p class="site-footer__h">公司</p>
-      <a href="/about/">關於</a>
-      <a href="/careers/">招募</a>
+    <nav class="site-footer__col" aria-label={t('footer.col.company', locale)}>
+      <p class="site-footer__h">{t('footer.col.company', locale)}</p>
+      <a href="/about/">{t('nav.about', locale)}</a>
+      <a href="/careers/">{t('nav.careers', locale)}</a>
     </nav>
-    <nav class="site-footer__col" aria-label="能力">
-      <p class="site-footer__h">能力</p>
-      <a href="/solutions/">解決方案</a>
-      <a href="/technology/">技術</a>
-      <a href="/methodology/">方法論</a>
+    <nav class="site-footer__col" aria-label={t('footer.col.capabilities', locale)}>
+      <p class="site-footer__h">{t('footer.col.capabilities', locale)}</p>
+      <a href="/solutions/">{t('nav.solutions', locale)}</a>
+      <a href="/technology/">{t('nav.technology', locale)}</a>
+      <a href="/methodology/">{t('nav.methodology', locale)}</a>
     </nav>
     <div class="site-footer__col">
-      <p class="site-footer__h">聯絡</p>
+      <p class="site-footer__h">{t('footer.col.contact', locale)}</p>
       <a href="mailto:hello@shinylogic.tech">hello@shinylogic.tech</a>
       <div class="site-footer__lang">
-        <p class="site-footer__h">語言 / LANGUAGE</p>
+        <p class="site-footer__h">{t('footer.lang', locale)}</p>
         <LanguageToggle locale={locale} />
       </div>
     </div>
   </div>
   <div class="site-footer__legal">
-    <span>交付範疇依合約確認</span>
-    <span>© 2026 顯藝科技 ShinyLogic. All rights reserved.</span>
+    <span>{t('footer.legal.scope', locale)}</span>
+    <span>{t('footer.legal.copyright', locale)}</span>
   </div>
 </footer>
 
