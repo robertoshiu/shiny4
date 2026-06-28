@@ -482,6 +482,7 @@
   "buildvsbuy.archive.body": "All code, process documentation, and historical data are committed to client-controlled repositories in open formats. The contract may be terminated at any point — no migration fees, no proprietary format lock-in. Your data is always yours.",
   "buildvsbuy.archive.baseline": "Typical SaaS lock-in: 3–5 years",
 
+  "footer.ticker": "FAB300 REFERENCE BUILD · IT/OT+AI FULL-STACK INTEGRATION · DIRECT FAB DELIVERY · 100% ARCHIVED",
   "footer.brand": "SHINYLOGIC",
   "footer.tagline": "We build the intelligence layer of the modern wafer fab.",
   "footer.col.company": "Company",

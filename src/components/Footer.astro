@@ -10,7 +10,7 @@ const { locale } = Astro.props;
 ---
 
 <footer class="site-footer">
-  <FooterTicker />
+  <FooterTicker locale={locale} />
   <div class="site-footer__inner">
     <div class="site-footer__brand">
       <p class="site-footer__name">{t('footer.brand', locale)}</p>
