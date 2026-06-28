@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1440">
+  <title>SHINYLOGIC 顯藝科技 · FAB300 — Concept 2: Fab Control Room</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&family=Spline+Sans+Mono:wght@300;400;500&family=Nunito+Sans:wght@300;400;600&family=Noto+Sans+TC:wght@300;400;500&family=Noto+Serif+TC:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* =============================================================
+       DESIGN TOKENS — Direction C: Warm-Dark Foundry
+       ============================================================= */
+    :root {
+      --bg-base:    #14100D;
+      --bg-deep:    #0E0B08;
+      --bg-surface: #211A14;
+      --bg-raised:  #2A2018;
+
+      --ink-cream:  #F2E9DE;
+      --ink-muted:  #A9988A;
+      --ink-faint:  #6E6157;
+
+      --clay:       #E07A5F;
+      --clay-deep:  #B0492A;
+      --sun:        #E9C46A;
+      --sage:       #81A684;
+
+      --border:     rgba(242,233,222,0.10);
+      --border-str: rgba(242,233,222,0.18);
+
+      --font-display: 'Fraunces', 'Noto Serif TC', Georgia, serif;
+      --font-mono:    'Spline Sans Mono', 'Courier New', monospace;
+      --font-body:    'Nunito Sans', 'Noto Sans TC', sans-serif;
+    }
+
+    /* =============================================================
+       RESET & BASE
+       ============================================================= */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      font-size: 16px;
+      background: var(--bg-deep);
+      color: var(--ink-cream);
+    }
+
+    body {
+      font-family: var(--font-body);
+      width: 1440px;
+      margin: 0 auto;
+      background: var(--bg-base);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* =============================================================
+       HUD TICKER — persistent top strip
+       ============================================================= */
+    .hud-ticker {
+      position: sticky;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 28px;
+      background: rgba(14,11,8,0.96);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 48px;
+      gap: 20px;
+      z-index: 200;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--ink-faint);
+      letter-spacing: 0.08em;
+    }
+    .hud-ticker__rec {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--clay);
+      flex-shrink: 0;
+    }
+    .hud-ticker__dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--clay);
+      animation: blink 1.4s ease-in-out infinite;
+    }
+    @keyframes blink {
+      0%,100% { opacity: 1; }
+      50%      { opacity: 0.12; }
+    }
+    .hud-ticker__pipe { color: var(--border-str); }
+    .hud-ticker__hi   { color: var(--ink-muted); }
+    .hud-ticker__sun  { color: var(--sun); }
+    .hud-ticker__sage { color: var(--sage); display: flex; align-items: center; gap: 5px; }
+    .hud-ticker__sage::before {
+      content: '';
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--sage);
+      flex-shrink: 0;
+    }
+    .hud-ticker__spacer { flex: 1; }
+
+    /* HUD corner brackets (position:fixed relative to body-width viewport) */
+    .hud-corner {
+      position: fixed;
+      width: 28px; height: 28px;
+      z-index: 300;
+      pointer-events: none;
+    }
+    .hud-corner::before,
+    .hud-corner::after {
+      content: '';
+      position: absolute;
+      background: var(--clay);
+      opacity: 0.65;
+    }
+    .hud-corner--tl { top: 36px; left: 8px; }
+    .hud-corner--tl::before { width: 2px; height: 20px; top: 0; left: 0; }
+    .hud-corner--tl::after  { width: 20px; height: 2px; top: 0; left: 0; }
+
+    .hud-corner--tr { top: 36px; right: 8px; }
+    .hud-corner--tr::before { width: 2px; height: 20px; top: 0; right: 0; }
+    .hud-corner--tr::after  { width: 20px; height: 2px; top: 0; right: 0; }
+
+    .hud-corner--bl { bottom: 8px; left: 8px; }
+    .hud-corner--bl::before { width: 2px; height: 20px; bottom: 0; left: 0; }
+    .hud-corner--bl::after  { width: 20px; height: 2px; bottom: 0; left: 0; }
+
+    .hud-corner--br { bottom: 8px; right: 8px; }
+    .hud-corner--br::before { width: 2px; height: 20px; bottom: 0; right: 0; }
+    .hud-corner--br::after  { width: 20px; height: 2px; bottom: 0; right: 0; }
+
+    /* =============================================================
+       NAVIGATION
+       ============================================================= */
+    .nav {
+      width: 100%;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      padding: 0 48px;
+      background: rgba(20,16,13,0.97);
+      border-bottom: 1px solid var(--border);
+      gap: 0;
+      position: sticky;
+      top: 28px;
+      z-index: 150;
+    }
+
+    .nav__brand {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin-right: auto;
+    }
+    .nav__brand-primary {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink-cream);
+      letter-spacing: 0.14em;
+    }
+    .nav__brand-primary .sun { color: var(--sun); }
+    .nav__brand-sub {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--clay);
+      letter-spacing: 0.2em;
+      opacity: 0.8;
+    }
+
+    .nav__links {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      list-style: none;
+    }
+    .nav__links a {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--ink-muted);
+      text-decoration: none;
+      letter-spacing: 0.1em;
+    }
+    .nav__links a:hover { color: var(--ink-cream); }
+
+    .nav__lang {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      margin-left: 36px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--ink-faint);
+      letter-spacing: 0.06em;
+    }
+    .nav__lang span { cursor: pointer; padding: 2px 4px; }
+    .nav__lang span.active { color: var(--sun); }
+    .nav__lang-sep { color: var(--border-str); }
+
+    .nav__cta {
+      margin-left: 28px;
+      padding: 9px 20px;
+      background: var(--clay);
+      color: var(--bg-deep);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .nav__cta::after { content: '→'; font-size: 12px; }
+
+    /* =============================================================
+       HERO
+       ============================================================= */
+    .hero {
+      position: relative;
+      width: 100%;
+      height: 900px;
+      overflow: hidden;
+      background: var(--bg-base);
+      /* thin inset HUD border on left + right edges */
+      box-shadow: inset 3px 0 0 rgba(224,122,95,0.08),
+                  inset -3px 0 0 rgba(224,122,95,0.08);
+    }
+
+    /* Ember dot-matrix grid */
+    .hero__dotgrid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(circle, rgba(233,196,106,0.20) 1px, transparent 1px);
+      background-size: 28px 28px;
+      z-index: 1;
+    }
+
+    /* Diagonal ember fade — gold top-left, clay bottom-right */
+    .hero__ember {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        128deg,
+        rgba(233,196,106,0.07) 0%,
+        rgba(224,122,95,0.05) 40%,
+        transparent 65%
+      );
+      z-index: 2;
+    }
+
+    /* Radial vignette for depth */
+    .hero__vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(
+        ellipse 85% 80% at 52% 50%,
+        transparent 25%,
+        rgba(14,11,8,0.55) 70%,
+        rgba(14,11,8,0.90) 100%
+      );
+      z-index: 3;
+    }
+
+    /* Giant faint section number */
+    .hero__section-num {
+      position: absolute;
+      bottom: 48px;
+      right: 48px;
+      font-family: var(--font-mono);
+      font-size: 108px;
+      font-weight: 300;
+      color: rgba(242,233,222,0.035);
+      letter-spacing: -0.03em;
+      line-height: 1;
+      user-select: none;
+      z-index: 4;
+    }
+
+    /* -- WAFER DISC -- */
+    .hero__wafer-wrap {
+      position: absolute;
+      /* centered right-ward: left edge at ~48% of 1440 = 690px */
+      left: 50%;
+      top: 50%;
+      transform: translate(-14%, -50%);
+      width: 500px;
+      height: 500px;
+      z-index: 10;
+    }
+
+    .wafer { position: relative; width: 500px; height: 500px; }
+
+    /* Outer ambient glow */
+    .wafer__glow {
+      position: absolute;
+      inset: -80px;
+      border-radius: 50%;
+      background: radial-gradient(
+        circle,
+        rgba(233,196,106,0.13) 0%,
+        rgba(224,122,95,0.07) 38%,
+        transparent 68%
+      );
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* SVG: concentric rings, lattice, arc */
+    .wafer__svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+    }
+
+    /* Fine dot overlay clipped to circle */
+    .wafer__dots {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background-image: radial-gradient(circle, rgba(233,196,106,0.22) 1px, transparent 1px);
+      background-size: 11px 11px;
+      z-index: 3;
+      clip-path: circle(49% at 50% 50%);
+      pointer-events: none;
+    }
+
+    /* Crosshair overlay */
+    .wafer__ch {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      pointer-events: none;
+    }
+    .wafer__ch-h {
+      position: absolute;
+      top: 50%;
+      left: 6%; right: 6%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(233,196,106,0.55) 20%, rgba(233,196,106,0.55) 80%, transparent);
+      transform: translateY(-0.5px);
+    }
+    .wafer__ch-v {
+      position: absolute;
+      left: 50%;
+      top: 6%; bottom: 6%;
+      width: 1px;
+      background: linear-gradient(180deg, transparent, rgba(233,196,106,0.55) 20%, rgba(233,196,106,0.55) 80%, transparent);
+      transform: translateX(-0.5px);
+    }
+    .wafer__ch-pip {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      width: 10px; height: 10px;
+      border: 1px solid var(--sun);
+      border-radius: 50%;
+      opacity: 0.8;
+    }
+    .wafer__ch-pip::before {
+      content: '';
+      position: absolute;
+      inset: 2px;
+      border-radius: 50%;
+      background: var(--sun);
+      opacity: 0.6;
+    }
+
+    /* Axis labels */
+    .wafer__label {
+      position: absolute;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: rgba(233,196,106,0.6);
+      letter-spacing: 0.1em;
+      z-index: 6;
+      user-select: none;
+      pointer-events: none;
+    }
+    .wafer__label--n  { top: 10%; left: 50%; transform: translateX(-50%); }
+    .wafer__label--e  { top: 48%; right: 5%; }
+    .wafer__label--s  { bottom: 9%; left: 50%; transform: translateX(-50%); }
+    .wafer__label--w  { top: 48%; left: 3%; }
+
+    /* -- HERO LEFT TEXT -- */
+    .hero__content {
+      position: absolute;
+      left: 80px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 560px;
+      z-index: 15;
+    }
+
+    .hero__eyebrow {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--clay);
+      letter-spacing: 0.16em;
+      margin-bottom: 30px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      line-height: 1.6;
+    }
+    .hero__eyebrow::before {
+      content: '';
+      display: inline-block;
+      width: 22px; height: 1px;
+      background: var(--clay);
+      opacity: 0.6;
+      flex-shrink: 0;
+    }
+
+    .hero__h1 {
+      font-family: var(--font-display);
+      font-size: 76px;
+      font-weight: 500;
+      line-height: 1.06;
+      letter-spacing: -0.025em;
+      color: var(--ink-cream);
+      font-optical-sizing: auto;
+      margin-bottom: 28px;
+    }
+    .hero__h1 .italic { font-style: italic; font-weight: 300; color: var(--sun); }
+
+    /* Gold underline accent under one phrase */
+    .hero__h1 .underline {
+      display: inline;
+      position: relative;
+    }
+    .hero__h1 .underline::after {
+      content: '';
+      position: absolute;
+      left: 0; bottom: -6px;
+      width: 100%; height: 2px;
+      background: linear-gradient(90deg, var(--sun), rgba(233,196,106,0.0));
+    }
+
+    .hero__sub {
+      font-size: 15px;
+      line-height: 1.80;
+      color: var(--ink-muted);
+      margin-bottom: 36px;
+      max-width: 500px;
+    }
+    .hero__sub strong { color: var(--ink-cream); font-weight: 600; }
+
+    /* CTA row */
+    .hero__cta {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 44px;
+    }
+    .btn-clay {
+      padding: 13px 26px;
+      background: var(--clay);
+      color: var(--bg-deep);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-clay::after { content: '→'; font-size: 13px; }
+
+    .btn-ghost {
+      padding: 12px 24px;
+      background: transparent;
+      color: var(--ink-muted);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-decoration: none;
+      border: 1px solid var(--border-str);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Live feed line */
+    .hero__livefeed {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--ink-faint);
+      letter-spacing: 0.12em;
+    }
+    .hero__livefeed-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--clay);
+      animation: blink 1.4s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+
+    /* -- TELEMETRY CHIPS (right edge beside wafer) -- */
+    .hero__telemetry {
+      position: absolute;
+      right: 52px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 16;
+      width: 116px;
+    }
+
+    .tele-chip {
+      background: rgba(33,26,20,0.88);
+      border: 1px solid var(--border-str);
+      padding: 10px 12px;
+      position: relative;
+    }
+    .tele-chip::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 2px; height: 100%;
+      background: var(--clay);
+    }
+    .tele-chip__label {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      color: var(--ink-faint);
+      letter-spacing: 0.14em;
+      margin-bottom: 3px;
+    }
+    .tele-chip__value {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--sun);
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      line-height: 1.2;
+    }
+    .tele-chip__sub {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      color: var(--clay);
+      margin-top: 2px;
+      letter-spacing: 0.08em;
+      opacity: 0.75;
+    }
+
+    /* =============================================================
+       SECTION 02 — INSTRUMENT PANEL
+       ============================================================= */
+    .instrument {
+      position: relative;
+      width: 100%;
+      background: var(--bg-deep);
+      padding: 88px 80px 96px;
+      border-top: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    /* Giant faint section number */
+    .instrument__num {
+      position: absolute;
+      top: 36px; left: 48px;
+      font-family: var(--font-mono);
+      font-size: 128px;
+      font-weight: 300;
+      color: rgba(242,233,222,0.028);
+      letter-spacing: -0.02em;
+      line-height: 1;
+      user-select: none;
+    }
+
+    /* Diffraction halo in background */
+    .instrument__halo {
+      position: absolute;
+      top: -200px; right: -200px;
+      width: 700px; height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(
+        circle,
+        rgba(233,196,106,0.04) 0%,
+        rgba(224,122,95,0.025) 40%,
+        transparent 70%
+      );
+      pointer-events: none;
+    }
+
+    .instrument__header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 52px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .instrument__label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--clay);
+      letter-spacing: 0.2em;
+      margin-bottom: 14px;
+    }
+
+    .instrument__title {
+      font-family: var(--font-display);
+      font-size: 52px;
+      font-weight: 400;
+      line-height: 1.08;
+      letter-spacing: -0.015em;
+      color: var(--ink-cream);
+    }
+    .instrument__title .italic {
+      font-style: italic;
+      font-weight: 300;
+      color: var(--sun);
+    }
+
+    .instrument__meta {
+      text-align: right;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--ink-faint);
+      letter-spacing: 0.1em;
+      line-height: 1.9;
+    }
+    .instrument__meta .hi { color: var(--sage); }
+
+    /* 3-column capability grid — 2 rows */
+    .cap-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .cap-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      padding: 28px 26px 22px;
+      position: relative;
+      overflow: hidden;
+      cursor: default;
+      transition: border-color 0.22s ease, background 0.22s ease;
+    }
+    .cap-card:hover {
+      border-color: rgba(224,122,95,0.38);
+      background: var(--bg-raised);
+    }
+
+    /* Corner notch accent */
+    .cap-card::before {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 22px; height: 22px;
+      border-top: 1px solid var(--clay);
+      border-right: 1px solid var(--clay);
+      opacity: 0.45;
+      transition: opacity 0.22s;
+    }
+    .cap-card:hover::before { opacity: 0.85; }
+
+    /* Left accent bar */
+    .cap-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 2px; height: 0%;
+      background: var(--clay);
+      transition: height 0.35s ease;
+    }
+    .cap-card:hover::after { height: 100%; }
+
+    .cap-card__idx {
+      position: absolute;
+      top: 28px; right: 26px;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--ink-faint);
+      letter-spacing: 0.1em;
+    }
+
+    .cap-card__icon {
+      width: 36px; height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px;
+    }
+    .cap-card__icon svg { width: 22px; height: 22px; }
+
+    .cap-card__tag {
+      font-family: var(--font-mono);
+      font-size: 8.5px;
+      color: var(--clay);
+      letter-spacing: 0.18em;
+      margin-bottom: 7px;
+      opacity: 0.85;
+    }
+
+    .cap-card__title {
+      font-family: var(--font-body);
+      font-size: 19px;
+      font-weight: 600;
+      color: var(--ink-cream);
+      line-height: 1.25;
+      margin-bottom: 10px;
+    }
+
+    .cap-card__desc {
+      font-family: var(--font-body);
+      font-size: 13px;
+      color: var(--ink-muted);
+      line-height: 1.7;
+      margin-bottom: 18px;
+    }
+
+    /* Metric display */
+    .cap-card__metric {
+      display: flex;
+      align-items: baseline;
+      gap: 7px;
+      padding: 9px 12px;
+      background: var(--bg-deep);
+      border: 1px solid var(--border);
+      margin-bottom: 14px;
+    }
+    .cap-card__metric-val {
+      font-family: var(--font-mono);
+      font-size: 24px;
+      font-weight: 500;
+      color: var(--sun);
+      line-height: 1;
+    }
+    .cap-card__metric-unit {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--ink-faint);
+      letter-spacing: 0.1em;
+    }
+
+    /* Sparkline bars */
+    .cap-card__spark {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 24px;
+      margin-bottom: 12px;
+    }
+    .cap-card__spark-bar {
+      flex: 1;
+      background: rgba(110,97,87,0.5);
+      border-radius: 1px;
+      transition: background 0.22s;
+    }
+    .cap-card:hover .cap-card__spark-bar { background: rgba(224,122,95,0.45); }
+    .cap-card:hover .cap-card__spark-bar:last-child { background: var(--clay); }
+
+    /* Vary heights — unique per bar index */
+    .cap-card__spark-bar:nth-child(1)  { height: 32%; }
+    .cap-card__spark-bar:nth-child(2)  { height: 50%; }
+    .cap-card__spark-bar:nth-child(3)  { height: 40%; }
+    .cap-card__spark-bar:nth-child(4)  { height: 65%; }
+    .cap-card__spark-bar:nth-child(5)  { height: 55%; }
+    .cap-card__spark-bar:nth-child(6)  { height: 80%; }
+    .cap-card__spark-bar:nth-child(7)  { height: 68%; }
+    .cap-card__spark-bar:nth-child(8)  { height: 88%; }
+    .cap-card__spark-bar:nth-child(9)  { height: 75%; }
+    .cap-card__spark-bar:nth-child(10) { height: 96%; }
+
+    .cap-card__status {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--ink-faint);
+      letter-spacing: 0.09em;
+    }
+    .status-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .status-dot--online  { background: var(--sage); }
+    .status-dot--standby { background: var(--sun); }
+    .status-dot--active  { background: var(--clay); animation: blink 1.4s infinite; }
+
+    /* Bottom system log ticker */
+    .instrument__log {
+      margin-top: 44px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--ink-faint);
+      letter-spacing: 0.09em;
+      position: relative;
+      z-index: 2;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .instrument__log-tag { color: var(--clay); flex-shrink: 0; margin-right: 20px; }
+    .instrument__log-entry { color: var(--ink-muted); }
+    .instrument__log-sep   { margin: 0 18px; color: var(--border-str); }
+  </style>
+</head>
+
+<body>
+
+  <!-- HUD: persistent corner brackets -->
+  <div class="hud-corner hud-corner--tl"></div>
+  <div class="hud-corner hud-corner--tr"></div>
+  <div class="hud-corner hud-corner--bl"></div>
+  <div class="hud-corner hud-corner--br"></div>
+
+  <!-- HUD: live feed top ticker -->
+  <div class="hud-ticker">
+    <div class="hud-ticker__rec">
+      <div class="hud-ticker__dot"></div>
+      REC
+    </div>
+    <span class="hud-ticker__pipe">|</span>
+    <span>// LIVE FEED &middot; CLEANROOM 03</span>
+    <span class="hud-ticker__pipe">|</span>
+    <span class="hud-ticker__hi">X:0420&nbsp;&nbsp;Y:1080</span>
+    <span class="hud-ticker__pipe">|</span>
+    <span class="hud-ticker__sun">TEMP 23.2&thinsp;&deg;C</span>
+    <span class="hud-ticker__pipe">|</span>
+    <span>HUMIDITY 42.1 %</span>
+    <span class="hud-ticker__pipe">|</span>
+    <span>PARTICLES &lt;1&thinsp;ISO-5</span>
+    <span class="hud-ticker__pipe">|</span>
+    <span>YIELD 98.6 %</span>
+    <div class="hud-ticker__spacer"></div>
+    <div class="hud-ticker__sage">ALL SYSTEMS NOMINAL</div>
+    <span class="hud-ticker__pipe">|</span>
+    <span>2026-06-28&thinsp;T&thinsp;09:41:17Z</span>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav__brand">
+      <div class="nav__brand-primary">
+        SHINYLOGIC&nbsp;<span class="sun">顯藝科技</span>&nbsp;&middot;&nbsp;FAB300
+      </div>
+      <div class="nav__brand-sub">// INTELLIGENT FAB INFRASTRUCTURE</div>
+    </div>
+
+    <ul class="nav__links">
+      <li><a href="#">關於</a></li>
+      <li><a href="#">解決方案</a></li>
+      <li><a href="#">技術</a></li>
+      <li><a href="#">方法論</a></li>
+      <li><a href="#">招募</a></li>
+    </ul>
+
+    <div class="nav__lang">
+      <span class="active">繁</span>
+      <span class="nav__lang-sep">/</span>
+      <span>EN</span>
+      <span class="nav__lang-sep">/</span>
+      <span>简</span>
+    </div>
+
+    <a href="#" class="nav__cta">預約諮詢</a>
+  </nav>
+
+
+  <!-- ================================================================
+       HERO — Control Room Console
+       ================================================================ -->
+  <section class="hero">
+    <div class="hero__dotgrid"></div>
+    <div class="hero__ember"></div>
+    <div class="hero__vignette"></div>
+    <div class="hero__section-num">01</div>
+
+    <!-- Left: headline + copy + CTAs -->
+    <div class="hero__content">
+      <div class="hero__eyebrow">
+        智能晶圓廠 · IT/OT 全棧建置&ensp;&ensp;// INTELLIGENT FAB INFRASTRUCTURE
+      </div>
+
+      <h1 class="hero__h1">
+        把設備數據，<br>
+        <span class="underline">鍛造</span>成<span class="italic">可決策</span><br>
+        的智能。
+      </h1>
+
+      <p class="hero__sub">
+        從 8 大工藝機台的訊號，到 <strong>AI 決策閉環</strong>，再到跨區域異地備援&nbsp;—&nbsp;
+        顯藝科技為您的晶圓廠交付並承擔 <strong>IT/OT+AI 全棧</strong>的建置、整合與維運責任。
+      </p>
+
+      <div class="hero__cta">
+        <a href="#" class="btn-clay">預約諮詢</a>
+        <a href="#" class="btn-ghost">查看系統架構</a>
+      </div>
+
+      <div class="hero__livefeed">
+        <div class="hero__livefeed-dot"></div>
+        // LIVE FEED &middot; CLEANROOM 03&ensp;&ensp;&ensp;X:0420 Y:1080&ensp;&ensp;&ensp;[ REC ]
+      </div>
+    </div>
+
+    <!-- Centre: wafer disc -->
+    <div class="hero__wafer-wrap">
+      <div class="wafer">
+        <div class="wafer__glow"></div>
+
+        <!-- SVG: diffraction rings + lattice + arc -->
+        <svg class="wafer__svg" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="wf-fill" cx="42%" cy="36%" r="62%">
+              <stop offset="0%"   stop-color="#E9C46A" stop-opacity="0.10"/>
+              <stop offset="30%"  stop-color="#E07A5F" stop-opacity="0.07"/>
+              <stop offset="58%"  stop-color="#B0492A" stop-opacity="0.04"/>
+              <stop offset="100%" stop-color="#14100D" stop-opacity="0.98"/>
+            </radialGradient>
+            <linearGradient id="ring-g" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%"   stop-color="#E9C46A"/>
+              <stop offset="50%"  stop-color="#E07A5F"/>
+              <stop offset="100%" stop-color="#E9C46A"/>
+            </linearGradient>
+            <linearGradient id="edge-g" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%"   stop-color="#E9C46A" stop-opacity="0.55"/>
+              <stop offset="55%"  stop-color="#E07A5F" stop-opacity="0.30"/>
+              <stop offset="100%" stop-color="#E9C46A" stop-opacity="0.55"/>
+            </linearGradient>
+            <clipPath id="disc-clip">
+              <circle cx="250" cy="250" r="238"/>
+            </clipPath>
+          </defs>
+
+          <!-- Base disc fill -->
+          <circle cx="250" cy="250" r="238" fill="url(#wf-fill)"/>
+
+          <!-- Faint lattice die-grid — clipped to disc -->
+          <g clip-path="url(#disc-clip)" opacity="0.10" stroke="#E9C46A" stroke-width="0.5">
+            <!-- horizontal die rows -->
+            <line x1="12" y1="130" x2="488" y2="130"/>
+            <line x1="12" y1="160" x2="488" y2="160"/>
+            <line x1="12" y1="190" x2="488" y2="190"/>
+            <line x1="12" y1="220" x2="488" y2="220"/>
+            <line x1="12" y1="250" x2="488" y2="250"/>
+            <line x1="12" y1="280" x2="488" y2="280"/>
+            <line x1="12" y1="310" x2="488" y2="310"/>
+            <line x1="12" y1="340" x2="488" y2="340"/>
+            <line x1="12" y1="370" x2="488" y2="370"/>
+            <!-- vertical die cols -->
+            <line x1="130" y1="12" x2="130" y2="488"/>
+            <line x1="160" y1="12" x2="160" y2="488"/>
+            <line x1="190" y1="12" x2="190" y2="488"/>
+            <line x1="220" y1="12" x2="220" y2="488"/>
+            <line x1="250" y1="12" x2="250" y2="488"/>
+            <line x1="280" y1="12" x2="280" y2="488"/>
+            <line x1="310" y1="12" x2="310" y2="488"/>
+            <line x1="340" y1="12" x2="340" y2="488"/>
+            <line x1="370" y1="12" x2="370" y2="488"/>
+          </g>
+
+          <!-- Concentric diffraction rings -->
+          <circle cx="250" cy="250" r="218" stroke="url(#ring-g)" stroke-width="0.5" opacity="0.75" fill="none"/>
+          <circle cx="250" cy="250" r="196" stroke="url(#ring-g)" stroke-width="0.6" opacity="0.62" fill="none"/>
+          <circle cx="250" cy="250" r="172" stroke="url(#ring-g)" stroke-width="0.7" opacity="0.55" fill="none"/>
+          <circle cx="250" cy="250" r="148" stroke="url(#ring-g)" stroke-width="0.8" opacity="0.48" fill="none"/>
+          <circle cx="250" cy="250" r="124" stroke="url(#ring-g)" stroke-width="0.9" opacity="0.42" fill="none"/>
+          <circle cx="250" cy="250" r="100" stroke="url(#ring-g)" stroke-width="1.0" opacity="0.36" fill="none"/>
+          <circle cx="250" cy="250" r="76"  stroke="url(#ring-g)" stroke-width="1.1" opacity="0.30" fill="none"/>
+          <circle cx="250" cy="250" r="52"  stroke="url(#ring-g)" stroke-width="1.2" opacity="0.25" fill="none"/>
+          <circle cx="250" cy="250" r="28"  stroke="url(#ring-g)" stroke-width="1.3" opacity="0.20" fill="none"/>
+
+          <!-- Scan arc (telemetry arm) -->
+          <line x1="250" y1="250" x2="412" y2="132" stroke="#E07A5F" stroke-width="1" opacity="0.55"/>
+          <circle cx="250" cy="250" r="166" stroke="#E07A5F" stroke-width="0.5" stroke-dasharray="7 5" opacity="0.22" fill="none"/>
+
+          <!-- Centre die detail -->
+          <rect x="222" y="222" width="56" height="56" stroke="#E9C46A" stroke-width="0.8" fill="rgba(233,196,106,0.04)" opacity="0.55"/>
+          <rect x="236" y="236" width="28" height="28" stroke="#E9C46A" stroke-width="0.5" fill="rgba(233,196,106,0.06)" opacity="0.45"/>
+          <rect x="244" y="244" width="12" height="12" fill="rgba(233,196,106,0.12)" opacity="0.6"/>
+
+          <!-- 300mm flat edge notch -->
+          <path d="M 228 486 A 238 238 0 0 1 272 486" stroke="#A9988A" stroke-width="2.5" fill="none" opacity="0.5"/>
+
+          <!-- Outer glowing border ring -->
+          <circle cx="250" cy="250" r="237" stroke="url(#edge-g)" stroke-width="1.5" fill="none" opacity="0.85"/>
+
+          <!-- Tick marks at compass points -->
+          <line x1="250" y1="12" x2="250" y2="22"  stroke="#E9C46A" stroke-width="1.2" opacity="0.5"/>
+          <line x1="488" y1="250" x2="478" y2="250" stroke="#E9C46A" stroke-width="1.2" opacity="0.5"/>
+          <line x1="12"  y1="250" x2="22"  y2="250" stroke="#E9C46A" stroke-width="1.2" opacity="0.5"/>
+        </svg>
+
+        <!-- Fine dot grid overlay -->
+        <div class="wafer__dots"></div>
+
+        <!-- Crosshair -->
+        <div class="wafer__ch">
+          <div class="wafer__ch-h"></div>
+          <div class="wafer__ch-v"></div>
+          <div class="wafer__ch-pip"></div>
+        </div>
+
+        <!-- Axis labels -->
+        <div class="wafer__label wafer__label--n">N:+Y&nbsp;90°</div>
+        <div class="wafer__label wafer__label--e">E:+X&nbsp;→</div>
+        <div class="wafer__label wafer__label--s">FLAT · 300mm</div>
+        <div class="wafer__label wafer__label--w">←&nbsp;W:-X</div>
+      </div>
+    </div>
+
+    <!-- Telemetry gauge chips (right column) -->
+    <div class="hero__telemetry">
+      <div class="tele-chip">
+        <div class="tele-chip__label">COMPUTE</div>
+        <div class="tele-chip__value">AI Fabric</div>
+        <div class="tele-chip__sub">GPU CLUSTER</div>
+      </div>
+      <div class="tele-chip">
+        <div class="tele-chip__label">STORAGE</div>
+        <div class="tele-chip__value">NVMe Lake</div>
+        <div class="tele-chip__sub">數據湖</div>
+      </div>
+      <div class="tele-chip">
+        <div class="tele-chip__label">DR RTO</div>
+        <div class="tele-chip__value">≤&thinsp;4hr</div>
+        <div class="tele-chip__sub">RECOVERY</div>
+      </div>
+      <div class="tele-chip">
+        <div class="tele-chip__label">STACK</div>
+        <div class="tele-chip__value">六層架構</div>
+        <div class="tele-chip__sub">IT/OT+AI</div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ================================================================
+       SECTION 02 — Instrument Panel: Capability Matrix
+       ================================================================ -->
+  <section class="instrument">
+    <div class="instrument__num">02</div>
+    <div class="instrument__halo"></div>
+
+    <div class="instrument__header">
+      <div>
+        <div class="instrument__label">// CAPABILITY MATRIX &middot; 核心能力面板</div>
+        <h2 class="instrument__title">
+          六大<span class="italic">核心</span>系統<br>
+          全廠全棧覆蓋
+        </h2>
+      </div>
+      <div class="instrument__meta">
+        // INSTRUMENT PANEL v4.2.1<br>
+        STATUS:&ensp;<span class="hi">ALL SYSTEMS NOMINAL</span><br>
+        UPTIME:&ensp;99.994 %&ensp;&middot;&ensp;720 HR<br>
+        NODE COUNT:&ensp;6 / 6 ONLINE
+      </div>
+    </div>
+
+    <div class="cap-grid">
+
+      <!-- 01 AI 算力 -->
+      <div class="cap-card">
+        <div class="cap-card__idx">01 / 06</div>
+        <div class="cap-card__icon">
+          <svg viewBox="0 0 22 22" fill="none" stroke="#E9C46A" stroke-width="1.4" stroke-linecap="round">
+            <rect x="2" y="2" width="18" height="18" rx="2"/>
+            <path d="M7 8h8M7 11h8M7 14h5"/>
+            <circle cx="17" cy="5" r="2" fill="#E9C46A" stroke="none"/>
+          </svg>
+        </div>
+        <div class="cap-card__tag">// AI &middot; COMPUTE &middot; GPU FABRIC</div>
+        <div class="cap-card__title">AI 算力<br>推理加速</div>
+        <div class="cap-card__desc">
+          GPU 叢集 + FPGA 加速，支援晶圓缺陷即時辨識、製程漂移預測與 APC 自動製程控制閉環。
+        </div>
+        <div class="cap-card__metric">
+          <div class="cap-card__metric-val">380</div>
+          <div class="cap-card__metric-unit">TFLOPS · ONLINE</div>
+        </div>
+        <div class="cap-card__spark">
+          <div class="cap-card__spark-bar"></div><div class="cap-card__spark-bar"></div>
+          <div class="cap-card__spark-bar"></div><div class="cap-card__spark-bar"></div>
+          <div class="cap-card__spark-bar"></div><div class="cap-card__spark-bar"></div>
+          <div class="cap-card__spark-bar"></div><div class="cap-card__spark-bar"></div>
+          <div class="cap-card__spark-bar"></div><div class="cap-card__spark-bar"></div>
+        </div>
+        <div class="cap-card__status">
+          <div class="status-dot status-dot--online"></div>
+          ONLINE &middot; GPU UTIL 78.4 %
+        </div>
+      </div>
+
+      <!-- 02 MES FAB300 -->
+      <div class="cap-card">
+        <div class="cap-card__idx">02 / 06</div>
+        <div class="cap-card__icon">
+          <svg viewBox="0 0 22 22" fill="none" stroke="#E9C46A" stroke-width="1.4" stroke-linecap="round">
+            <path d="M11 2L2 7l9 5 9-5-9-5z"/>
+            <path d="M2 17l9 5 9-5"/>
+            <path d="M2 12l9 5 9-5"/>
+          </svg>
+        </div>
+        <div class="cap-card__tag">// MES &middot; DISPATCH &middot; FAB300</div>
+        <div class="cap-card__title">MES FAB300<br>製造執行系統</div>
+        <div class="cap-card__desc">
+          整合 8 大工藝機台，支援 WIP 追蹤、批次排程與 SPC 統計製程管制，全站 OEE 可視化。
+        </div>
+        <div class="cap-card__metric">
+          <div class="cap-card__metric-val">8</div>
+          <div class="cap-card__metric-unit">機台類型 · INTEGRATED</div>
+        </div>
+        <div class="cap-card__spark">
+          <div class="cap-card__spark-bar"></div><div class="cap-card__spark-bar"></div>
+          <div class="cap-card__spark-bar"></div><div class="cap-card__spark-bar"></div>
+          <div class="cap-card__spark-bar"></div><div class="cap-card__spark-bar"></div>
+          <div class="cap-card__spark-bar"></div><div class="cap-card__spark-bar"></div>
+          <div class="cap-card__spark-bar"></div><div class="cap-card__spark-bar"></div>
+        </div>
+        <div class="cap-card__status">
+          <div class="status-dot status-dot--online"></div>
+          DISPATCHING &middot; 342 LOTS ACTIVE
+        </div>
+      </div>
+
+      <!-- 03 網絡 Fabric -->
+      <div class="cap-card">
+        <div class="cap-card__idx">03 / 06</div>
+        <div class="cap-card__icon">
+          <svg viewBox="0 0 22 22" fill="none" stroke="#E9C46A" stroke-width="1.4" stroke-linecap="round">
+            <circle cx="11" cy="11" r="2"/>
+            <circle cx="4" cy="5"  r="1.5"/>
+            <circle cx="18" cy="5"  r="1.5"/>
+            <circle cx="4" cy="17" r="1.5"/>
+            <circle cx="18" cy="17" r="1.5"/>
+            <path d="M5.5 6l4 4M12.5 12l4 4M12.5 10l4-4M5.5 16l4-4"/>
+          </svg>
+        </div>
+        <div class="cap-card__tag">// NETWORK &middot; OT/IT &middot; FABRIC</div>
+        <div class="cap-card__title">網絡 Fabric<br>OT/IT 融合</div>
+        <div class="cap-card__desc">
+          OT/IT 融合網路架構，Purdue L0–L4 分層隔離，支援 TSN 時間敏感網路與 25GbE 廠內骨幹。
+        </div>
+        <div class="cap-card__metric">
+          <div class="cap-card__metric-val">25G</div>
+          <div class="cap-card__metric-unit">BACKBONE · TSN</div>
+        </div>
+        <div class="cap-card__spark">
+          <div class="cap-card__spark-bar"></div><div class="cap-card__spark-bar"></div>
+          <div class="cap-card__spark-bar"></div><div class="cap-card__spark-bar"></div>
+          <div class="cap-card__spark-bar"></div><div class="cap-card__spark-bar"></div>
+          <div class="cap-card__spark-bar"></div><div class="cap-card__spark-bar"></div>
+          <div class="cap-card__spark-bar"></div><div class="cap-card__spark-bar"></div>
+        </div>
+        <div class="cap-card__status">
+          <div class="status-dot status-dot--online"></div>
+          LATENCY &lt;0.5ms &middot; PKT LOSS 0.00 %
+        </div>
+      </div>
+
+      <!-- 04 資安 OT/IT -->
+      <div class="cap-card">
+        <div class="cap-card__idx">04 / 06</div>
+        <div class="cap-card__icon">
+          <svg viewBox="0 0 22 22" fill="none" stroke="#E9C46A" stroke-width="1.4" stroke-linecap="round">
+            <path d="M11 21s8-4 8-10V4.5L11 2 3 4.5V11c0 6 8 10 8 10z"/>
+            <path d="M8 11l2 2 4-4"/>
+          </svg>
+        </div>
+        <div class="cap-card__tag">// SECURITY &middot; ZERO-TRUST &middot; OT</div>
+        <div class="cap-card__title">資安防護<br>Zero-Trust OT</div>
+        <div class="cap-card__desc">
+          Zero-Trust 架構結合 OT 資安合規 (IEC 62443)，工控設備異常行為即時告警與隔離回應。
+        </div>
+        <div class="cap-card__metric">
+          <div class="cap-card__metric-val">IEC</div>
+          <div class="cap-card__metric-unit">62443 · COMPLIANT</div>
+        </div>
+        <div class="cap-card__spark">
+          <div class="cap-card__spark-bar"></div><div class="cap-card__spark-bar"></div>
+          <div class="cap-card__spark-bar"></div><div class="cap-card__spark-bar"></div>
+          <div class="cap-card__spark-bar"></div><div class="cap-card__spark-bar"></div>
+          <div class="cap-card__spark-bar"></div><div class="cap-card__spark-bar"></div>
+          <div class="cap-card__spark-bar"></div><div class="cap-card__spark-bar"></div>
+        </div>
+        <div class="cap-card__status">
+          <div class="status-dot status-dot--active"></div>
+          THREAT MONITOR &middot; 0 INCIDENTS
+        </div>
+      </div>
+
+      <!-- 05 DR 備援 -->
+      <div class="cap-card">
+        <div class="cap-card__idx">05 / 06</div>
+        <div class="cap-card__icon">
+          <svg viewBox="0 0 22 22" fill="none" stroke="#E9C46A" stroke-width="1.4" stroke-linecap="round">
+            <polyline points="1 4 1 10 7 10"/>
+            <path d="M3.51 15a9 9 0 1 0 .49-4"/>
+            <path d="M11 7v5l3 2"/>
+          </svg>
+        </div>
+        <div class="cap-card__tag">// DR &middot; BACKUP &middot; RTO &lt;4HR</div>
+        <div class="cap-card__title">DR 異地備援<br>4小時復原</div>
+        <div class="cap-card__desc">
+          跨區域雙活架構，RPO &lt;15min / RTO ≤4hr，包含 MES、SCADA、Historian 全系統熱備。
+        </div>
+        <div class="cap-card__metric">
+          <div class="cap-card__metric-val">≤4hr</div>
+          <div class="cap-card__metric-unit">RTO · RPO &lt;15min</div>
+        </div>
+        <div class="cap-card__spark">
+          <div class="cap-card__spark-bar"></div><div class="cap-card__spark-bar"></div>
+          <div class="cap-card__spark-bar"></div><div class="cap-card__spark-bar"></div>
+          <div class="cap-card__spark-bar"></div><div class="cap-card__spark-bar"></div>
+          <div class="cap-card__spark-bar"></div><div class="cap-card__spark-bar"></div>
+          <div class="cap-card__spark-bar"></div><div class="cap-card__spark-bar"></div>
+        </div>
+        <div class="cap-card__status">
+          <div class="status-dot status-dot--standby"></div>
+          STANDBY · SYNC LAG 4.2s
+        </div>
+      </div>
+
+      <!-- 06 企業整合 -->
+      <div class="cap-card">
+        <div class="cap-card__idx">06 / 06</div>
+        <div class="cap-card__icon">
+          <svg viewBox="0 0 22 22" fill="none" stroke="#E9C46A" stroke-width="1.4" stroke-linecap="round">
+            <rect x="2" y="3" width="18" height="13" rx="2"/>
+            <path d="M8 21h6M11 16v5"/>
+            <path d="M6 8h10M6 11h6"/>
+          </svg>
+        </div>
+        <div class="cap-card__tag">// ERP &middot; SCM &middot; ENTERPRISE</div>
+        <div class="cap-card__title">企業整合<br>ERP/SCM 銜接</div>
+        <div class="cap-card__desc">
+          MES 與 SAP ERP / Oracle SCM 深度整合，打通採購、庫存、製令與財務的數位主線 (Digital Thread)。
+        </div>
+        <div class="cap-card__metric">
+          <div class="cap-card__metric-val">SAP</div>
+          <div class="cap-card__metric-unit">S/4HANA · CERTIFIED</div>
+        </div>
+        <div class="cap-card__spark">
+          <div class="cap-card__spark-bar"></div><div class="cap-card__spark-bar"></div>
+          <div class="cap-card__spark-bar"></div><div class="cap-card__spark-bar"></div>
+          <div class="cap-card__spark-bar"></div><div class="cap-card__spark-bar"></div>
+          <div class="cap-card__spark-bar"></div><div class="cap-card__spark-bar"></div>
+          <div class="cap-card__spark-bar"></div><div class="cap-card__spark-bar"></div>
+        </div>
+        <div class="cap-card__status">
+          <div class="status-dot status-dot--online"></div>
+          SYNCING &middot; LAST RUN 00:41:02
+        </div>
+      </div>
+
+    </div><!-- /cap-grid -->
+
+    <!-- System log footer ticker -->
+    <div class="instrument__log">
+      <span class="instrument__log-tag">// SYSTEM LOG</span>
+      <span class="instrument__log-entry">2026-06-28 09:41:17&ensp;[AI] Defect model v3.2.1 inference: 99.7 % confidence &middot; wafer #W240628-142</span>
+      <span class="instrument__log-sep">|</span>
+      <span class="instrument__log-entry">[MES] Lot LP-2406-8842 dispatched &rarr; CVD-03 &middot; ETA 14min</span>
+      <span class="instrument__log-sep">|</span>
+      <span class="instrument__log-entry">[DR] Heartbeat sync OK &middot; remote site TN-02 nominal &middot; lag 4.2s</span>
+      <span class="instrument__log-sep">|</span>
+      <span class="instrument__log-entry">[SEC] Zero threat events &middot; IDS watchdog active</span>
+    </div>
+  </section>
+
+</body>
+</html>

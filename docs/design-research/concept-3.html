@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1440">
+  <title>SHINYLOGIC 顯藝科技 · FAB300</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&family=Spline+Sans+Mono:wght@300;400;500&family=Nunito+Sans:wght@300;400;600&family=Noto+Sans+TC:wght@300;400;500&family=Noto+Serif+TC:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    /* ─── RESET ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+
+    /* ─── DESIGN TOKENS ─────────────────────────────────── */
+    :root {
+      --bg:        #14100D;
+      --bg-deep:   #0E0B08;
+      --surface:   #211A14;
+      --raised:    #2A2018;
+      --cream:     #F2E9DE;
+      --muted:     #A9988A;
+      --faint:     #6E6157;
+      --clay:      #E07A5F;
+      --clay-deep: #B0492A;
+      --sun:       #E9C46A;
+      --sage:      #81A684;
+      --border:    rgba(242,233,222,0.10);
+      --border-s:  rgba(242,233,222,0.18);
+
+      --f-display: 'Fraunces', 'Noto Serif TC', Georgia, serif;
+      --f-mono:    'Spline Sans Mono', 'Courier New', monospace;
+      --f-body:    'Nunito Sans', 'Noto Sans TC', system-ui, sans-serif;
+    }
+
+    /* ─── BASE ───────────────────────────────────────────── */
+    body {
+      background: var(--bg);
+      color: var(--cream);
+      font-family: var(--f-body);
+      min-width: 1440px;
+      overflow-x: hidden;
+    }
+
+    /* ─── NAV ─────────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 64px;
+      height: 72px;
+      background: linear-gradient(to bottom, rgba(14,11,8,0.92) 0%, rgba(14,11,8,0) 100%);
+      backdrop-filter: blur(0px);
+    }
+
+    .nav-brand {
+      font-family: var(--f-mono);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      color: var(--cream);
+      line-height: 1.3;
+    }
+    .nav-brand .brand-main {
+      font-size: 14px;
+      letter-spacing: 0.12em;
+      font-weight: 500;
+      color: var(--cream);
+    }
+    .nav-brand .brand-sub {
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      color: var(--sun);
+      opacity: 0.8;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 36px;
+      list-style: none;
+    }
+    .nav-links li a {
+      font-family: var(--f-mono);
+      font-size: 11.5px;
+      letter-spacing: 0.10em;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-links li a:hover { color: var(--cream); }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .lang-toggle {
+      font-family: var(--f-mono);
+      font-size: 10.5px;
+      letter-spacing: 0.12em;
+      color: var(--faint);
+      cursor: pointer;
+    }
+    .lang-toggle span.active { color: var(--muted); }
+    .lang-sep { color: var(--faint); margin: 0 2px; }
+
+    .btn-consult {
+      font-family: var(--f-mono);
+      font-size: 11px;
+      letter-spacing: 0.10em;
+      color: var(--bg);
+      background: var(--clay);
+      border: none;
+      padding: 9px 22px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-consult:hover { background: var(--clay-deep); }
+
+    /* ─── HERO ─────────────────────────────────────────────── */
+    .hero {
+      position: relative;
+      width: 1440px;
+      height: 900px;
+      overflow: hidden;
+      background: var(--bg-deep);
+    }
+
+    /* Static diffraction / bloom — represents the WebGL canvas */
+    .hero-canvas {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    /* Radial gold→clay bloom, off-center right */
+    .hero-bloom {
+      position: absolute;
+      top: 50%;
+      right: -60px;
+      transform: translateY(-52%);
+      width: 860px;
+      height: 860px;
+      border-radius: 50%;
+      background: radial-gradient(
+        ellipse at 54% 48%,
+        rgba(233,196,106,0.22) 0%,
+        rgba(224,122,95,0.14) 22%,
+        rgba(176,73,42,0.07) 44%,
+        transparent 68%
+      );
+      filter: blur(2px);
+    }
+
+    /* Concentric diffraction rings */
+    .hero-rings {
+      position: absolute;
+      top: 50%;
+      right: 200px;
+      transform: translate(50%, -50%);
+      width: 700px;
+      height: 700px;
+    }
+    .hero-rings svg {
+      width: 100%;
+      height: 100%;
+      opacity: 0.09;
+    }
+
+    /* Ember dot-matrix — diagonal fade bottom-left corner */
+    .hero-dots {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 420px;
+      height: 420px;
+      overflow: hidden;
+    }
+    .hero-dots-inner {
+      position: absolute;
+      bottom: -20px;
+      left: -20px;
+      display: grid;
+      grid-template-columns: repeat(28, 14px);
+      grid-template-rows: repeat(28, 14px);
+      gap: 0;
+      transform: rotate(-3deg);
+    }
+    .hero-dots-inner span {
+      display: block;
+      width: 2.5px;
+      height: 2.5px;
+      border-radius: 50%;
+      margin: 5.75px;
+    }
+
+    /* Content layer */
+    .hero-content {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 96px;
+      padding-top: 72px; /* nav offset */
+    }
+
+    .hero-eyebrow {
+      font-family: var(--f-mono);
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      color: var(--sun);
+      opacity: 0.75;
+      margin-bottom: 36px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      display: block;
+      width: 32px;
+      height: 1px;
+      background: var(--sun);
+      opacity: 0.5;
+    }
+
+    .hero-h1 {
+      font-family: var(--f-display);
+      font-optical-sizing: auto;
+      font-size: 96px;
+      font-weight: 300;
+      line-height: 1.07;
+      letter-spacing: -0.01em;
+      color: var(--cream);
+      max-width: 780px;
+      margin-bottom: 36px;
+      position: relative;
+    }
+    /* Gold underline accent on last word / line */
+    .hero-h1 .underline-accent {
+      position: relative;
+      display: inline;
+    }
+    .hero-h1 .underline-accent::after {
+      content: '';
+      position: absolute;
+      bottom: 4px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--sun), var(--clay));
+      opacity: 0.6;
+    }
+
+    .hero-sub {
+      font-family: var(--f-body);
+      font-size: 15.5px;
+      font-weight: 300;
+      line-height: 1.75;
+      color: var(--muted);
+      max-width: 560px;
+      margin-bottom: 52px;
+      letter-spacing: 0.01em;
+    }
+
+    /* Stat chips */
+    .hero-stats {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 52px;
+    }
+    .stat-chip {
+      font-family: var(--f-mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      border: 1px solid var(--border-s);
+      padding: 7px 16px;
+      background: rgba(33,26,20,0.5);
+      white-space: nowrap;
+    }
+    .stat-chip .chip-val {
+      color: var(--cream);
+      font-weight: 500;
+    }
+    .stat-chip .chip-sep {
+      color: var(--faint);
+      margin: 0 6px;
+    }
+
+    /* CTA row */
+    .hero-ctas {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    .btn-primary {
+      font-family: var(--f-mono);
+      font-size: 12px;
+      letter-spacing: 0.10em;
+      color: #fff;
+      background: var(--clay);
+      border: none;
+      padding: 15px 36px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-primary:hover { background: var(--clay-deep); }
+    .btn-ghost {
+      font-family: var(--f-mono);
+      font-size: 12px;
+      letter-spacing: 0.10em;
+      color: var(--muted);
+      background: transparent;
+      border: 1px solid var(--border-s);
+      padding: 14px 36px;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-ghost:hover {
+      border-color: rgba(242,233,222,0.4);
+      color: var(--cream);
+    }
+
+    /* HUD marker bottom-right */
+    .hero-hud {
+      position: absolute;
+      bottom: 40px;
+      right: 64px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--f-mono);
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      color: var(--faint);
+    }
+    .hud-rec-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--clay);
+      opacity: 0.85;
+      flex-shrink: 0;
+      /* blinking would be CSS animation in production */
+      animation: blink 1.8s ease-in-out infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 0.85; }
+      50% { opacity: 0.25; }
+    }
+
+    /* Thin horizontal rule between hero and section */
+    .section-divider {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, var(--border-s) 20%, var(--border-s) 80%, transparent 100%);
+    }
+
+    /* ─── SIGNATURE SECTION 02 ─────────────────────────────── */
+    .section-numbers {
+      position: relative;
+      background: var(--bg);
+      padding: 140px 96px 160px;
+      overflow: hidden;
+    }
+
+    /* Faint giant section number */
+    .section-bg-num {
+      position: absolute;
+      top: -30px;
+      left: 60px;
+      font-family: var(--f-mono);
+      font-size: 340px;
+      font-weight: 300;
+      line-height: 1;
+      color: var(--cream);
+      opacity: 0.025;
+      letter-spacing: -0.04em;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* Subtle dots in top-right of this section */
+    .section-dots-tr {
+      position: absolute;
+      top: 60px;
+      right: 80px;
+      display: grid;
+      grid-template-columns: repeat(10, 10px);
+      grid-template-rows: repeat(6, 10px);
+      gap: 0;
+      opacity: 0.18;
+      pointer-events: none;
+    }
+    .section-dots-tr span {
+      display: block;
+      width: 2px;
+      height: 2px;
+      border-radius: 50%;
+      background: var(--sun);
+      margin: 4px;
+    }
+
+    .section-label {
+      font-family: var(--f-mono);
+      font-size: 10.5px;
+      letter-spacing: 0.22em;
+      color: var(--sun);
+      opacity: 0.65;
+      margin-bottom: 64px;
+      position: relative;
+    }
+
+    /* Editorial pull-quote statement */
+    .pull-quote {
+      font-family: var(--f-display);
+      font-optical-sizing: auto;
+      font-size: 52px;
+      font-weight: 300;
+      line-height: 1.18;
+      letter-spacing: -0.01em;
+      color: var(--cream);
+      max-width: 820px;
+      margin-bottom: 100px;
+      position: relative;
+    }
+    .pull-quote .em-clay {
+      font-style: italic;
+      color: var(--clay);
+    }
+    /* Thin left border accent */
+    .pull-quote::before {
+      content: '';
+      position: absolute;
+      left: -32px;
+      top: 6px;
+      bottom: 6px;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--sun), var(--clay));
+      opacity: 0.5;
+    }
+
+    /* Three-column metrics */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1px 1fr 1px 1fr;
+      gap: 0;
+      align-items: start;
+    }
+    .metric-col {
+      padding: 0 64px;
+    }
+    .metric-col:first-child { padding-left: 0; }
+    .metric-col:last-child { padding-right: 0; }
+
+    .metric-col-divider {
+      background: var(--border);
+      align-self: stretch;
+      margin-top: 8px;
+    }
+
+    .metric-num {
+      font-family: var(--f-display);
+      font-optical-sizing: auto;
+      font-size: 80px;
+      font-weight: 300;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    .metric-num.clay { color: var(--clay); }
+    .metric-num.sun  { color: var(--sun); }
+    .metric-num.sage { color: var(--sage); }
+
+    .metric-unit {
+      font-family: var(--f-mono);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      color: var(--faint);
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    .metric-desc {
+      font-family: var(--f-body);
+      font-size: 14px;
+      font-weight: 300;
+      line-height: 1.65;
+      color: var(--muted);
+      max-width: 260px;
+    }
+
+    /* Gold thin line between section label and content */
+    .gold-rule {
+      display: inline-block;
+      width: 48px;
+      height: 1px;
+      background: linear-gradient(90deg, var(--sun), transparent);
+      margin-bottom: 24px;
+      opacity: 0.6;
+    }
+
+    /* ─── SCROLLBAR STYLING ──────────────────────────────────── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg-deep); }
+    ::-webkit-scrollbar-thumb { background: var(--raised); border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════ NAV ═══════════════════════════ -->
+<nav>
+  <div class="nav-brand">
+    <div class="brand-main">SHINYLOGIC 顯藝科技</div>
+    <div class="brand-sub">· FAB300 ·</div>
+  </div>
+
+  <ul class="nav-links">
+    <li><a href="#">關於</a></li>
+    <li><a href="#">解決方案</a></li>
+    <li><a href="#">技術</a></li>
+    <li><a href="#">方法論</a></li>
+    <li><a href="#">招募</a></li>
+  </ul>
+
+  <div class="nav-right">
+    <div class="lang-toggle">
+      <span class="active">繁</span><span class="lang-sep"> / </span><span>EN</span><span class="lang-sep"> / </span><span>简</span>
+    </div>
+    <button class="btn-consult">預約諮詢</button>
+  </div>
+</nav>
+
+
+<!-- ═══════════════════════════════════ HERO ══════════════════════════ -->
+<section class="hero">
+
+  <!-- Static WebGL canvas representation -->
+  <div class="hero-canvas">
+    <!-- Radial gold→clay bloom (off-center right) -->
+    <div class="hero-bloom"></div>
+
+    <!-- Diffraction rings SVG -->
+    <div class="hero-rings">
+      <svg viewBox="0 0 700 700" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="350" cy="350" r="80"  stroke="#E9C46A" stroke-width="0.8"/>
+        <circle cx="350" cy="350" r="130" stroke="#E9C46A" stroke-width="0.6"/>
+        <circle cx="350" cy="350" r="185" stroke="#E07A5F" stroke-width="0.5"/>
+        <circle cx="350" cy="350" r="245" stroke="#E9C46A" stroke-width="0.5"/>
+        <circle cx="350" cy="350" r="308" stroke="#E07A5F" stroke-width="0.4"/>
+        <circle cx="350" cy="350" r="340" stroke="#E9C46A" stroke-width="0.35"/>
+        <circle cx="350" cy="350" r="345" stroke="#E07A5F" stroke-width="0.3"/>
+        <!-- Interference cross-hairs, very faint -->
+        <line x1="350" y1="0"   x2="350" y2="700" stroke="#E9C46A" stroke-width="0.3" opacity="0.3"/>
+        <line x1="0"   y1="350" x2="700" y2="350" stroke="#E9C46A" stroke-width="0.3" opacity="0.3"/>
+        <line x1="105" y1="105" x2="595" y2="595" stroke="#E07A5F" stroke-width="0.25" opacity="0.2"/>
+        <line x1="595" y1="105" x2="105" y2="595" stroke="#E07A5F" stroke-width="0.25" opacity="0.2"/>
+      </svg>
+    </div>
+
+    <!-- Ember dot-matrix bottom-left -->
+    <div class="hero-dots" id="hero-dots"></div>
+  </div>
+
+  <!-- Content -->
+  <div class="hero-content">
+    <div class="hero-eyebrow">
+      智能晶圓廠 · IT/OT 全棧建置 &nbsp;// &nbsp;INTELLIGENT FAB INFRASTRUCTURE
+    </div>
+
+    <h1 class="hero-h1">
+      把設備數據，<br>鍛造成<span class="underline-accent">可決策</span>的智能。
+    </h1>
+
+    <p class="hero-sub">
+      從 8 大工藝機台的訊號，到 AI 決策閉環，再到跨區域異地備援 — 顯藝科技為您的晶圓廠交付並承擔 IT/OT+AI 全棧的建置、整合與維運責任。
+    </p>
+
+    <!-- Stat chips -->
+    <div class="hero-stats">
+      <div class="stat-chip">
+        <span class="chip-val">AI Fabric</span><span class="chip-sep">·</span>COMPUTE
+      </div>
+      <div class="stat-chip">
+        <span class="chip-val">NVMe Lake</span><span class="chip-sep">·</span>數據湖
+      </div>
+      <div class="stat-chip">
+        <span class="chip-val">≤ 4hr</span><span class="chip-sep">·</span>DR RTO
+      </div>
+      <div class="stat-chip">
+        <span class="chip-val">六層架構</span><span class="chip-sep">·</span>STACK
+      </div>
+    </div>
+
+    <!-- CTAs -->
+    <div class="hero-ctas">
+      <button class="btn-primary">預約諮詢</button>
+      <button class="btn-ghost">查看系統架構</button>
+    </div>
+  </div>
+
+  <!-- HUD bottom-right -->
+  <div class="hero-hud">
+    <div class="hud-rec-dot"></div>
+    // LIVE FEED · CLEANROOM 03 &nbsp;&nbsp; X:0420 Y:1080 &nbsp;&nbsp; [ REC ]
+  </div>
+
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ═══════════════════════════════ SECTION 02 — BY THE NUMBERS ═══════ -->
+<section class="section-numbers">
+
+  <!-- Giant faint bg number -->
+  <div class="section-bg-num">02</div>
+
+  <!-- Dot accent top-right -->
+  <div class="section-dots-tr" id="section-dots"></div>
+
+  <!-- Section label -->
+  <div class="section-label">02 · BY THE NUMBERS &nbsp;// 關鍵指標</div>
+  <div class="gold-rule"></div>
+
+  <!-- Pull-quote editorial statement -->
+  <div class="pull-quote">
+    每一條 SLO 承諾的背後，<br>
+    都是一套 <span class="em-clay">工業級韌性</span>的架構—<br>
+    而非一份期望管理的文件。
+  </div>
+
+  <!-- Three hero metrics -->
+  <div class="metrics-grid">
+
+    <div class="metric-col">
+      <div class="metric-num clay">≤ 4hr</div>
+      <span class="metric-unit">DR RTO · 異地備援恢復時間目標</span>
+      <p class="metric-desc">跨區域雙活架構，主備切換自動觸發。真實演練驗證，而非假設推算。</p>
+    </div>
+
+    <div class="metric-col-divider"></div>
+
+    <div class="metric-col">
+      <div class="metric-num sun">≥ 95%</div>
+      <span class="metric-unit">SLO · 系統服務等級目標</span>
+      <p class="metric-desc">跨 IT/OT/AI 三層的整合 SLO，單一合約涵蓋全棧維運責任。</p>
+    </div>
+
+    <div class="metric-col-divider"></div>
+
+    <div class="metric-col">
+      <div class="metric-num sage">100%</div>
+      <span class="metric-unit">歸檔率 · DATA ARCHIVE COVERAGE</span>
+      <p class="metric-desc">8 大工藝機台產出數據完整歸檔至 NVMe Lake，無遺漏、可稽核。</p>
+    </div>
+
+  </div>
+
+</section>
+
+
+<script>
+  // ── Generate ember dot-matrix (static representation of the anime.js dot moment)
+  (function() {
+    const container = document.getElementById('hero-dots');
+    const inner = document.createElement('div');
+    inner.className = 'hero-dots-inner';
+    const rows = 28, cols = 28;
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const s = document.createElement('span');
+        // Diagonal fade: dots near bottom-left (low r+c) are gold, fade to clay then disappear
+        const diag = (r + c) / (rows + cols - 2); // 0 = top-left, 1 = bottom-right
+        const revDiag = 1 - diag; // high near top-left
+        // We want bottom-left corner to glow
+        const blDist = ((rows - 1 - r) + c) / (rows + cols - 2); // 0 = bottom-left
+        const intensity = Math.max(0, 1 - blDist * 2.2);
+        if (intensity < 0.04) {
+          s.style.opacity = '0';
+        } else {
+          // Interpolate gold → clay based on distance
+          const t = Math.min(1, blDist * 3);
+          const r_c = Math.round(233 + (224 - 233) * t);
+          const g_c = Math.round(196 + (122 - 196) * t);
+          const b_c = Math.round(106 + (95  - 106) * t);
+          s.style.background = `rgb(${r_c},${g_c},${b_c})`;
+          s.style.opacity = (intensity * 0.7).toFixed(3);
+        }
+        inner.appendChild(s);
+      }
+    }
+    container.appendChild(inner);
+
+    // Section dots top-right
+    const sd = document.getElementById('section-dots');
+    for (let i = 0; i < 60; i++) {
+      const sp = document.createElement('span');
+      sd.appendChild(sp);
+    }
+  })();
+</script>
+
+</body>
+</html>

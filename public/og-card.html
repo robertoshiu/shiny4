@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <title>顯藝科技 ShinyLogic — OG Card</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Nunito+Sans:opsz,wght@6..12,300..900&family=Spline+Sans+Mono:wght@400;500&family=Varela+Round&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg-canvas:#FAF6F0; --bg-sunken:#F2E9DE;
+      --surface:#FFFDFB; --surface-ink:#241C16;
+      --ink:#2A211B; --ink-2:#5A4F47; --ink-3:#857A6E;
+      --clay:#E07A5F; --clay-ink:#B0492A; --clay-deep:#8A3A21;
+      --clay-100:#F8E5DD;
+      --sage:#81A684; --sage-ink:#3F6248;
+      --sun:#E9C46A; --sun-ink:#8A5A00;
+      --border:#EBDFCF; --border-strong:#DCCBB4;
+      --shadow-rgb:83 60 42;
+      --font-display:"Fraunces","Noto Serif TC",Georgia,serif;
+      --font-body:"Nunito Sans","Noto Sans TC",system-ui,sans-serif;
+      --font-mark:"Varela Round",var(--font-body);
+      --font-mono:"Spline Sans Mono",ui-monospace,monospace;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html,body{background:var(--bg-canvas);}
+    /* EXACT 1200x630 capture surface */
+    .og{
+      position:relative;
+      width:1200px;height:630px;
+      overflow:hidden;
+      background:var(--bg-canvas);
+      color:var(--ink);
+      font-family:var(--font-body);
+    }
+    /* blueprint micro-grid retired */
+    .og__grid{display:none;}
+    /* warm radial: clay/sun/sage at low opacity — replaces cyan glow */
+    .og__glow{
+      position:absolute;inset:0;z-index:0;pointer-events:none;
+      background:
+        radial-gradient(50% 60% at 82% 30%, rgba(224,122,95,.12), transparent 70%),
+        radial-gradient(40% 50% at 8% 95%, rgba(233,196,106,.08), transparent 70%),
+        radial-gradient(60% 40% at 50% 0%, rgba(129,166,132,.07), transparent 60%);
+    }
+    /* fab-process motif: diffraction rings + drifting blobs (replaces wafer) */
+    .og__wafer{
+      position:absolute;right:-70px;top:50%;transform:translateY(-50%);
+      width:520px;height:520px;z-index:0;opacity:.9;
+    }
+    /* corner reticle marks — retired */
+    .og__tick{display:none;}
+
+    .og__inner{
+      position:relative;z-index:2;
+      height:100%;
+      padding:74px 80px;
+      display:flex;flex-direction:column;justify-content:space-between;
+    }
+    .og__top{display:flex;align-items:center;justify-content:space-between;}
+    .og__brand{display:flex;align-items:baseline;gap:18px;}
+    .og__mark{
+      font-family:var(--font-mark);font-weight:400;font-size:40px;
+      letter-spacing:-.01em;line-height:1;color:var(--ink);
+    }
+    .og__mark .accent{color:var(--clay);}
+    .og__sub{font-family:var(--font-body);font-size:18px;letter-spacing:.06em;color:var(--ink-2);}
+    .og__kicker{
+      font-family:var(--font-body);font-weight:700;font-size:13px;letter-spacing:.16em;text-transform:uppercase;
+      color:var(--clay-ink);background:var(--clay-100);border-radius:999px;padding:8px 20px;border:0;
+    }
+
+    .og__mid{max-width:760px;}
+    .og__tagline{
+      font-family:var(--font-display);font-weight:600;
+      font-size:62px;line-height:1.16;letter-spacing:-.01em;color:var(--ink);
+    }
+    .og__tagline .accent{color:var(--clay-ink);}
+    .og__desc{
+      margin-top:22px;font-size:21px;line-height:1.6;color:var(--ink-2);max-width:680px;
+    }
+
+    .og__metrics{display:flex;gap:48px;padding-top:30px;border-top:1px solid var(--border);}
+    .og__metric{display:flex;flex-direction:column;gap:6px;}
+    .og__metric .n{font-family:var(--font-body);font-weight:800;font-size:46px;line-height:1;color:var(--ink);}
+    .og__metric .n .u{color:var(--clay-ink);font-size:.5em;margin-left:.12em;}
+    .og__metric .l{font-family:var(--font-mono);font-size:14px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);}
+
+    .og__foot{
+      display:flex;justify-content:space-between;align-items:center;
+      font-family:var(--font-mono);font-size:15px;letter-spacing:.1em;color:var(--ink-3);
+    }
+    .og__foot .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#81A684;margin-right:8px;vertical-align:middle;}
+  </style>
+</head>
+<body>
+  <div class="og">
+    <div class="og__grid" aria-hidden="true"></div>
+    <div class="og__glow" aria-hidden="true"></div>
+
+    <!-- fab-process motif: diffraction rings + drifting blobs (replaces wafer) -->
+    <svg class="og__wafer" viewBox="0 0 400 400" aria-hidden="true">
+      <!-- light-diffraction rings: clay/sage strokes, low opacity -->
+      <circle cx="200" cy="200" r="170" fill="none" stroke="rgba(129,166,132,.18)" stroke-width="1.2"/>
+      <circle cx="200" cy="200" r="132" fill="none" stroke="rgba(129,166,132,.12)" stroke-width="1"/>
+      <circle cx="200" cy="200" r="96"  fill="none" stroke="rgba(224,122,95,.11)" stroke-width="0.8"/>
+      <circle cx="200" cy="200" r="60"  fill="none" stroke="rgba(224,122,95,.15)" stroke-width="0.8"/>
+      <circle cx="200" cy="200" r="28"  fill="none" stroke="rgba(129,166,132,.16)" stroke-width="0.8"/>
+      <!-- drifting blobs: clay/sage/sun fills, 8–14% opacity -->
+      <ellipse cx="190" cy="170" rx="95" ry="70" transform="rotate(-25 190 170)" fill="rgba(224,122,95,.10)"/>
+      <ellipse cx="265" cy="285" rx="80" ry="60" transform="rotate(20 265 285)" fill="rgba(129,166,132,.09)"/>
+      <ellipse cx="320" cy="115" rx="65" ry="50" transform="rotate(40 320 115)" fill="rgba(233,196,106,.11)"/>
+    </svg>
+
+    <span class="og__tick og__tick--tl" aria-hidden="true"></span>
+    <span class="og__tick og__tick--tr" aria-hidden="true"></span>
+    <span class="og__tick og__tick--bl" aria-hidden="true"></span>
+    <span class="og__tick og__tick--br" aria-hidden="true"></span>
+
+    <div class="og__inner">
+      <div class="og__top">
+        <div class="og__brand">
+          <span class="og__mark">SHINY<span class="accent">LOGIC</span></span>
+          <span class="og__sub">顯藝科技</span>
+        </div>
+        <span class="og__kicker">Intelligent Fab Infrastructure</span>
+      </div>
+
+      <div class="og__mid">
+        <div class="og__tagline">把設備數據，<br>鍛造成<span class="accent">可決策的智能</span>。</div>
+        <p class="og__desc">智能晶圓廠 IT/OT 全棧系統整合商 — 從設備數據到 AI 決策閉環，再到異地備援的完整六層技術堆疊。</p>
+      </div>
+
+      <div>
+        <div class="og__metrics">
+          <div class="og__metric"><span class="n">GB300<span class="u"> NVL72</span></span><span class="l">AI Compute</span></div>
+          <div class="og__metric"><span class="n">六層<span class="u">全棧</span></span><span class="l">Full-Stack</span></div>
+          <div class="og__metric"><span class="n">≤ 4<span class="u">hr</span></span><span class="l">DR RTO</span></div>
+          <div class="og__metric"><span class="n">100<span class="u">%</span></span><span class="l">歸檔回歸</span></div>
+        </div>
+        <div class="og__foot" style="margin-top:28px;">
+          <span><span class="dot"></span>FAB300 REFERENCE BUILD</span>
+          <span>IT/OT+AI 全棧交付 · 授權責任全程承擔 · 100% 歸檔回歸客戶</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

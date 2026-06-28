@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1720">
+  <title>SHINYLOGIC · Brand Direction Options</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,500&family=Nunito+Sans:ital,wdth,wght@0,75..125,300;0,75..125,400;0,75..125,600;1,75..125,300;1,75..125,400&family=Space+Grotesk:wght@300;400;500;600;700&family=Spline+Sans+Mono:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Noto+Serif+TC:wght@300;400;500&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: #E9E7E3;
+      width: 1720px;
+      overflow-x: hidden;
+    }
+
+    /* ── BOARD ── */
+    .board {
+      width: 1720px;
+      background: #E9E7E3;
+      padding-bottom: 52px;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      padding: 32px 52px 0;
+      margin-bottom: 28px;
+    }
+
+    .header-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .header-label {
+      font-family: 'Spline Sans Mono', monospace;
+      font-size: 10.5px;
+      font-weight: 400;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #706B65;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-pip {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #A09990;
+      flex-shrink: 0;
+    }
+
+    .header-date {
+      font-family: 'Spline Sans Mono', monospace;
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.14em;
+      color: #A09990;
+    }
+
+    .header-rule {
+      height: 1px;
+      background: linear-gradient(90deg, #C8C3BC 0%, #DDD9D3 60%, transparent 100%);
+    }
+
+    /* ── CARDS GRID ── */
+    .cards {
+      display: flex;
+      gap: 22px;
+      padding: 0 52px;
+      align-items: stretch;
+    }
+
+    /* ── CARD BASE ── */
+    .card {
+      flex: 1;
+      background: #FEFCF8;
+      border-radius: 14px;
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.9) inset,
+        0 2px 6px rgba(40,30,20,0.04),
+        0 8px 28px rgba(40,30,20,0.07),
+        0 1px 2px rgba(40,30,20,0.05);
+      border: 1px solid rgba(200,193,184,0.45);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Direction C highlighted border */
+    .card--recommended {
+      border: 2px solid #E07A5F;
+      box-shadow:
+        0 0 0 4px rgba(224,122,95,0.07),
+        0 0 40px rgba(224,122,95,0.1),
+        0 8px 28px rgba(40,30,20,0.1),
+        0 2px 6px rgba(40,30,20,0.06);
+      background: #FEFCF8;
+    }
+
+    .card-inner {
+      padding: 26px 26px 22px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    /* ── EYEBROW ── */
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 13px;
+      min-height: 24px;
+    }
+
+    .eyebrow-left {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .eyebrow-dir {
+      font-family: 'Spline Sans Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.20em;
+      text-transform: uppercase;
+      color: #8A8480;
+    }
+
+    .eyebrow-tag {
+      font-family: 'Spline Sans Mono', monospace;
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 0.07em;
+      color: #AFA9A2;
+      padding: 2px 7px 2px 7px;
+      border: 1px solid #DDD8D1;
+      border-radius: 4px;
+      background: rgba(180,174,165,0.06);
+    }
+
+    .badge-rec {
+      font-family: 'Spline Sans Mono', monospace;
+      font-size: 8.5px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #E07A5F;
+      padding: 3px 8px;
+      border: 1px solid rgba(224,122,95,0.38);
+      border-radius: 4px;
+      background: rgba(224,122,95,0.06);
+    }
+
+    /* ── DIRECTION NAME ── */
+    .dir-name {
+      font-size: 27px;
+      font-weight: 600;
+      line-height: 1.18;
+      letter-spacing: -0.015em;
+      color: #1C1814;
+      margin-bottom: 9px;
+    }
+
+    .dir-name-a { font-family: 'Space Grotesk', sans-serif; font-weight: 600; }
+    .dir-name-bc { font-family: 'Fraunces', 'Noto Serif TC', serif; font-weight: 600; }
+
+    /* ── MOOD ── */
+    .mood {
+      font-family: 'Nunito Sans', 'Noto Sans TC', sans-serif;
+      font-size: 12px;
+      font-style: italic;
+      font-weight: 300;
+      line-height: 1.6;
+      color: #948E87;
+      margin-bottom: 18px;
+    }
+
+    /* ── PREVIEW CHIP ── */
+    .chip {
+      width: 100%;
+      height: 224px;
+      border-radius: 10px;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 20px;
+      flex-shrink: 0;
+    }
+
+    .chip-dots {
+      position: absolute;
+      top: 18px;
+      left: 20px;
+    }
+
+    .chip-hud {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      font-family: 'Spline Sans Mono', monospace;
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 0.13em;
+    }
+
+    .chip-text {
+      position: absolute;
+      bottom: 26px;
+      left: 22px;
+      right: 22px;
+    }
+
+    .chip-zh {
+      font-size: 18.5px;
+      font-weight: 500;
+      line-height: 1.5;
+      letter-spacing: 0.03em;
+    }
+
+    .chip-en {
+      font-family: 'Spline Sans Mono', monospace;
+      font-size: 9.5px;
+      font-weight: 400;
+      letter-spacing: 0.20em;
+      text-transform: uppercase;
+      margin-top: 7px;
+    }
+
+    .chip-underline {
+      height: 1.5px;
+      margin-top: 8px;
+      border-radius: 1px;
+    }
+
+    /* ── CHIP A: Cleanroom Cinematic ── */
+    .chip-a {
+      background: #0B0D10;
+    }
+
+    .chip-a .chip-zh {
+      font-family: 'Space Grotesk', 'Noto Sans TC', sans-serif;
+      color: #EAE7E1;
+    }
+
+    .chip-a .chip-en { color: #8A938F; }
+    .chip-a .chip-hud { color: #54E6E0; }
+
+    .chip-a .chip-underline {
+      background: linear-gradient(90deg, #54E6E0 0%, rgba(84,230,224,0.3) 60%, transparent 100%);
+      width: 100%;
+    }
+
+    /* Scanline texture overlay for A */
+    .chip-a::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent 0px,
+        transparent 3px,
+        rgba(84,230,224,0.013) 3px,
+        rgba(84,230,224,0.013) 4px
+      );
+      pointer-events: none;
+    }
+
+    /* ── CHIP B: Warm Editorial Foundry ── */
+    .chip-b {
+      background: #FAF6F0;
+      border: 1px solid rgba(200,190,175,0.5);
+    }
+
+    .chip-b .chip-zh {
+      font-family: 'Fraunces', 'Noto Serif TC', serif;
+      color: #2A211B;
+    }
+
+    .chip-b .chip-en { color: #857A6E; }
+    .chip-b .chip-hud { color: #E07A5F; }
+
+    .chip-b-pill {
+      position: absolute;
+      top: 50%;
+      right: 22px;
+      transform: translateY(-50%);
+      background: #E07A5F;
+      color: #FAF6F0;
+      font-family: 'Spline Sans Mono', monospace;
+      font-size: 8px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      padding: 5px 13px;
+      border-radius: 20px;
+    }
+
+    /* ── CHIP C: Warm-Dark Foundry ── */
+    .chip-c {
+      background: #14100D;
+    }
+
+    .chip-c .chip-zh {
+      font-family: 'Fraunces', 'Noto Serif TC', serif;
+      color: #F2E9DE;
+    }
+
+    .chip-c .chip-en { color: #A9988A; }
+    .chip-c .chip-hud { color: #E9C46A; }
+
+    /* Warm glow from bottom-left */
+    .chip-c::before {
+      content: '';
+      position: absolute;
+      bottom: -40px;
+      left: -20px;
+      width: 260px;
+      height: 180px;
+      background: radial-gradient(ellipse, rgba(233,196,106,0.12) 0%, rgba(224,122,95,0.07) 40%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* ── PALETTE SECTION ── */
+    .palette-section {
+      margin-bottom: 16px;
+    }
+
+    .section-lbl {
+      font-family: 'Spline Sans Mono', monospace;
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.20em;
+      text-transform: uppercase;
+      color: #B5AFA8;
+      margin-bottom: 10px;
+    }
+
+    .swatches {
+      display: flex;
+      gap: 9px;
+    }
+
+    .sw-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .sw {
+      width: 40px;
+      height: 38px;
+      border-radius: 7px;
+    }
+
+    .sw-dark {
+      box-shadow: 0 1px 4px rgba(0,0,0,0.22), 0 0 0 1px rgba(0,0,0,0.12);
+    }
+
+    .sw-light {
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.09);
+    }
+
+    .sw-hex {
+      font-family: 'Spline Sans Mono', monospace;
+      font-size: 7.5px;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      color: #ABA5A0;
+      text-align: center;
+    }
+
+    /* ── TYPE SECTION ── */
+    .type-section {
+      margin-bottom: 16px;
+    }
+
+    .type-row {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      padding: 7px 0;
+      border-bottom: 1px solid #EDEAE4;
+    }
+
+    .type-row:first-of-type {
+      border-top: 1px solid #EDEAE4;
+    }
+
+    .type-meta {
+      font-family: 'Spline Sans Mono', monospace;
+      font-size: 8.5px;
+      color: #B5AFA8;
+      letter-spacing: 0.1em;
+      min-width: 62px;
+      flex-shrink: 0;
+    }
+
+    .type-sample-display {
+      font-size: 21px;
+      color: #1C1814;
+      line-height: 1.2;
+    }
+
+    .type-sample-display-a {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 500;
+    }
+
+    .type-sample-display-bc {
+      font-family: 'Fraunces', 'Noto Serif TC', serif;
+      font-weight: 400;
+    }
+
+    .type-sample-mono {
+      font-family: 'Spline Sans Mono', monospace;
+      font-size: 13.5px;
+      color: #746E68;
+      line-height: 1.2;
+      font-weight: 400;
+    }
+
+    /* ── MOTION NOTE ── */
+    .motion-note {
+      font-family: 'Spline Sans Mono', monospace;
+      font-size: 9.5px;
+      font-weight: 400;
+      letter-spacing: 0.08em;
+      color: #ABA5A0;
+      padding-top: 13px;
+      border-top: 1px dashed #DDD8D0;
+      margin-top: auto;
+    }
+
+    /* ── FOOTNOTE ── */
+    .footnote {
+      font-family: 'Spline Sans Mono', monospace;
+      font-size: 8px;
+      color: #C4BEB8;
+      letter-spacing: 0.06em;
+      margin-top: 9px;
+      line-height: 1.5;
+    }
+
+    /* ── DIVIDER BETWEEN SECTIONS ── */
+    .section-div {
+      height: 1px;
+      background: #EDEAE4;
+      margin: 2px 0 14px;
+    }
+  </style>
+</head>
+<body>
+<div class="board">
+
+  <!-- ── HEADER ── -->
+  <div class="header">
+    <div class="header-meta">
+      <div class="header-label">
+        <span class="header-pip"></span>
+        SHINYLOGIC 顯藝科技
+        <span class="header-pip"></span>
+        Brand Direction Options
+        <span class="header-pip"></span>
+        Internal Review · Three Directions
+      </div>
+      <div class="header-date">2026 · Q2</div>
+    </div>
+    <div class="header-rule"></div>
+  </div>
+
+  <!-- ── THREE CARDS ── -->
+  <div class="cards">
+
+    <!-- ═══════════════════════════════════════
+         DIRECTION A — Cleanroom Cinematic
+    ═══════════════════════════════════════ -->
+    <div class="card">
+      <div class="card-inner">
+
+        <!-- Eyebrow -->
+        <div class="eyebrow">
+          <div class="eyebrow-left">
+            <span class="eyebrow-dir">Direction A</span>
+            <span class="eyebrow-tag">full Orano × Anime.js</span>
+          </div>
+        </div>
+
+        <!-- Direction Name -->
+        <div class="dir-name dir-name-a">Cleanroom<br>Cinematic</div>
+
+        <!-- Mood -->
+        <div class="mood">"Dark, precision, engineering-cool. A cleanroom at night, instrumentation glowing."</div>
+
+        <!-- Preview Chip -->
+        <div class="chip chip-a">
+          <!-- Dot grid: 6 cols × 4 rows, ice-cyan, fading right+down -->
+          <div class="chip-dots">
+            <svg width="76" height="52" viewBox="0 0 76 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="6"  cy="6"  r="2.2" fill="#54E6E0" opacity="0.90"/>
+              <circle cx="19" cy="6"  r="2.2" fill="#54E6E0" opacity="0.85"/>
+              <circle cx="32" cy="6"  r="2.2" fill="#54E6E0" opacity="0.75"/>
+              <circle cx="45" cy="6"  r="2.2" fill="#54E6E0" opacity="0.55"/>
+              <circle cx="58" cy="6"  r="2.0" fill="#54E6E0" opacity="0.35"/>
+              <circle cx="71" cy="6"  r="2.0" fill="#54E6E0" opacity="0.18"/>
+
+              <circle cx="6"  cy="19" r="2.0" fill="#54E6E0" opacity="0.65"/>
+              <circle cx="19" cy="19" r="2.0" fill="#54E6E0" opacity="0.58"/>
+              <circle cx="32" cy="19" r="2.0" fill="#54E6E0" opacity="0.48"/>
+              <circle cx="45" cy="19" r="2.0" fill="#54E6E0" opacity="0.34"/>
+              <circle cx="58" cy="19" r="1.8" fill="#54E6E0" opacity="0.20"/>
+              <circle cx="71" cy="19" r="1.8" fill="#54E6E0" opacity="0.10"/>
+
+              <circle cx="6"  cy="32" r="1.8" fill="#54E6E0" opacity="0.40"/>
+              <circle cx="19" cy="32" r="1.8" fill="#54E6E0" opacity="0.34"/>
+              <circle cx="32" cy="32" r="1.8" fill="#54E6E0" opacity="0.26"/>
+              <circle cx="45" cy="32" r="1.6" fill="#54E6E0" opacity="0.18"/>
+              <circle cx="58" cy="32" r="1.6" fill="#54E6E0" opacity="0.10"/>
+              <circle cx="71" cy="32" r="1.6" fill="#54E6E0" opacity="0.05"/>
+
+              <circle cx="6"  cy="45" r="1.6" fill="#54E6E0" opacity="0.20"/>
+              <circle cx="19" cy="45" r="1.6" fill="#54E6E0" opacity="0.15"/>
+              <circle cx="32" cy="45" r="1.4" fill="#54E6E0" opacity="0.10"/>
+              <circle cx="45" cy="45" r="1.4" fill="#54E6E0" opacity="0.07"/>
+              <circle cx="58" cy="45" r="1.4" fill="#54E6E0" opacity="0.04"/>
+              <circle cx="71" cy="45" r="1.4" fill="#54E6E0" opacity="0.02"/>
+            </svg>
+          </div>
+
+          <!-- HUD label -->
+          <div class="chip-hud">// X:0420 Y:1080 [REC]</div>
+
+          <!-- Headline block -->
+          <div class="chip-text">
+            <div class="chip-zh chip-a-zh" style="font-family:'Space Grotesk','Noto Sans TC',sans-serif; color:#EAE7E1;">把設備數據，鍛造成可決策的智能。</div>
+            <div class="chip-underline" style="background:linear-gradient(90deg,#54E6E0 0%,rgba(84,230,224,0.3) 55%,transparent 100%);"></div>
+            <div class="chip-en" style="color:#8A938F;">FORGE EQUIPMENT DATA INTO DECISIONS</div>
+          </div>
+        </div>
+
+        <!-- Palette -->
+        <div class="palette-section">
+          <div class="section-lbl">Palette</div>
+          <div class="swatches">
+            <div class="sw-wrap">
+              <div class="sw sw-dark" style="background:#0B0D10;"></div>
+              <div class="sw-hex">#0B0D10</div>
+            </div>
+            <div class="sw-wrap">
+              <div class="sw sw-dark" style="background:#15191E;"></div>
+              <div class="sw-hex">#15191E</div>
+            </div>
+            <div class="sw-wrap">
+              <div class="sw sw-light" style="background:#EAE7E1;"></div>
+              <div class="sw-hex">#EAE7E1</div>
+            </div>
+            <div class="sw-wrap">
+              <div class="sw sw-dark" style="background:#54E6E0;"></div>
+              <div class="sw-hex">#54E6E0</div>
+            </div>
+            <div class="sw-wrap">
+              <div class="sw sw-dark" style="background:#7C6BFF;"></div>
+              <div class="sw-hex">#7C6BFF</div>
+            </div>
+            <div class="sw-wrap">
+              <div class="sw sw-dark" style="background:#8A938F;"></div>
+              <div class="sw-hex">#8A938F</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Type -->
+        <div class="type-section">
+          <div class="section-lbl">Type</div>
+          <div class="type-row">
+            <span class="type-meta">Display —</span>
+            <span class="type-sample-display type-sample-display-a">Aa 顯藝 FAB300</span>
+          </div>
+          <div class="type-row">
+            <span class="type-meta">Mono —</span>
+            <span class="type-sample-mono">01 · GB300 NVL72</span>
+          </div>
+        </div>
+
+        <!-- Motion note -->
+        <div class="motion-note">// dot-matrix particles · scanline HUD · cinematic scroll</div>
+
+        <!-- Footnote -->
+        <div class="footnote">† Replaces the warm brand palette.</div>
+
+      </div>
+    </div>
+
+
+    <!-- ═══════════════════════════════════════
+         DIRECTION B — Warm Editorial Foundry
+    ═══════════════════════════════════════ -->
+    <div class="card">
+      <div class="card-inner">
+
+        <!-- Eyebrow -->
+        <div class="eyebrow">
+          <div class="eyebrow-left">
+            <span class="eyebrow-dir">Direction B</span>
+            <span class="eyebrow-tag">keep brand, borrow craft</span>
+          </div>
+        </div>
+
+        <!-- Direction Name -->
+        <div class="dir-name dir-name-bc">Warm Editorial<br>Foundry</div>
+
+        <!-- Mood -->
+        <div class="mood">"Warm, editorial, premium. Your existing brand, with cinematic structure + refined motion."</div>
+
+        <!-- Preview Chip -->
+        <div class="chip chip-b">
+          <!-- Dot grid: 6×4 in clay, fading -->
+          <div class="chip-dots">
+            <svg width="76" height="52" viewBox="0 0 76 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="6"  cy="6"  r="2.2" fill="#E07A5F" opacity="0.72"/>
+              <circle cx="19" cy="6"  r="2.2" fill="#E07A5F" opacity="0.65"/>
+              <circle cx="32" cy="6"  r="2.2" fill="#E07A5F" opacity="0.55"/>
+              <circle cx="45" cy="6"  r="2.2" fill="#E07A5F" opacity="0.40"/>
+              <circle cx="58" cy="6"  r="2.0" fill="#E07A5F" opacity="0.26"/>
+              <circle cx="71" cy="6"  r="2.0" fill="#E07A5F" opacity="0.14"/>
+
+              <circle cx="6"  cy="19" r="2.0" fill="#E07A5F" opacity="0.52"/>
+              <circle cx="19" cy="19" r="2.0" fill="#E07A5F" opacity="0.46"/>
+              <circle cx="32" cy="19" r="2.0" fill="#E07A5F" opacity="0.36"/>
+              <circle cx="45" cy="19" r="2.0" fill="#E07A5F" opacity="0.25"/>
+              <circle cx="58" cy="19" r="1.8" fill="#E07A5F" opacity="0.16"/>
+              <circle cx="71" cy="19" r="1.8" fill="#E07A5F" opacity="0.08"/>
+
+              <circle cx="6"  cy="32" r="1.8" fill="#E07A5F" opacity="0.32"/>
+              <circle cx="19" cy="32" r="1.8" fill="#E07A5F" opacity="0.26"/>
+              <circle cx="32" cy="32" r="1.8" fill="#E07A5F" opacity="0.20"/>
+              <circle cx="45" cy="32" r="1.6" fill="#E07A5F" opacity="0.14"/>
+              <circle cx="58" cy="32" r="1.6" fill="#E07A5F" opacity="0.08"/>
+              <circle cx="71" cy="32" r="1.6" fill="#E07A5F" opacity="0.04"/>
+
+              <circle cx="6"  cy="45" r="1.6" fill="#E07A5F" opacity="0.16"/>
+              <circle cx="19" cy="45" r="1.6" fill="#E07A5F" opacity="0.12"/>
+              <circle cx="32" cy="45" r="1.4" fill="#E07A5F" opacity="0.08"/>
+              <circle cx="45" cy="45" r="1.4" fill="#E07A5F" opacity="0.06"/>
+              <circle cx="58" cy="45" r="1.4" fill="#E07A5F" opacity="0.03"/>
+              <circle cx="71" cy="45" r="1.4" fill="#E07A5F" opacity="0.02"/>
+            </svg>
+          </div>
+
+          <!-- Clay pill -->
+          <div class="chip-b-pill">EDITORIAL</div>
+
+          <!-- HUD label in clay -->
+          <div class="chip-hud" style="color:#E07A5F;">// X:0420 Y:1080 [REC]</div>
+
+          <!-- Headline -->
+          <div class="chip-text">
+            <div class="chip-zh" style="font-family:'Fraunces','Noto Serif TC',serif; color:#2A211B;">把設備數據，鍛造成可決策的智能。</div>
+            <div class="chip-en" style="color:#857A6E; margin-top:8px;">FORGE EQUIPMENT DATA INTO DECISIONS</div>
+          </div>
+        </div>
+
+        <!-- Palette -->
+        <div class="palette-section">
+          <div class="section-lbl">Palette</div>
+          <div class="swatches">
+            <div class="sw-wrap">
+              <div class="sw sw-light" style="background:#FAF6F0;"></div>
+              <div class="sw-hex">#FAF6F0</div>
+            </div>
+            <div class="sw-wrap">
+              <div class="sw sw-dark" style="background:#2A211B;"></div>
+              <div class="sw-hex">#2A211B</div>
+            </div>
+            <div class="sw-wrap">
+              <div class="sw sw-dark" style="background:#E07A5F;"></div>
+              <div class="sw-hex">#E07A5F</div>
+            </div>
+            <div class="sw-wrap">
+              <div class="sw sw-dark" style="background:#81A684;"></div>
+              <div class="sw-hex">#81A684</div>
+            </div>
+            <div class="sw-wrap">
+              <div class="sw sw-dark" style="background:#E9C46A;"></div>
+              <div class="sw-hex">#E9C46A</div>
+            </div>
+            <div class="sw-wrap">
+              <div class="sw sw-light" style="background:#EBDFCF;"></div>
+              <div class="sw-hex">#EBDFCF</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Type -->
+        <div class="type-section">
+          <div class="section-lbl">Type</div>
+          <div class="type-row">
+            <span class="type-meta">Display —</span>
+            <span class="type-sample-display type-sample-display-bc">Aa 顯藝 FAB300</span>
+          </div>
+          <div class="type-row">
+            <span class="type-meta">Mono —</span>
+            <span class="type-sample-mono">01 · GB300 NVL72</span>
+          </div>
+        </div>
+
+        <!-- Motion note -->
+        <div class="motion-note">// spring physics · soft parallax · warm dot-grid</div>
+
+        <!-- Footnote -->
+        <div class="footnote">† Matches the existing og-card design system exactly.</div>
+
+      </div>
+    </div>
+
+
+    <!-- ═══════════════════════════════════════
+         DIRECTION C — Warm-Dark Foundry (RECOMMENDED)
+    ═══════════════════════════════════════ -->
+    <div class="card card--recommended">
+      <div class="card-inner">
+
+        <!-- Eyebrow -->
+        <div class="eyebrow">
+          <div class="eyebrow-left">
+            <span class="eyebrow-dir">Direction C</span>
+            <span class="eyebrow-tag">hybrid</span>
+          </div>
+          <span class="badge-rec">RECOMMENDED</span>
+        </div>
+
+        <!-- Direction Name -->
+        <div class="dir-name dir-name-bc">Warm-Dark<br>Foundry</div>
+
+        <!-- Mood -->
+        <div class="mood">"Molten silicon. Dark cinematic cool, lit by the brand's clay + gold — a foundry at night."</div>
+
+        <!-- Preview Chip -->
+        <div class="chip chip-c">
+          <!-- Ember dot grid: warm glow, gold+clay, fading -->
+          <div class="chip-dots">
+            <svg width="76" height="52" viewBox="0 0 76 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <filter id="ember-glow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur stdDeviation="1.8" result="blur"/>
+                  <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+              </defs>
+              <!-- Top row: gold + transition to clay -->
+              <circle cx="6"  cy="6"  r="2.8" fill="#E9C46A" opacity="0.95" filter="url(#ember-glow)"/>
+              <circle cx="19" cy="6"  r="2.5" fill="#E9C46A" opacity="0.88"/>
+              <circle cx="32" cy="6"  r="2.2" fill="#EBA65A" opacity="0.78"/>
+              <circle cx="45" cy="6"  r="2.0" fill="#E07A5F" opacity="0.65"/>
+              <circle cx="58" cy="6"  r="1.9" fill="#E07A5F" opacity="0.42"/>
+              <circle cx="71" cy="6"  r="1.8" fill="#E07A5F" opacity="0.22"/>
+
+              <circle cx="6"  cy="19" r="2.4" fill="#E9C46A" opacity="0.72"/>
+              <circle cx="19" cy="19" r="2.2" fill="#E9C46A" opacity="0.62"/>
+              <circle cx="32" cy="19" r="2.0" fill="#E07A5F" opacity="0.55"/>
+              <circle cx="45" cy="19" r="1.9" fill="#E07A5F" opacity="0.40"/>
+              <circle cx="58" cy="19" r="1.7" fill="#E07A5F" opacity="0.24"/>
+              <circle cx="71" cy="19" r="1.7" fill="#E07A5F" opacity="0.12"/>
+
+              <circle cx="6"  cy="32" r="2.0" fill="#E9C46A" opacity="0.45"/>
+              <circle cx="19" cy="32" r="1.9" fill="#E07A5F" opacity="0.38"/>
+              <circle cx="32" cy="32" r="1.8" fill="#E07A5F" opacity="0.28"/>
+              <circle cx="45" cy="32" r="1.6" fill="#E07A5F" opacity="0.19"/>
+              <circle cx="58" cy="32" r="1.5" fill="#E07A5F" opacity="0.11"/>
+              <circle cx="71" cy="32" r="1.5" fill="#E07A5F" opacity="0.06"/>
+
+              <circle cx="6"  cy="45" r="1.7" fill="#E9C46A" opacity="0.22"/>
+              <circle cx="19" cy="45" r="1.6" fill="#E07A5F" opacity="0.18"/>
+              <circle cx="32" cy="45" r="1.5" fill="#E07A5F" opacity="0.12"/>
+              <circle cx="45" cy="45" r="1.4" fill="#E07A5F" opacity="0.08"/>
+              <circle cx="58" cy="45" r="1.3" fill="#E07A5F" opacity="0.05"/>
+              <circle cx="71" cy="45" r="1.3" fill="#E07A5F" opacity="0.03"/>
+            </svg>
+          </div>
+
+          <!-- HUD label in sun gold -->
+          <div class="chip-hud" style="color:#E9C46A;">// X:0420 Y:1080 [REC]</div>
+
+          <!-- Headline -->
+          <div class="chip-text">
+            <div class="chip-zh" style="font-family:'Fraunces','Noto Serif TC',serif; color:#F2E9DE;">把設備數據，鍛造成可決策的智能。</div>
+            <div class="chip-underline" style="background:linear-gradient(90deg,#E9C46A 0%,#E07A5F 40%,rgba(224,122,95,0.25) 75%,transparent 100%); margin-top:8px;"></div>
+            <div class="chip-en" style="color:#A9988A;">FORGE EQUIPMENT DATA INTO DECISIONS</div>
+          </div>
+        </div>
+
+        <!-- Palette -->
+        <div class="palette-section">
+          <div class="section-lbl">Palette</div>
+          <div class="swatches">
+            <div class="sw-wrap">
+              <div class="sw sw-dark" style="background:#14100D;"></div>
+              <div class="sw-hex">#14100D</div>
+            </div>
+            <div class="sw-wrap">
+              <div class="sw sw-dark" style="background:#211A14;"></div>
+              <div class="sw-hex">#211A14</div>
+            </div>
+            <div class="sw-wrap">
+              <div class="sw sw-light" style="background:#F2E9DE;"></div>
+              <div class="sw-hex">#F2E9DE</div>
+            </div>
+            <div class="sw-wrap">
+              <div class="sw sw-dark" style="background:#E07A5F;"></div>
+              <div class="sw-hex">#E07A5F</div>
+            </div>
+            <div class="sw-wrap">
+              <div class="sw sw-dark" style="background:#E9C46A;"></div>
+              <div class="sw-hex">#E9C46A</div>
+            </div>
+            <div class="sw-wrap">
+              <div class="sw sw-dark" style="background:#81A684;"></div>
+              <div class="sw-hex">#81A684</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Type -->
+        <div class="type-section">
+          <div class="section-lbl">Type</div>
+          <div class="type-row">
+            <span class="type-meta">Display —</span>
+            <span class="type-sample-display type-sample-display-bc">Aa 顯藝 FAB300</span>
+          </div>
+          <div class="type-row">
+            <span class="type-meta">Mono —</span>
+            <span class="type-sample-mono">01 · GB300 NVL72</span>
+          </div>
+        </div>
+
+        <!-- Motion note -->
+        <div class="motion-note">// ember dot-matrix · warm glow scroll · mono HUD</div>
+
+        <!-- Footnote -->
+        <div class="footnote">† Hybrid: dark cinematic structure with existing warm brand palette.</div>
+
+      </div>
+    </div>
+
+  </div><!-- /cards -->
+</div><!-- /board -->
+</body>
+</html>

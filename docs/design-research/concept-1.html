@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>SHINYLOGIC 顯藝科技 · FAB300 — Signal Journey</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&family=Spline+Sans+Mono:wght@300;400;500&family=Nunito+Sans:wght@300;400;600&family=Noto+Sans+TC:wght@300;400;500&family=Noto+Serif+TC:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     DESIGN TOKENS — Direction C "Warm-Dark Foundry"
+  ============================================================ */
+  :root {
+    --bg:          #14100D;
+    --bg-deep:     #0E0B08;
+    --surface:     #211A14;
+    --raised:      #2A2018;
+    --cream:       #F2E9DE;
+    --muted:       #A9988A;
+    --faint:       #6E6157;
+    --clay:        #E07A5F;
+    --clay-deep:   #B0492A;
+    --gold:        #E9C46A;
+    --sage:        #81A684;
+    --border:      rgba(242,233,222,0.10);
+    --border-str:  rgba(242,233,222,0.18);
+    --ff-display:  'Fraunces', 'Noto Serif TC', Georgia, serif;
+    --ff-mono:     'Spline Sans Mono', 'Courier New', monospace;
+    --ff-body:     'Nunito Sans', 'Noto Sans TC', sans-serif;
+  }
+
+  /* ============================================================
+     RESET & BASE
+  ============================================================ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html {
+    background: var(--bg-deep);
+    color: var(--cream);
+    font-family: var(--ff-body);
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    width: 1440px;
+    margin: 0 auto;
+    background: var(--bg);
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* ============================================================
+     GLOBAL TEXTURE — faint diffraction rings (behind everything)
+  ============================================================ */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 1600px;
+    height: 1600px;
+    border-radius: 50%;
+    background: transparent;
+    box-shadow:
+      0 0 0 1px  rgba(233,196,106,0.035),
+      0 0 0 80px rgba(233,196,106,0.025),
+      0 0 0 200px rgba(233,196,106,0.018),
+      0 0 0 380px rgba(233,196,106,0.012),
+      0 0 0 600px rgba(233,196,106,0.008),
+      0 0 0 860px rgba(233,196,106,0.005);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ============================================================
+     NAV
+  ============================================================ */
+  nav {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 60px;
+    height: 72px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .nav-brand .wordmark {
+    font-family: var(--ff-mono);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: var(--cream);
+    text-transform: uppercase;
+  }
+  .nav-brand .sub-wordmark {
+    font-family: var(--ff-mono);
+    font-size: 10px;
+    font-weight: 300;
+    letter-spacing: 0.18em;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 36px;
+    list-style: none;
+  }
+  .nav-links a {
+    font-family: var(--ff-mono);
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--cream); }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .lang-toggle {
+    font-family: var(--ff-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--faint);
+    cursor: pointer;
+  }
+  .lang-toggle span { color: var(--muted); }
+
+  .btn-consult {
+    font-family: var(--ff-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.10em;
+    color: var(--bg-deep);
+    background: var(--clay);
+    border: none;
+    padding: 9px 20px;
+    cursor: pointer;
+    text-transform: uppercase;
+    position: relative;
+  }
+  .btn-consult::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border: 1px solid var(--clay-deep);
+    pointer-events: none;
+  }
+
+  /* ============================================================
+     LEFT PROGRESS RAIL (fixed during hero+section)
+  ============================================================ */
+  .progress-rail {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 56px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 160px;
+    z-index: 40;
+    border-right: 1px solid var(--border);
+    background: rgba(14,11,8,0.60);
+  }
+
+  .rail-nodes {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    align-items: center;
+    position: relative;
+  }
+
+  /* Connector line through all nodes */
+  .rail-nodes::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 8px;
+    bottom: 8px;
+    width: 1px;
+    background: linear-gradient(to bottom, var(--clay) 0%, rgba(233,196,106,0.3) 40%, var(--border) 100%);
+    transform: translateX(-50%);
+    z-index: 0;
+  }
+
+  .rail-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 12px 0;
+    position: relative;
+    z-index: 1;
+    cursor: pointer;
+  }
+
+  .rail-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 1px solid var(--faint);
+    background: var(--bg-deep);
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s;
+  }
+  .rail-node.active .rail-dot {
+    background: var(--clay);
+    border-color: var(--clay);
+    box-shadow: 0 0 8px rgba(224,122,95,0.6);
+  }
+  .rail-node.passed .rail-dot {
+    background: rgba(233,196,106,0.4);
+    border-color: var(--gold);
+  }
+
+  .rail-label {
+    font-family: var(--ff-mono);
+    font-size: 7.5px;
+    letter-spacing: 0.10em;
+    color: var(--faint);
+    text-transform: uppercase;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    white-space: nowrap;
+    line-height: 1;
+  }
+  .rail-node.active .rail-label { color: var(--clay); }
+
+  /* ============================================================
+     HERO SECTION
+  ============================================================ */
+  .hero {
+    position: relative;
+    width: 100%;
+    height: 900px;
+    overflow: hidden;
+    background: var(--bg-deep);
+  }
+
+  /* ------------ EMBER DOT MATRIX (static CSS art) ------------ */
+  .ember-field {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  /* SVG-based dot grid + signal beam rendered inline below */
+
+  /* ------------ SIGNAL BEAM (static CSS) ------------ */
+  .signal-beam {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    transform: translateX(-50%);
+    z-index: 3;
+    background: linear-gradient(
+      to top,
+      transparent 0%,
+      rgba(224,122,95,0.05) 15%,
+      rgba(224,122,95,0.30) 35%,
+      rgba(233,196,106,0.60) 55%,
+      rgba(233,196,106,0.90) 70%,
+      rgba(255,240,200,1.00) 82%,
+      rgba(255,255,255,0.95) 88%,
+      rgba(233,196,106,0.40) 94%,
+      transparent 100%
+    );
+    filter: blur(1px);
+  }
+
+  .signal-beam::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 40px;
+    transform: translateX(-50%);
+    background: linear-gradient(
+      to top,
+      transparent 0%,
+      rgba(224,122,95,0.02) 20%,
+      rgba(224,122,95,0.08) 40%,
+      rgba(233,196,106,0.15) 60%,
+      rgba(233,196,106,0.25) 75%,
+      rgba(255,240,200,0.30) 85%,
+      transparent 100%
+    );
+    filter: blur(12px);
+  }
+
+  .signal-beam::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 120px;
+    transform: translateX(-50%);
+    background: linear-gradient(
+      to top,
+      transparent 0%,
+      rgba(224,122,95,0.00) 30%,
+      rgba(224,122,95,0.04) 50%,
+      rgba(233,196,106,0.08) 70%,
+      rgba(233,196,106,0.12) 82%,
+      transparent 100%
+    );
+    filter: blur(30px);
+  }
+
+  /* ------------ DOT MATRIX SVG ------------ */
+  .hero-svg-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  /* ------------ HERO CONTENT ------------ */
+  .hero-content {
+    position: relative;
+    z-index: 10;
+    padding: 140px 120px 0 120px;
+    max-width: 780px;
+  }
+
+  .hero-eyebrow {
+    font-family: var(--ff-mono);
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.22em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 40px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 1px;
+    background: var(--gold);
+    opacity: 0.6;
+  }
+
+  .hero-h1 {
+    font-family: var(--ff-display);
+    font-size: 88px;
+    font-weight: 400;
+    font-style: italic;
+    line-height: 1.06;
+    letter-spacing: -0.02em;
+    color: var(--cream);
+    margin-bottom: 36px;
+    font-optical-sizing: auto;
+    /* Gold underline accent on key word */
+    position: relative;
+  }
+
+  .hero-h1 .accent-word {
+    color: var(--gold);
+    font-style: normal;
+    font-weight: 500;
+    position: relative;
+    display: inline-block;
+  }
+  .hero-h1 .accent-word::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(to right, var(--gold), var(--clay));
+    opacity: 0.8;
+  }
+
+  .hero-sub {
+    font-family: var(--ff-body);
+    font-size: 15px;
+    font-weight: 300;
+    line-height: 1.85;
+    color: var(--muted);
+    max-width: 560px;
+    margin-bottom: 52px;
+  }
+  .hero-sub em {
+    color: var(--cream);
+    font-style: normal;
+    font-weight: 400;
+  }
+
+  /* ------------ STAT CHIPS ------------ */
+  .stat-chips {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 52px;
+    flex-wrap: wrap;
+  }
+
+  .chip {
+    font-family: var(--ff-mono);
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    border: 1px solid var(--border-str);
+    padding: 8px 16px;
+    background: rgba(33,26,20,0.70);
+    text-transform: uppercase;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    position: relative;
+  }
+  .chip::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(to bottom, var(--clay), var(--gold));
+    opacity: 0.7;
+  }
+  .chip .chip-metric {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--gold);
+    letter-spacing: 0.06em;
+  }
+  .chip .chip-label {
+    font-size: 9px;
+    color: var(--faint);
+    letter-spacing: 0.16em;
+  }
+
+  /* ------------ CTA BUTTONS ------------ */
+  .hero-ctas {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .btn-primary {
+    font-family: var(--ff-mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: var(--bg-deep);
+    background: var(--clay);
+    border: none;
+    padding: 14px 32px;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    position: relative;
+  }
+  .btn-primary::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    right: -3px;
+    width: 100%;
+    height: 100%;
+    border: 1px solid var(--clay-deep);
+    pointer-events: none;
+  }
+
+  .btn-ghost {
+    font-family: var(--ff-mono);
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    color: var(--cream);
+    background: transparent;
+    border: 1px solid var(--border-str);
+    padding: 13px 28px;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .btn-ghost .arrow {
+    font-size: 14px;
+    color: var(--gold);
+    line-height: 1;
+  }
+
+  /* ------------ LIVE FEED CAPTION ------------ */
+  .live-feed {
+    position: absolute;
+    bottom: 36px;
+    left: 120px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--ff-mono);
+    font-size: 10px;
+    font-weight: 300;
+    letter-spacing: 0.18em;
+    color: var(--faint);
+    text-transform: uppercase;
+  }
+  .rec-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--clay);
+    box-shadow: 0 0 6px rgba(224,122,95,0.8);
+    animation: pulse-rec 2s ease-in-out infinite;
+  }
+  @keyframes pulse-rec {
+    0%, 100% { opacity: 1; box-shadow: 0 0 6px rgba(224,122,95,0.8); }
+    50%       { opacity: 0.4; box-shadow: 0 0 2px rgba(224,122,95,0.3); }
+  }
+
+  /* ------------ HUD COORDINATE OVERLAY ------------ */
+  .hud-coords {
+    position: absolute;
+    top: 100px;
+    right: 60px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-family: var(--ff-mono);
+    font-size: 10px;
+    font-weight: 300;
+    letter-spacing: 0.14em;
+    color: var(--faint);
+    text-align: right;
+  }
+  .hud-coords .hud-line { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+  .hud-coords .hud-val { color: rgba(233,196,106,0.45); }
+  .hud-corner-mark {
+    position: absolute;
+    top: 80px;
+    right: 52px;
+    width: 20px;
+    height: 20px;
+    border-top: 1px solid rgba(233,196,106,0.3);
+    border-right: 1px solid rgba(233,196,106,0.3);
+  }
+
+  /* ============================================================
+     SECTION 01 — L1 INPUT LAYER  (signature section)
+  ============================================================ */
+  .section-l1 {
+    position: relative;
+    width: 100%;
+    min-height: 900px;
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    overflow: hidden;
+    padding: 100px 120px 120px 120px;
+  }
+
+  /* Giant faint section number */
+  .section-numeral {
+    position: absolute;
+    top: 40px;
+    right: 60px;
+    font-family: var(--ff-mono);
+    font-size: 220px;
+    font-weight: 300;
+    letter-spacing: -0.05em;
+    color: rgba(110,97,87,0.10);
+    line-height: 1;
+    user-select: none;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .section-l1-inner {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Section label (layer badge) */
+  .layer-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 48px;
+  }
+  .layer-badge .badge-layer {
+    font-family: var(--ff-mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.24em;
+    color: var(--clay);
+    text-transform: uppercase;
+    border: 1px solid rgba(224,122,95,0.35);
+    padding: 4px 12px;
+    background: rgba(224,122,95,0.08);
+  }
+  .layer-badge .badge-sep {
+    width: 40px;
+    height: 1px;
+    background: linear-gradient(to right, var(--clay), transparent);
+  }
+  .layer-badge .badge-name {
+    font-family: var(--ff-mono);
+    font-size: 11px;
+    letter-spacing: 0.20em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* Section heading */
+  .section-heading {
+    font-family: var(--ff-display);
+    font-size: 62px;
+    font-weight: 300;
+    font-optical-sizing: auto;
+    line-height: 1.10;
+    letter-spacing: -0.02em;
+    color: var(--cream);
+    margin-bottom: 20px;
+  }
+  .section-heading .ch-sub {
+    display: block;
+    font-family: var(--ff-display);
+    font-size: 24px;
+    font-weight: 300;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+    margin-top: 6px;
+    font-style: normal;
+  }
+
+  .section-desc {
+    font-family: var(--ff-body);
+    font-size: 15px;
+    font-weight: 300;
+    line-height: 1.80;
+    color: var(--muted);
+    max-width: 520px;
+    margin-bottom: 64px;
+  }
+
+  /* Body layout: left content + right dot-matrix viz */
+  .l1-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: start;
+  }
+
+  /* Process node tags */
+  .process-nodes {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 56px;
+  }
+  .process-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .process-tag {
+    font-family: var(--ff-mono);
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 7px 14px;
+    background: var(--surface);
+    text-transform: uppercase;
+    position: relative;
+    transition: all 0.2s;
+  }
+  .process-tag::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(to right, var(--gold), transparent);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .process-tag:hover {
+    color: var(--cream);
+    border-color: var(--border-str);
+  }
+  .process-tag:hover::after { opacity: 0.8; }
+  .process-tag.active {
+    color: var(--gold);
+    border-color: rgba(233,196,106,0.35);
+    background: rgba(233,196,106,0.06);
+  }
+  .process-tag.active::after { opacity: 1; }
+
+  /* Protocol list */
+  .protocol-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .protocol-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .protocol-item:last-child { border-bottom: none; }
+  .protocol-num {
+    font-family: var(--ff-mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    color: var(--faint);
+    width: 28px;
+  }
+  .protocol-name {
+    font-family: var(--ff-mono);
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    color: var(--cream);
+    flex: 1;
+  }
+  .protocol-desc {
+    font-family: var(--ff-body);
+    font-size: 12px;
+    font-weight: 300;
+    color: var(--faint);
+    flex: 2;
+    line-height: 1.5;
+  }
+  .protocol-status {
+    font-family: var(--ff-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    color: var(--sage);
+    text-transform: uppercase;
+    border: 1px solid rgba(129,166,132,0.25);
+    padding: 3px 8px;
+  }
+
+  /* ------------ DOT MATRIX VISUALIZATION (right side) ------------ */
+  .l1-viz {
+    position: relative;
+    height: 500px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .l1-viz-inner {
+    position: absolute;
+    inset: 0;
+  }
+
+  .l1-viz-label {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-family: var(--ff-mono);
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    color: var(--faint);
+    text-transform: uppercase;
+    z-index: 5;
+  }
+
+  .l1-viz-coords {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    font-family: var(--ff-mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    color: rgba(110,97,87,0.6);
+    z-index: 5;
+  }
+
+  /* Connecting line to L2 (teaser at section bottom) */
+  .l1-connector {
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 20;
+  }
+  .l1-connector-label {
+    font-family: var(--ff-mono);
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    color: var(--faint);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    white-space: nowrap;
+  }
+  .connector-line {
+    width: 1px;
+    height: 60px;
+    background: linear-gradient(to bottom, var(--clay), transparent);
+    position: relative;
+  }
+  .connector-line::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%) translateY(100%);
+    width: 5px;
+    height: 5px;
+    border-right: 1px solid rgba(224,122,95,0.5);
+    border-bottom: 1px solid rgba(224,122,95,0.5);
+    transform: translateX(-50%) rotate(45deg);
+  }
+
+  /* Continue teaser */
+  .continue-teaser {
+    position: relative;
+    z-index: 10;
+    margin-top: 80px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .teaser-next {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 28px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    cursor: pointer;
+  }
+  .teaser-next .next-label {
+    font-family: var(--ff-mono);
+    font-size: 9px;
+    letter-spacing: 0.20em;
+    color: var(--faint);
+    text-transform: uppercase;
+  }
+  .teaser-next .next-title {
+    font-family: var(--ff-mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.10em;
+    color: var(--muted);
+  }
+  .teaser-next .next-icon {
+    font-size: 16px;
+    color: var(--clay);
+    margin-left: auto;
+  }
+  .teaser-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, var(--border-str), transparent);
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     NAVIGATION
+============================================================ -->
+<nav>
+  <div class="nav-brand">
+    <span class="wordmark">SHINYLOGIC 顯藝科技</span>
+    <span class="sub-wordmark">FAB300 · INTELLIGENT FAB INFRASTRUCTURE</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#">關於</a></li>
+    <li><a href="#">解決方案</a></li>
+    <li><a href="#">技術</a></li>
+    <li><a href="#">方法論</a></li>
+    <li><a href="#">招募</a></li>
+  </ul>
+  <div class="nav-right">
+    <div class="lang-toggle">繁 / <span>EN</span> / 简</div>
+    <button class="btn-consult">預約諮詢</button>
+  </div>
+</nav>
+
+<!-- ============================================================
+     LEFT PROGRESS RAIL
+============================================================ -->
+<div class="progress-rail">
+  <div class="rail-nodes">
+    <div class="rail-node active">
+      <div class="rail-dot"></div>
+      <div class="rail-label">L1 · INPUT</div>
+    </div>
+    <div class="rail-node">
+      <div class="rail-dot"></div>
+      <div class="rail-label">L2 · DATA</div>
+    </div>
+    <div class="rail-node">
+      <div class="rail-dot"></div>
+      <div class="rail-label">L3 · COMPUTE</div>
+    </div>
+    <div class="rail-node">
+      <div class="rail-dot"></div>
+      <div class="rail-label">L4 · APP</div>
+    </div>
+    <div class="rail-node">
+      <div class="rail-dot"></div>
+      <div class="rail-label">L5 · GOV</div>
+    </div>
+    <div class="rail-node">
+      <div class="rail-dot"></div>
+      <div class="rail-label">L6 · RESILIENCE</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     HERO
+============================================================ -->
+<section class="hero">
+
+  <!-- Background: ember dot matrix SVG -->
+  <svg class="hero-svg-bg" viewBox="0 0 1440 900" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <!-- Diagonal gradient mask: dots fade from bottom-right to top-left -->
+      <linearGradient id="dotMask" x1="1" y1="1" x2="0" y2="0">
+        <stop offset="0%"  stop-color="white" stop-opacity="0.9"/>
+        <stop offset="40%" stop-color="white" stop-opacity="0.5"/>
+        <stop offset="80%" stop-color="white" stop-opacity="0.12"/>
+        <stop offset="100%" stop-color="white" stop-opacity="0.0"/>
+      </linearGradient>
+      <mask id="emberMask">
+        <rect width="1440" height="900" fill="url(#dotMask)"/>
+      </mask>
+      <!-- Radial glow behind beam -->
+      <radialGradient id="beamGlow" cx="50%" cy="60%" r="35%" fx="50%" fy="60%">
+        <stop offset="0%"   stop-color="#E9C46A" stop-opacity="0.08"/>
+        <stop offset="60%"  stop-color="#E07A5F" stop-opacity="0.04"/>
+        <stop offset="100%" stop-color="#E07A5F" stop-opacity="0"/>
+      </radialGradient>
+      <!-- Gold-to-clay dot colors -->
+      <radialGradient id="dotColorGold" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#E9C46A"/>
+        <stop offset="100%" stop-color="#E07A5F" stop-opacity="0.4"/>
+      </radialGradient>
+    </defs>
+
+    <!-- Deep ambient glow -->
+    <rect width="1440" height="900" fill="url(#beamGlow)"/>
+
+    <!-- Ember dot field — grouped and masked for diagonal fade -->
+    <g mask="url(#emberMask)" opacity="1">
+      <!-- Row by row dot grid: gold bleeding to clay, slight randomness encoded in size/opacity -->
+      <!-- COLUMN group — 28px horizontal spacing, 28px vertical, shifted right by offset -->
+      <g fill="#E9C46A">
+        <!-- Dense cluster rows: right half of canvas, behind/right of signal beam -->
+        <!-- Row 1 y=40 -->
+        <circle cx="760" cy="40"  r="1.0" opacity="0.55"/>
+        <circle cx="788" cy="40"  r="1.3" opacity="0.45"/>
+        <circle cx="816" cy="40"  r="1.1" opacity="0.60"/>
+        <circle cx="844" cy="40"  r="0.9" opacity="0.35"/>
+        <circle cx="872" cy="40"  r="1.4" opacity="0.50"/>
+        <circle cx="900" cy="40"  r="1.0" opacity="0.40"/>
+        <circle cx="928" cy="40"  r="1.2" opacity="0.55"/>
+        <circle cx="956" cy="40"  r="0.8" opacity="0.30"/>
+        <circle cx="984" cy="40"  r="1.3" opacity="0.50"/>
+        <circle cx="1012" cy="40" r="1.1" opacity="0.45"/>
+        <circle cx="1040" cy="40" r="1.0" opacity="0.38"/>
+        <circle cx="1068" cy="40" r="1.4" opacity="0.55"/>
+        <circle cx="1096" cy="40" r="0.9" opacity="0.42"/>
+        <circle cx="1124" cy="40" r="1.2" opacity="0.48"/>
+        <circle cx="1152" cy="40" r="1.0" opacity="0.33"/>
+        <circle cx="1180" cy="40" r="1.3" opacity="0.56"/>
+        <circle cx="1208" cy="40" r="0.8" opacity="0.38"/>
+        <circle cx="1236" cy="40" r="1.1" opacity="0.44"/>
+        <circle cx="1264" cy="40" r="1.0" opacity="0.50"/>
+        <circle cx="1292" cy="40" r="1.3" opacity="0.36"/>
+        <circle cx="1320" cy="40" r="0.9" opacity="0.43"/>
+        <circle cx="1348" cy="40" r="1.2" opacity="0.55"/>
+        <circle cx="1376" cy="40" r="1.0" opacity="0.30"/>
+        <circle cx="1404" cy="40" r="1.1" opacity="0.40"/>
+        <!-- Row 2 y=68 -->
+        <circle cx="746" cy="68"  r="1.1" opacity="0.48"/>
+        <circle cx="774" cy="68"  r="1.3" opacity="0.55"/>
+        <circle cx="802" cy="68"  r="1.0" opacity="0.38"/>
+        <circle cx="830" cy="68"  r="1.4" opacity="0.60"/>
+        <circle cx="858" cy="68"  r="0.9" opacity="0.42"/>
+        <circle cx="886" cy="68"  r="1.2" opacity="0.50"/>
+        <circle cx="914" cy="68"  r="1.0" opacity="0.35"/>
+        <circle cx="942" cy="68"  r="1.3" opacity="0.55"/>
+        <circle cx="970" cy="68"  r="0.8" opacity="0.40"/>
+        <circle cx="998" cy="68"  r="1.1" opacity="0.45"/>
+        <circle cx="1026" cy="68" r="1.3" opacity="0.52"/>
+        <circle cx="1054" cy="68" r="1.0" opacity="0.38"/>
+        <circle cx="1082" cy="68" r="1.2" opacity="0.55"/>
+        <circle cx="1110" cy="68" r="0.9" opacity="0.44"/>
+        <circle cx="1138" cy="68" r="1.4" opacity="0.60"/>
+        <circle cx="1166" cy="68" r="1.0" opacity="0.35"/>
+        <circle cx="1194" cy="68" r="1.2" opacity="0.48"/>
+        <circle cx="1222" cy="68" r="0.8" opacity="0.38"/>
+        <circle cx="1250" cy="68" r="1.3" opacity="0.55"/>
+        <circle cx="1278" cy="68" r="1.0" opacity="0.42"/>
+        <circle cx="1306" cy="68" r="1.1" opacity="0.50"/>
+        <circle cx="1334" cy="68" r="1.3" opacity="0.36"/>
+        <circle cx="1362" cy="68" r="0.9" opacity="0.44"/>
+        <circle cx="1390" cy="68" r="1.2" opacity="0.55"/>
+        <!-- Row 3 y=96 — shift clay (fill change) -->
+        <circle cx="732" cy="96"  r="1.2" opacity="0.52"/>
+        <circle cx="760" cy="96"  r="1.0" opacity="0.40"/>
+        <circle cx="788" cy="96"  r="1.4" opacity="0.58"/>
+        <circle cx="816" cy="96"  r="0.8" opacity="0.35"/>
+        <circle cx="844" cy="96"  r="1.3" opacity="0.52"/>
+        <circle cx="872" cy="96"  r="1.1" opacity="0.44"/>
+      </g>
+      <g fill="#E07A5F">
+        <circle cx="900" cy="96"  r="1.0" opacity="0.42"/>
+        <circle cx="928" cy="96"  r="1.3" opacity="0.50"/>
+        <circle cx="956" cy="96"  r="0.9" opacity="0.38"/>
+        <circle cx="984" cy="96"  r="1.2" opacity="0.55"/>
+        <circle cx="1012" cy="96" r="1.0" opacity="0.44"/>
+        <circle cx="1040" cy="96" r="1.3" opacity="0.48"/>
+        <circle cx="1068" cy="96" r="0.8" opacity="0.35"/>
+        <circle cx="1096" cy="96" r="1.1" opacity="0.52"/>
+        <circle cx="1124" cy="96" r="1.3" opacity="0.58"/>
+        <circle cx="1152" cy="96" r="1.0" opacity="0.42"/>
+        <circle cx="1180" cy="96" r="1.2" opacity="0.50"/>
+        <circle cx="1208" cy="96" r="0.9" opacity="0.38"/>
+        <circle cx="1236" cy="96" r="1.4" opacity="0.55"/>
+        <circle cx="1264" cy="96" r="1.0" opacity="0.43"/>
+        <circle cx="1292" cy="96" r="1.2" opacity="0.48"/>
+        <circle cx="1320" cy="96" r="0.8" opacity="0.35"/>
+        <circle cx="1348" cy="96" r="1.3" opacity="0.52"/>
+        <circle cx="1376" cy="96" r="1.0" opacity="0.40"/>
+        <circle cx="1404" cy="96" r="1.1" opacity="0.55"/>
+        <!-- Rows 4-30: abbreviated for compactness — extended below via pattern -->
+      </g>
+      <!-- Extended dot rows 4-30 using gold/clay mix -->
+      <g fill="#E9C46A" opacity="0.5">
+        <!-- rows 4-10: step y+=28 -->
+        <circle cx="748" cy="124" r="1.1"/><circle cx="776" cy="124" r="0.9"/><circle cx="804" cy="124" r="1.3"/><circle cx="832" cy="124" r="1.0"/><circle cx="860" cy="124" r="1.2"/><circle cx="888" cy="124" r="0.8"/><circle cx="916" cy="124" r="1.4"/><circle cx="944" cy="124" r="1.0"/><circle cx="972" cy="124" r="1.2"/><circle cx="1000" cy="124" r="0.9"/><circle cx="1028" cy="124" r="1.3"/><circle cx="1056" cy="124" r="1.0"/><circle cx="1084" cy="124" r="1.1"/><circle cx="1112" cy="124" r="1.3"/><circle cx="1140" cy="124" r="0.8"/><circle cx="1168" cy="124" r="1.2"/><circle cx="1196" cy="124" r="1.0"/><circle cx="1224" cy="124" r="1.4"/><circle cx="1252" cy="124" r="0.9"/><circle cx="1280" cy="124" r="1.1"/><circle cx="1308" cy="124" r="1.3"/><circle cx="1336" cy="124" r="1.0"/><circle cx="1364" cy="124" r="0.8"/><circle cx="1392" cy="124" r="1.2"/>
+        <circle cx="762" cy="152" r="1.0"/><circle cx="790" cy="152" r="1.3"/><circle cx="818" cy="152" r="0.9"/><circle cx="846" cy="152" r="1.2"/><circle cx="874" cy="152" r="1.0"/><circle cx="902" cy="152" r="1.4"/><circle cx="930" cy="152" r="0.8"/><circle cx="958" cy="152" r="1.1"/><circle cx="986" cy="152" r="1.3"/><circle cx="1014" cy="152" r="1.0"/><circle cx="1042" cy="152" r="1.2"/><circle cx="1070" cy="152" r="0.9"/><circle cx="1098" cy="152" r="1.3"/><circle cx="1126" cy="152" r="1.0"/><circle cx="1154" cy="152" r="1.1"/><circle cx="1182" cy="152" r="1.3"/><circle cx="1210" cy="152" r="0.8"/><circle cx="1238" cy="152" r="1.2"/><circle cx="1266" cy="152" r="1.0"/><circle cx="1294" cy="152" r="1.3"/><circle cx="1322" cy="152" r="0.9"/><circle cx="1350" cy="152" r="1.1"/><circle cx="1378" cy="152" r="1.0"/>
+        <circle cx="776" cy="180" r="1.2"/><circle cx="804" cy="180" r="0.9"/><circle cx="832" cy="180" r="1.3"/><circle cx="860" cy="180" r="1.0"/><circle cx="888" cy="180" r="1.2"/><circle cx="916" cy="180" r="0.8"/><circle cx="944" cy="180" r="1.4"/><circle cx="972" cy="180" r="1.0"/><circle cx="1000" cy="180" r="1.2"/><circle cx="1028" cy="180" r="0.9"/><circle cx="1056" cy="180" r="1.3"/><circle cx="1084" cy="180" r="1.0"/><circle cx="1112" cy="180" r="1.1"/><circle cx="1140" cy="180" r="1.3"/><circle cx="1168" cy="180" r="0.8"/><circle cx="1196" cy="180" r="1.2"/><circle cx="1224" cy="180" r="1.0"/><circle cx="1252" cy="180" r="1.4"/><circle cx="1280" cy="180" r="0.9"/><circle cx="1308" cy="180" r="1.1"/><circle cx="1336" cy="180" r="1.3"/><circle cx="1364" cy="180" r="1.0"/>
+        <circle cx="790" cy="208" r="1.0"/><circle cx="818" cy="208" r="1.3"/><circle cx="846" cy="208" r="0.9"/><circle cx="874" cy="208" r="1.2"/><circle cx="902" cy="208" r="1.0"/><circle cx="930" cy="208" r="1.4"/><circle cx="958" cy="208" r="0.8"/><circle cx="986" cy="208" r="1.1"/><circle cx="1014" cy="208" r="1.3"/><circle cx="1042" cy="208" r="1.0"/><circle cx="1070" cy="208" r="1.2"/><circle cx="1098" cy="208" r="0.9"/><circle cx="1126" cy="208" r="1.3"/><circle cx="1154" cy="208" r="1.0"/><circle cx="1182" cy="208" r="1.1"/><circle cx="1210" cy="208" r="1.3"/><circle cx="1238" cy="208" r="0.8"/><circle cx="1266" cy="208" r="1.2"/><circle cx="1294" cy="208" r="1.0"/><circle cx="1322" cy="208" r="1.3"/>
+        <circle cx="804" cy="236" r="1.1"/><circle cx="832" cy="236" r="1.0"/><circle cx="860" cy="236" r="1.3"/><circle cx="888" cy="236" r="0.8"/><circle cx="916" cy="236" r="1.2"/><circle cx="944" cy="236" r="1.0"/><circle cx="972" cy="236" r="1.4"/><circle cx="1000" cy="236" r="0.9"/><circle cx="1028" cy="236" r="1.2"/><circle cx="1056" cy="236" r="1.0"/><circle cx="1084" cy="236" r="1.3"/><circle cx="1112" cy="236" r="0.8"/><circle cx="1140" cy="236" r="1.1"/><circle cx="1168" cy="236" r="1.3"/><circle cx="1196" cy="236" r="1.0"/><circle cx="1224" cy="236" r="1.2"/><circle cx="1252" cy="236" r="0.9"/><circle cx="1280" cy="236" r="1.3"/>
+        <circle cx="818" cy="264" r="1.0"/><circle cx="846" cy="264" r="1.2"/><circle cx="874" cy="264" r="0.9"/><circle cx="902" cy="264" r="1.3"/><circle cx="930" cy="264" r="1.0"/><circle cx="958" cy="264" r="1.4"/><circle cx="986" cy="264" r="0.8"/><circle cx="1014" cy="264" r="1.1"/><circle cx="1042" cy="264" r="1.3"/><circle cx="1070" cy="264" r="1.0"/><circle cx="1098" cy="264" r="1.2"/><circle cx="1126" cy="264" r="0.9"/><circle cx="1154" cy="264" r="1.3"/><circle cx="1182" cy="264" r="1.0"/><circle cx="1210" cy="264" r="1.1"/><circle cx="1238" cy="264" r="1.3"/>
+        <circle cx="832" cy="292" r="1.1"/><circle cx="860" cy="292" r="1.0"/><circle cx="888" cy="292" r="1.3"/><circle cx="916" cy="292" r="0.8"/><circle cx="944" cy="292" r="1.2"/><circle cx="972" cy="292" r="1.0"/><circle cx="1000" cy="292" r="1.4"/><circle cx="1028" cy="292" r="0.9"/><circle cx="1056" cy="292" r="1.2"/><circle cx="1084" cy="292" r="1.0"/><circle cx="1112" cy="292" r="1.3"/><circle cx="1140" cy="292" r="0.8"/><circle cx="1168" cy="292" r="1.1"/><circle cx="1196" cy="292" r="1.3"/>
+        <circle cx="846" cy="320" r="1.0"/><circle cx="874" cy="320" r="1.2"/><circle cx="902" cy="320" r="0.9"/><circle cx="930" cy="320" r="1.3"/><circle cx="958" cy="320" r="1.0"/><circle cx="986" cy="320" r="1.4"/><circle cx="1014" cy="320" r="0.8"/><circle cx="1042" cy="320" r="1.1"/><circle cx="1070" cy="320" r="1.3"/><circle cx="1098" cy="320" r="1.0"/><circle cx="1126" cy="320" r="1.2"/>
+        <circle cx="860" cy="348" r="1.1"/><circle cx="888" cy="348" r="1.0"/><circle cx="916" cy="348" r="1.3"/><circle cx="944" cy="348" r="0.8"/><circle cx="972" cy="348" r="1.2"/><circle cx="1000" cy="348" r="1.0"/><circle cx="1028" cy="348" r="1.4"/><circle cx="1056" cy="348" r="0.9"/><circle cx="1084" cy="348" r="1.2"/>
+        <circle cx="874" cy="376" r="1.0"/><circle cx="902" cy="376" r="1.2"/><circle cx="930" cy="376" r="0.9"/><circle cx="958" cy="376" r="1.3"/><circle cx="986" cy="376" r="1.0"/><circle cx="1014" cy="376" r="1.4"/><circle cx="1042" cy="376" r="0.8"/>
+        <circle cx="888" cy="404" r="1.1"/><circle cx="916" cy="404" r="1.0"/><circle cx="944" cy="404" r="1.3"/><circle cx="972" cy="404" r="0.8"/><circle cx="1000" cy="404" r="1.2"/>
+        <circle cx="902" cy="432" r="1.0"/><circle cx="930" cy="432" r="1.2"/><circle cx="958" cy="432" r="0.9"/><circle cx="986" cy="432" r="1.3"/>
+        <circle cx="916" cy="460" r="1.1"/><circle cx="944" cy="460" r="1.0"/><circle cx="972" cy="460" r="1.2"/>
+        <circle cx="930" cy="488" r="1.0"/><circle cx="958" cy="488" r="0.9"/>
+        <circle cx="944" cy="516" r="1.1"/>
+        <!-- Lower half — row 20+ more sparse, fading up -->
+        <circle cx="800" cy="544" r="0.8" opacity="0.3"/><circle cx="828" cy="544" r="1.0" opacity="0.3"/><circle cx="856" cy="544" r="0.7" opacity="0.25"/><circle cx="884" cy="544" r="0.9" opacity="0.28"/><circle cx="912" cy="544" r="0.8" opacity="0.25"/><circle cx="940" cy="544" r="1.0" opacity="0.30"/><circle cx="968" cy="544" r="0.7" opacity="0.22"/>
+        <circle cx="814" cy="572" r="0.7" opacity="0.22"/><circle cx="842" cy="572" r="0.9" opacity="0.25"/><circle cx="870" cy="572" r="0.7" opacity="0.20"/><circle cx="898" cy="572" r="0.8" opacity="0.23"/><circle cx="926" cy="572" r="0.9" opacity="0.25"/>
+        <circle cx="828" cy="600" r="0.7" opacity="0.18"/><circle cx="856" cy="600" r="0.8" opacity="0.20"/><circle cx="884" cy="600" r="0.7" opacity="0.15"/>
+        <circle cx="842" cy="628" r="0.6" opacity="0.12"/><circle cx="870" cy="628" r="0.7" opacity="0.10"/>
+        <circle cx="856" cy="656" r="0.5" opacity="0.08"/>
+        <!-- Scattered left side (sparse) -->
+        <circle cx="600" cy="700" r="0.7" opacity="0.15"/><circle cx="628" cy="728" r="0.8" opacity="0.12"/><circle cx="656" cy="756" r="0.6" opacity="0.10"/>
+        <circle cx="572" cy="760" r="0.6" opacity="0.08"/><circle cx="600" cy="788" r="0.7" opacity="0.10"/><circle cx="628" cy="816" r="0.5" opacity="0.07"/>
+        <!-- Very bottom right — dense ember glow -->
+        <circle cx="960"  cy="730" r="1.2" opacity="0.35"/><circle cx="988"  cy="730" r="1.0" opacity="0.30"/><circle cx="1016" cy="730" r="1.3" opacity="0.38"/>
+        <circle cx="960"  cy="758" r="1.0" opacity="0.28"/><circle cx="988"  cy="758" r="1.2" opacity="0.32"/><circle cx="1016" cy="758" r="0.9" opacity="0.25"/>
+        <circle cx="960"  cy="786" r="0.8" opacity="0.22"/><circle cx="988"  cy="786" r="1.0" opacity="0.25"/>
+        <circle cx="960"  cy="814" r="0.7" opacity="0.18"/>
+      </g>
+    </g>
+
+    <!-- Particle stream: signal beam area, ascending specks -->
+    <g opacity="0.9">
+      <!-- Core beam bright particles near center -->
+      <circle cx="720" cy="820" r="1.5" fill="#E9C46A" opacity="0.8"/>
+      <circle cx="718" cy="800" r="1.2" fill="#E9C46A" opacity="0.7"/>
+      <circle cx="721" cy="778" r="1.0" fill="#fff"    opacity="0.5"/>
+      <circle cx="719" cy="755" r="1.3" fill="#E9C46A" opacity="0.75"/>
+      <circle cx="720" cy="730" r="0.9" fill="#fff"    opacity="0.6"/>
+      <circle cx="722" cy="705" r="1.4" fill="#E9C46A" opacity="0.80"/>
+      <circle cx="718" cy="680" r="1.1" fill="#fff"    opacity="0.55"/>
+      <circle cx="721" cy="655" r="1.0" fill="#E9C46A" opacity="0.70"/>
+      <circle cx="719" cy="630" r="1.5" fill="#fff"    opacity="0.65"/>
+      <circle cx="720" cy="605" r="1.2" fill="#E9C46A" opacity="0.78"/>
+      <circle cx="718" cy="580" r="1.3" fill="#fff"    opacity="0.60"/>
+      <circle cx="721" cy="555" r="1.0" fill="#E9C46A" opacity="0.72"/>
+      <circle cx="719" cy="530" r="0.9" fill="#fff"    opacity="0.70"/>
+      <circle cx="720" cy="505" r="1.4" fill="#E9C46A" opacity="0.82"/>
+      <circle cx="722" cy="480" r="1.1" fill="#fff"    opacity="0.75"/>
+      <circle cx="718" cy="455" r="1.2" fill="#E9C46A" opacity="0.85"/>
+      <circle cx="720" cy="430" r="0.8" fill="#fff"    opacity="0.80"/>
+      <circle cx="719" cy="405" r="1.5" fill="#fff"    opacity="0.85"/>
+      <circle cx="721" cy="380" r="1.3" fill="#E9C46A" opacity="0.90"/>
+      <circle cx="720" cy="355" r="1.0" fill="#fff"    opacity="0.88"/>
+      <circle cx="718" cy="330" r="1.4" fill="#fff"    opacity="0.92"/>
+      <circle cx="720" cy="305" r="1.1" fill="#E9C46A" opacity="0.88"/>
+      <circle cx="721" cy="280" r="0.9" fill="#fff"    opacity="0.90"/>
+      <circle cx="719" cy="255" r="1.3" fill="#fff"    opacity="0.85"/>
+      <circle cx="720" cy="230" r="1.2" fill="#E9C46A" opacity="0.80"/>
+      <circle cx="718" cy="205" r="1.0" fill="#fff"    opacity="0.75"/>
+      <circle cx="721" cy="180" r="0.8" fill="#E9C46A" opacity="0.65"/>
+      <circle cx="720" cy="155" r="1.1" fill="#fff"    opacity="0.55"/>
+      <circle cx="719" cy="130" r="0.9" fill="#E9C46A" opacity="0.45"/>
+      <circle cx="720" cy="105" r="0.7" fill="#E9C46A" opacity="0.32"/>
+      <circle cx="719" cy="80"  r="0.6" fill="#E9C46A" opacity="0.22"/>
+      <circle cx="720" cy="55"  r="0.5" fill="#E9C46A" opacity="0.14"/>
+      <!-- Scattered particles around beam (drift) -->
+      <circle cx="710" cy="790" r="0.8" fill="#E07A5F" opacity="0.5"/>
+      <circle cx="730" cy="760" r="0.7" fill="#E9C46A" opacity="0.45"/>
+      <circle cx="708" cy="720" r="1.0" fill="#E07A5F" opacity="0.40"/>
+      <circle cx="732" cy="685" r="0.6" fill="#E9C46A" opacity="0.38"/>
+      <circle cx="706" cy="650" r="0.9" fill="#E07A5F" opacity="0.42"/>
+      <circle cx="734" cy="615" r="0.7" fill="#E9C46A" opacity="0.35"/>
+      <circle cx="705" cy="580" r="0.8" fill="#E07A5F" opacity="0.38"/>
+      <circle cx="735" cy="545" r="1.0" fill="#E9C46A" opacity="0.45"/>
+      <circle cx="704" cy="510" r="0.7" fill="#E07A5F" opacity="0.40"/>
+      <circle cx="736" cy="475" r="0.9" fill="#E9C46A" opacity="0.50"/>
+      <circle cx="703" cy="440" r="0.8" fill="#E07A5F" opacity="0.42"/>
+      <circle cx="737" cy="405" r="0.6" fill="#E9C46A" opacity="0.48"/>
+      <circle cx="702" cy="370" r="1.0" fill="#E07A5F" opacity="0.44"/>
+      <circle cx="738" cy="335" r="0.7" fill="#E9C46A" opacity="0.52"/>
+      <!-- Far drift particles -->
+      <circle cx="695" cy="720" r="0.5" fill="#E07A5F" opacity="0.25"/>
+      <circle cx="745" cy="680" r="0.5" fill="#E9C46A" opacity="0.22"/>
+      <circle cx="692" cy="620" r="0.6" fill="#E07A5F" opacity="0.20"/>
+      <circle cx="748" cy="560" r="0.5" fill="#E9C46A" opacity="0.22"/>
+      <circle cx="690" cy="500" r="0.5" fill="#E07A5F" opacity="0.18"/>
+      <circle cx="750" cy="440" r="0.6" fill="#E9C46A" opacity="0.22"/>
+      <circle cx="688" cy="380" r="0.5" fill="#E07A5F" opacity="0.18"/>
+    </g>
+
+    <!-- HUD corner bracket marks -->
+    <g stroke="rgba(233,196,106,0.25)" stroke-width="1" fill="none">
+      <!-- Top left -->
+      <polyline points="72,82 72,92 82,92"/>
+      <!-- Top right -->
+      <polyline points="1368,82 1368,92 1358,92"/>
+      <!-- Bottom right -->
+      <polyline points="1368,858 1368,848 1358,848"/>
+    </g>
+
+    <!-- Thin gold underline accent under H1 area -->
+    <line x1="120" y1="480" x2="420" y2="480" stroke="url(#goldLine)" stroke-width="1" opacity="0.6"/>
+    <defs>
+      <linearGradient id="goldLine" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#E9C46A"/>
+        <stop offset="60%" stop-color="#E07A5F"/>
+        <stop offset="100%" stop-color="#E07A5F" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+
+    <!-- Faint diffraction ring overlay -->
+    <circle cx="720" cy="450" r="200" stroke="rgba(233,196,106,0.04)" stroke-width="1" fill="none"/>
+    <circle cx="720" cy="450" r="340" stroke="rgba(233,196,106,0.03)" stroke-width="1" fill="none"/>
+    <circle cx="720" cy="450" r="520" stroke="rgba(233,196,106,0.02)" stroke-width="1" fill="none"/>
+  </svg>
+
+  <!-- Central signal beam -->
+  <div class="signal-beam"></div>
+
+  <!-- HUD coordinate markers -->
+  <div class="hud-coords">
+    <div class="hud-line">
+      <span>// X:<span class="hud-val">0420</span></span>
+    </div>
+    <div class="hud-line">
+      <span>Y:<span class="hud-val">1080</span></span>
+    </div>
+    <div class="hud-line" style="gap:6px; margin-top:4px;">
+      <div class="rec-dot" style="position:static; animation:none; opacity:0.9;"></div>
+      <span style="color:rgba(224,122,95,0.55);">[ REC ]</span>
+    </div>
+    <div class="hud-line" style="margin-top:8px; color:rgba(110,97,87,0.4); font-size:9px;">
+      PARTICLE STREAM ·<span class="hud-val" style="font-size:9px;"> LIVE</span>
+    </div>
+  </div>
+  <div class="hud-corner-mark"></div>
+
+  <!-- Main hero content -->
+  <div class="hero-content">
+    <div class="hero-eyebrow">
+      智能晶圓廠 · IT/OT 全棧建置 &nbsp;// &nbsp;INTELLIGENT FAB INFRASTRUCTURE
+    </div>
+
+    <h1 class="hero-h1">
+      把設備數據，<br>
+      鍛造成可<span class="accent-word">決策</span>的智能。
+    </h1>
+
+    <p class="hero-sub">
+      從 <em>8 大工藝機台</em>的訊號，到 AI 決策閉環，再到跨區域異地備援 —<br>
+      顯藝科技為您的晶圓廠交付並承擔 <em>IT/OT+AI 全棧</em>的建置、整合與維運責任。
+    </p>
+
+    <div class="stat-chips">
+      <div class="chip">
+        <span class="chip-metric">AI Fabric</span>
+        <span class="chip-label">COMPUTE</span>
+      </div>
+      <div class="chip">
+        <span class="chip-metric">NVMe Lake</span>
+        <span class="chip-label">數據湖</span>
+      </div>
+      <div class="chip">
+        <span class="chip-metric">≤ 4hr</span>
+        <span class="chip-label">DR RTO</span>
+      </div>
+      <div class="chip">
+        <span class="chip-metric">六層架構</span>
+        <span class="chip-label">STACK</span>
+      </div>
+    </div>
+
+    <div class="hero-ctas">
+      <a href="#" class="btn-primary">預約諮詢</a>
+      <a href="#" class="btn-ghost">查看系統架構 <span class="arrow">→</span></a>
+    </div>
+  </div>
+
+  <!-- Live feed caption -->
+  <div class="live-feed">
+    <div class="rec-dot"></div>
+    // LIVE FEED · CLEANROOM 03 &nbsp;&nbsp; X:0420 Y:1080 &nbsp;&nbsp; [ REC ]
+  </div>
+
+</section>
+
+<!-- ============================================================
+     SECTION 01 — L1 INPUT LAYER
+============================================================ -->
+<section class="section-l1" id="l1">
+  <div class="section-numeral">01</div>
+
+  <div class="section-l1-inner">
+    <!-- Layer badge -->
+    <div class="layer-badge">
+      <span class="badge-layer">L1 · 輸入層</span>
+      <span class="badge-sep"></span>
+      <span class="badge-name">INPUT LAYER &nbsp;// SIGNAL ORIGIN</span>
+    </div>
+
+    <!-- Heading -->
+    <h2 class="section-heading">
+      訊號從機台誕生。
+      <span class="ch-sub">Eight process nodes. One unified signal entry.</span>
+    </h2>
+    <p class="section-desc">
+      一切從設備訊號開始。顯藝科技的 L1 輸入層直接對接晶圓廠 8 大工藝機台，透過 SECS-GEM、GEM300、OPC UA 等工業標準協議，將原始訊號即時擷取並注入整個 IT/OT+AI 資料鏈。
+    </p>
+
+    <!-- Process node tags -->
+    <div class="process-nodes">
+      <div class="process-row">
+        <div class="process-tag active">SECS-GEM</div>
+        <div class="process-tag active">GEM300</div>
+        <div class="process-tag active">OPC UA</div>
+        <div class="process-tag">MQTT</div>
+        <div class="process-tag">Modbus TCP</div>
+      </div>
+      <div class="process-row">
+        <div class="process-tag">EtherNet/IP</div>
+        <div class="process-tag">RS-232/485</div>
+        <div class="process-tag">PROFINET</div>
+      </div>
+    </div>
+
+    <!-- Two-column layout -->
+    <div class="l1-layout">
+      <!-- Left: Protocol list -->
+      <div>
+        <div class="protocol-list">
+          <div class="protocol-item">
+            <span class="protocol-num">01</span>
+            <span class="protocol-name">SECS-GEM</span>
+            <span class="protocol-desc">SEMI E5/E30/E37 — 機台標準通訊協議，覆蓋擴散、黃光、蝕刻等核心站點</span>
+            <span class="protocol-status">ACTIVE</span>
+          </div>
+          <div class="protocol-item">
+            <span class="protocol-num">02</span>
+            <span class="protocol-name">GEM300</span>
+            <span class="protocol-desc">300mm 晶圓廠自動化協議，支援 SEMI E87/E90/E94 載具管理</span>
+            <span class="protocol-status">ACTIVE</span>
+          </div>
+          <div class="protocol-item">
+            <span class="protocol-num">03</span>
+            <span class="protocol-name">OPC UA</span>
+            <span class="protocol-desc">IEC 62541 工業 IoT 骨幹，跨廠商設備數據統一語意模型</span>
+            <span class="protocol-status">ACTIVE</span>
+          </div>
+          <div class="protocol-item">
+            <span class="protocol-num">04</span>
+            <span class="protocol-name">MQTT · Modbus</span>
+            <span class="protocol-desc">邊緣感測器與老舊設備改造，低延遲訊號橋接</span>
+            <span class="protocol-status" style="color:var(--gold); border-color:rgba(233,196,106,0.25);">BRIDGE</span>
+          </div>
+          <div class="protocol-item">
+            <span class="protocol-num">05</span>
+            <span class="protocol-name">RS-232/485</span>
+            <span class="protocol-desc">傳統序列協議適配，確保 legacy 機台零遺漏整合</span>
+            <span class="protocol-status" style="color:var(--sage); border-color:rgba(129,166,132,0.25);">LEGACY</span>
+          </div>
+        </div>
+
+        <!-- Continue teaser -->
+        <div class="continue-teaser">
+          <div class="teaser-next">
+            <div>
+              <div class="next-label">下一層 NEXT LAYER</div>
+              <div class="next-title">L2 · 數據湖 / NVMe DATA LAKE</div>
+            </div>
+            <span class="next-icon">↓</span>
+          </div>
+          <div class="teaser-line"></div>
+        </div>
+      </div>
+
+      <!-- Right: Dot-matrix signal origin visualization -->
+      <div class="l1-viz">
+        <svg width="100%" height="100%" viewBox="0 0 580 500" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <radialGradient id="vizGlow" cx="50%" cy="100%" r="60%">
+              <stop offset="0%"   stop-color="#E07A5F" stop-opacity="0.12"/>
+              <stop offset="100%" stop-color="#E07A5F" stop-opacity="0"/>
+            </radialGradient>
+            <linearGradient id="sigLine" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0%"   stop-color="#E07A5F" stop-opacity="0.9"/>
+              <stop offset="50%"  stop-color="#E9C46A" stop-opacity="0.7"/>
+              <stop offset="100%" stop-color="#E9C46A" stop-opacity="0.2"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Background glow pool at bottom -->
+          <rect width="580" height="500" fill="url(#vizGlow)"/>
+
+          <!-- Dot matrix grid 16x14 -->
+          <g fill="#E9C46A">
+            <!-- Dense lower section — signal origin zone -->
+            <circle cx="50"  cy="440" r="2.0" opacity="0.80"/>
+            <circle cx="85"  cy="440" r="1.8" opacity="0.75"/>
+            <circle cx="120" cy="440" r="2.2" opacity="0.82"/>
+            <circle cx="155" cy="440" r="1.9" opacity="0.70"/>
+            <circle cx="190" cy="440" r="2.1" opacity="0.78"/>
+            <circle cx="225" cy="440" r="1.7" opacity="0.65"/>
+            <circle cx="260" cy="440" r="2.3" opacity="0.85"/>
+            <circle cx="295" cy="440" r="2.0" opacity="0.80"/>
+            <circle cx="330" cy="440" r="1.8" opacity="0.72"/>
+            <circle cx="365" cy="440" r="2.1" opacity="0.79"/>
+            <circle cx="400" cy="440" r="1.9" opacity="0.74"/>
+            <circle cx="435" cy="440" r="2.2" opacity="0.82"/>
+            <circle cx="470" cy="440" r="1.7" opacity="0.68"/>
+            <circle cx="505" cy="440" r="2.0" opacity="0.78"/>
+            <circle cx="540" cy="440" r="1.8" opacity="0.71"/>
+
+            <circle cx="50"  cy="405" r="1.8" opacity="0.70"/>
+            <circle cx="85"  cy="405" r="2.0" opacity="0.75"/>
+            <circle cx="120" cy="405" r="1.7" opacity="0.65"/>
+            <circle cx="155" cy="405" r="2.1" opacity="0.78"/>
+            <circle cx="190" cy="405" r="1.9" opacity="0.72"/>
+            <circle cx="225" cy="405" r="2.2" opacity="0.80"/>
+            <circle cx="260" cy="405" r="1.8" opacity="0.68"/>
+            <circle cx="295" cy="405" r="2.0" opacity="0.75"/>
+            <circle cx="330" cy="405" r="1.9" opacity="0.70"/>
+            <circle cx="365" cy="405" r="2.1" opacity="0.78"/>
+            <circle cx="400" cy="405" r="1.7" opacity="0.65"/>
+            <circle cx="435" cy="405" r="2.0" opacity="0.75"/>
+            <circle cx="470" cy="405" r="1.8" opacity="0.68"/>
+            <circle cx="505" cy="405" r="2.2" opacity="0.80"/>
+            <circle cx="540" cy="405" r="1.9" opacity="0.72"/>
+
+            <circle cx="50"  cy="370" r="1.6" opacity="0.60"/>
+            <circle cx="85"  cy="370" r="1.8" opacity="0.65"/>
+            <circle cx="120" cy="370" r="1.5" opacity="0.55"/>
+            <circle cx="155" cy="370" r="1.9" opacity="0.68"/>
+            <circle cx="190" cy="370" r="1.7" opacity="0.62"/>
+            <circle cx="225" cy="370" r="2.0" opacity="0.70"/>
+            <circle cx="260" cy="370" r="1.6" opacity="0.58"/>
+            <circle cx="295" cy="370" r="1.8" opacity="0.65"/>
+            <circle cx="330" cy="370" r="1.7" opacity="0.62"/>
+            <circle cx="365" cy="370" r="1.9" opacity="0.68"/>
+            <circle cx="400" cy="370" r="1.5" opacity="0.55"/>
+            <circle cx="435" cy="370" r="1.8" opacity="0.65"/>
+            <circle cx="470" cy="370" r="1.6" opacity="0.58"/>
+            <circle cx="505" cy="370" r="2.0" opacity="0.70"/>
+            <circle cx="540" cy="370" r="1.7" opacity="0.62"/>
+
+            <!-- Middle fade -->
+            <circle cx="85"  cy="335" r="1.4" opacity="0.45"/>
+            <circle cx="155" cy="335" r="1.6" opacity="0.52"/>
+            <circle cx="225" cy="335" r="1.4" opacity="0.48"/>
+            <circle cx="295" cy="335" r="1.5" opacity="0.50"/>
+            <circle cx="365" cy="335" r="1.4" opacity="0.46"/>
+            <circle cx="435" cy="335" r="1.6" opacity="0.52"/>
+            <circle cx="505" cy="335" r="1.4" opacity="0.45"/>
+
+            <circle cx="120" cy="300" r="1.2" opacity="0.35"/>
+            <circle cx="225" cy="300" r="1.3" opacity="0.38"/>
+            <circle cx="330" cy="300" r="1.2" opacity="0.35"/>
+            <circle cx="435" cy="300" r="1.3" opacity="0.38"/>
+            <circle cx="540" cy="300" r="1.1" opacity="0.30"/>
+
+            <circle cx="190" cy="265" r="1.0" opacity="0.25"/>
+            <circle cx="330" cy="265" r="1.1" opacity="0.28"/>
+            <circle cx="470" cy="265" r="1.0" opacity="0.25"/>
+
+            <circle cx="260" cy="230" r="0.9" opacity="0.18"/>
+            <circle cx="400" cy="230" r="0.8" opacity="0.15"/>
+
+            <circle cx="295" cy="195" r="0.7" opacity="0.10"/>
+          </g>
+          <!-- Clay highlights on active protocol nodes -->
+          <g fill="#E07A5F">
+            <circle cx="260" cy="440" r="2.8" opacity="0.90"/>
+            <circle cx="260" cy="405" r="2.5" opacity="0.85"/>
+            <circle cx="260" cy="370" r="2.2" opacity="0.75"/>
+          </g>
+
+          <!-- Signal collection line (vertical, rising from center) -->
+          <line x1="290" y1="500" x2="290" y2="60" stroke="url(#sigLine)" stroke-width="1.5" stroke-dasharray="4 6"/>
+
+          <!-- Arrow at top of line (signal leaving L1) -->
+          <polygon points="290,50 284,68 296,68" fill="#E9C46A" opacity="0.7"/>
+
+          <!-- Protocol labels at bottom -->
+          <text x="260" y="470" text-anchor="middle" font-family="'Spline Sans Mono', monospace" font-size="8" fill="rgba(110,97,87,0.7)" letter-spacing="1">SIGNAL ORIGIN // L1</text>
+
+          <!-- Crosshair / coordinate HUD -->
+          <line x1="260" y1="435" x2="320" y2="435" stroke="rgba(233,196,106,0.3)" stroke-width="0.5"/>
+          <line x1="290" y1="405" x2="290" y2="465" stroke="rgba(233,196,106,0.3)" stroke-width="0.5"/>
+
+          <!-- Corner marks -->
+          <g stroke="rgba(242,233,222,0.20)" stroke-width="0.7" fill="none">
+            <polyline points="10,10 10,24 24,24"/>
+            <polyline points="570,10 570,24 556,24"/>
+            <polyline points="10,490 10,476 24,476"/>
+            <polyline points="570,490 570,476 556,476"/>
+          </g>
+        </svg>
+
+        <div class="l1-viz-label">// DOT·MATRIX · SIGNAL FIELD · L1 INPUT</div>
+        <div class="l1-viz-coords">X:0260 Y:0440 ·· NODE:ACTIVE</div>
+      </div>
+    </div>
+
+    <!-- Connecting line down to L2 -->
+    <div style="display:flex; flex-direction:column; align-items:center; margin-top:60px; position:relative; z-index:10;">
+      <div style="font-family:var(--ff-mono); font-size:9px; letter-spacing:0.22em; color:var(--faint); text-transform:uppercase; margin-bottom:10px;">繼續往下 · CONTINUE TO L2</div>
+      <div style="width:1px; height:48px; background: linear-gradient(to bottom, var(--clay), transparent);"></div>
+    </div>
+
+  </div>
+</section>
+
+</body>
+</html>
