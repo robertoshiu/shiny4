@@ -1,0 +1,1 @@
+{ "order": 5, "name": "ISA-95", "fullName": "企業控制系統整合標準", "definition": "L3↔L4 整合架構依據，確保 MES 與 ERP/PLM 的資訊交換模型一致。", "domain": "IT / OT" }

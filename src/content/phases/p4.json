@@ -1,0 +1,1 @@
+{ "order": 4, "code": "P4", "zhName": "量產期", "months": "M22+", "gate": "Gate 8", "milestone": "量產里程碑", "deliverables": ["全速量產；SLO ≥ 95% 持續監控", "DR 季度演練固化"] }
