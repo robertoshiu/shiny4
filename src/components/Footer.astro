@@ -13,6 +13,15 @@ const { locale } = Astro.props;
   <FooterTicker locale={locale} />
   <div class="site-footer__inner">
     <div class="site-footer__brand">
+      <img
+        class="site-footer__logo"
+        src={`${import.meta.env.BASE_URL}logo.webp`}
+        width="52"
+        height="52"
+        alt="SHINYLOGIC 顯藝科技"
+        loading="lazy"
+        decoding="async"
+      />
       <p class="site-footer__name">{t('footer.brand', locale)}</p>
       <p class="site-footer__tagline">
         {t('footer.tagline', locale)}
@@ -61,6 +70,14 @@ const { locale } = Astro.props;
     .site-footer__inner {
       grid-template-columns: 2fr 1fr 1fr 1.5fr;
     }
+  }
+  .site-footer__logo {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: block;
+    margin-bottom: 1rem;
+    box-shadow: 0 0 0 1.5px var(--border-strong);
   }
   .site-footer__name {
     font-family: var(--font-display);

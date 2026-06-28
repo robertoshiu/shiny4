@@ -54,6 +54,16 @@ canvas {
   max-width: 100%;
 }
 
+/* Decorative canvases injected by dot-field.ts and similar motion scripts are
+   aria-hidden, pointer-events:none, and must never carry a visible background
+   of their own — the drawing context uses alpha:true + clearRect each frame.
+   This rule is an extra belt-and-suspenders guard against accidental opaque fills
+   from any future CSS reset or browser UA stylesheet edge case. */
+canvas[aria-hidden] {
+  background: transparent;
+  pointer-events: none;
+}
+
 :focus-visible {
   outline: 2px solid var(--sun);
   outline-offset: 3px;

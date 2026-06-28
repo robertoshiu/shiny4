@@ -13,9 +13,20 @@ const { locale } = Astro.props;
 <header class="site-header" data-header>
   <div class="site-header__inner">
     <a class="brand" href={withBase('/')}>
-      <span class="brand__name">SHINYLOGIC</span>
-      <span class="brand__zh">顯藝科技</span>
-      <span class="brand__sub" aria-hidden="true">INTELLIGENT WAFER FAB SYSTEMS</span>
+      <img
+        class="brand__logo"
+        src={`${import.meta.env.BASE_URL}logo.webp`}
+        width="40"
+        height="40"
+        alt="SHINYLOGIC 顯藝科技"
+        loading="eager"
+        decoding="async"
+      />
+      <span class="brand__text">
+        <span class="brand__name">SHINYLOGIC</span>
+        <span class="brand__zh">顯藝科技</span>
+        <span class="brand__sub" aria-hidden="true">INTELLIGENT WAFER FAB SYSTEMS</span>
+      </span>
       <span class="sr-only">首頁</span>
     </a>
     <div class="site-header__desktop">
@@ -110,8 +121,20 @@ const { locale } = Astro.props;
     gap: 1.5rem;
   }
   .brand {
-    display: grid;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
     text-decoration: none;
+  }
+  .brand__logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 1.5px var(--border-strong);
+  }
+  .brand__text {
+    display: grid;
     line-height: 1.05;
   }
   .brand__name {

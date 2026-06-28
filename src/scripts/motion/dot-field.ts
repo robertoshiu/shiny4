@@ -61,9 +61,13 @@ export function mount(container: HTMLElement, opts: DotFieldOptions = {}): () =>
   // Inject canvas
   const canvas = document.createElement('canvas');
   canvas.setAttribute('aria-hidden', 'true');
+  // z-index:-1 places the canvas at stacking step 2 (negative z-index) within
+  // whatever stacking context it lives in, so it is always BELOW non-positioned
+  // section content (steps 3–5) and below content painted at z-index:0+ (step 6+).
+  // pointer-events:none ensures the canvas never blocks clicks/hovers.
   canvas.style.cssText = [
     'position:absolute', 'inset:0', 'width:100%', 'height:100%',
-    'pointer-events:none', 'z-index:0', 'display:block',
+    'pointer-events:none', 'z-index:-1', 'display:block',
   ].join(';');
 
   if (getComputedStyle(container).position === 'static') {
@@ -152,7 +156,12 @@ export function mount(container: HTMLElement, opts: DotFieldOptions = {}): () =>
     rafId = requestAnimationFrame(draw);
     const W = container.clientWidth;
     const H = container.clientHeight;
-    ctx.clearRect(0, 0, W, H);
+    // Clear the full canvas in device-pixel coordinates, bypassing any scale
+    // transform, so every pixel is wiped each frame (no ghost accumulation).
+    ctx.save();
+    ctx.resetTransform();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.restore();
 
     for (const dot of dots) {
       if (dot.opacity < 0.005 || dot.scale < 0.01) continue;

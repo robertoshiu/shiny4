@@ -85,15 +85,17 @@ const DOMAIN_LABEL: Record<string, string> = {
       <tfoot>
         <tr class="cm__footer-row">
           <td class="cm__footer-cell" colspan="5">
-            <span class="cm__footer-label" aria-hidden="true">COMPLIANCE NOTE</span>
-            <span class="cm__footer-text">
-              {t('comp.c.cm.footerNote', locale)}
-            </span>
-            {/* Sage accent marker — tri-accent system requires text label when color is used */}
-            <span class="cm__footer-badge">
-              <span class="cm__footer-dot" aria-hidden="true" />
-              COVERAGE
-            </span>
+            <div class="cm__footer-inner">
+              <span class="cm__footer-label" aria-hidden="true">COMPLIANCE NOTE</span>
+              <span class="cm__footer-text">
+                {t('comp.c.cm.footerNote', locale)}
+              </span>
+              {/* Sage accent marker — tri-accent system requires text label when color is used */}
+              <span class="cm__footer-badge">
+                <span class="cm__footer-dot" aria-hidden="true" />
+                COVERAGE
+              </span>
+            </div>
           </td>
         </tr>
       </tfoot>
@@ -283,11 +285,13 @@ const DOMAIN_LABEL: Record<string, string> = {
   }
   .cm__footer-cell {
     padding: 0.85rem 1.1rem;
+    border-top: 1px solid var(--border-strong);
+  }
+  .cm__footer-inner {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 0.65rem;
-    border-top: 1px solid var(--border-strong);
   }
   .cm__footer-label {
     font-family: var(--font-mono);

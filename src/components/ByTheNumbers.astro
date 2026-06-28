@@ -24,11 +24,7 @@ const metrics = (await getCollection('slas'))
           data-prefix={s.data.prefix}
           data-suffix={s.data.suffix}
           aria-label={`${s.data.prefix}${s.data.value}${s.data.suffix}`}
-        >
-          {s.data.prefix}
-          {s.data.value}
-          {s.data.suffix}
-        </p>
+        >{`${s.data.prefix}${s.data.value}${s.data.suffix}`}</p>
         <p class="btn__label">{localized(s.data, 'label', locale) as string}</p>
         <p class="btn__sub">{localized(s.data, 'sub', locale) as string}</p>
       </article>
@@ -36,45 +32,45 @@ const metrics = (await getCollection('slas'))
   }
 </div>
 
-<script>
-  import { countUp } from '../scripts/counter';
-  const values = document.querySelectorAll<HTMLElement>('.btn__value[data-to]');
-  const io = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
-        const el = entry.target as HTMLElement;
-        countUp(el, {
-          to: Number(el.dataset.to),
-          prefix: el.dataset.prefix || '',
-          suffix: el.dataset.suffix || '',
-        });
-        io.unobserve(el);
-      }
-    },
-    { threshold: 0.3 },
-  );
-  values.forEach((v) => io.observe(v));
-</script>
+<!-- Count-up is handled globally by initCountUp() via initScrollFx() in BaseLayout.
+     Removed the duplicate per-component script that conflicted with the global one:
+     both targeted .btn__value[data-to] and raced to write textContent simultaneously,
+     leaving the sage metric stuck at "0%" when the layout overflow pushed it off-screen. -->
 
 <style>
+  /* ── Container ─────────────────────────────────────────────────────────── */
   .btn {
     display: grid;
     grid-template-columns: 1fr;
     gap: clamp(3rem, 8vw, 5rem);
+    width: 100%;
+    /* Catch any child overflow before it escapes to the viewport */
+    overflow: hidden;
   }
 
   @media (min-width: 768px) {
     .btn {
-      grid-template-columns: repeat(3, 1fr);
+      /* FIX: minmax(0, 1fr) instead of bare 1fr.
+         Bare `1fr` resolves to `minmax(auto, 1fr)` — the `auto` minimum lets
+         each column expand to its min-content size.  With Fraunces 900 at
+         clamp(4rem, 11vw, 7.5rem) the text min-content can exceed one-third of
+         the container, pushing the third column (sage) off the right edge.
+         Fixing the minimum to 0 forces columns to exactly one-third regardless
+         of content intrinsic size; overflow on individual items is then clipped
+         by their own `overflow: hidden`. */
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 0;
     }
   }
 
+  /* ── Grid item ─────────────────────────────────────────────────────────── */
   .btn__item {
     padding: clamp(2rem, 5vw, 3.5rem) clamp(1.5rem, 4vw, 3rem);
     display: flex;
     flex-direction: column;
+    /* Allow the item to shrink below its content's natural width so the
+       column stays at minmax(0, 1fr) rather than pushing past it. */
+    min-width: 0;
   }
 
   @media (min-width: 768px) {
@@ -83,7 +79,7 @@ const metrics = (await getCollection('slas'))
     }
   }
 
-  /* Accent rule — 3px stripe at top, full width */
+  /* ── Accent rule — 3 px stripe at top, full width ──────────────────────── */
   .btn__rule {
     display: block;
     width: 100%;
@@ -91,37 +87,36 @@ const metrics = (await getCollection('slas'))
     margin-bottom: clamp(2rem, 5vw, 3rem);
   }
 
-  .btn__item--clay .btn__rule {
-    background: var(--clay);
-  }
-  .btn__item--gold .btn__rule {
-    background: var(--sun);
-  }
-  .btn__item--sage .btn__rule {
-    background: var(--sage);
-  }
+  .btn__item--clay .btn__rule { background: var(--clay); }
+  .btn__item--gold .btn__rule { background: var(--sun);  }
+  .btn__item--sage .btn__rule { background: var(--sage); }
 
-  /* Oversized Fraunces headline metric */
+  /* ── Oversized Fraunces headline metric ────────────────────────────────── */
   .btn__value {
     font-family: var(--font-display);
-    font-size: clamp(5rem, 13vw, 9rem);
+    /* DESIGN.md specifies Fraunces at 64–120 px (display optical range).
+       Previous clamp(5rem, 13vw, 9rem) hit 9rem = 144 px — above the design
+       max — and 13vw at the 768 px breakpoint would make each column's
+       min-content wider than its 1fr share.
+       clamp(4rem, 11vw, 7.5rem):
+         · min 4rem = 64 px  — matches DESIGN.md lower bound
+         · 11vw at 768 px ≈ 85 px; column ≈ 230 px — text fits comfortably
+         · max 7.5rem = 120 px — matches DESIGN.md upper bound exactly */
+    font-size: clamp(4rem, 11vw, 7.5rem);
     font-weight: 900;
     line-height: 0.88;
     letter-spacing: -0.02em;
     margin: 0 0 clamp(1.25rem, 3vw, 2rem);
+    /* Prevent any remaining text overflow from breaking the grid or viewport */
+    overflow: hidden;
+    white-space: nowrap;
   }
 
-  .btn__item--clay .btn__value {
-    color: var(--clay);
-  }
-  .btn__item--gold .btn__value {
-    color: var(--sun);
-  }
-  .btn__item--sage .btn__value {
-    color: var(--sage);
-  }
+  .btn__item--clay .btn__value { color: var(--clay); }
+  .btn__item--gold .btn__value { color: var(--sun);  }
+  .btn__item--sage .btn__value { color: var(--sage); }
 
-  /* Label — mono, tracked, primary ink */
+  /* ── Label — mono, tracked, primary ink ───────────────────────────────── */
   .btn__label {
     font-family: var(--font-mono);
     font-size: 0.8rem;
@@ -131,7 +126,7 @@ const metrics = (await getCollection('slas'))
     margin: 0 0 0.5rem;
   }
 
-  /* Sub — mono, muted caption */
+  /* ── Sub — mono, muted caption ─────────────────────────────────────────── */
   .btn__sub {
     font-family: var(--font-mono);
     font-size: 0.78rem;
