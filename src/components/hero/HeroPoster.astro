@@ -1,0 +1,55 @@
+---
+import HudCoordinate from '../HudCoordinate.astro';
+---
+
+<div class="hero-poster" aria-hidden="true">
+  <svg
+    class="hero-poster__svg"
+    viewBox="0 0 1440 900"
+    preserveAspectRatio="xMidYMid slice"
+    role="presentation"
+  >
+    <defs>
+      <radialGradient id="emberGrad" cx="50%" cy="46%" r="60%">
+        <stop offset="0%" stop-color="#E9C46A" stop-opacity="0.22"></stop>
+        <stop offset="55%" stop-color="#E07A5F" stop-opacity="0.10"></stop>
+        <stop offset="100%" stop-color="#14100D" stop-opacity="0"></stop>
+      </radialGradient>
+      <pattern id="dotMatrix" width="34" height="34" patternUnits="userSpaceOnUse">
+        <circle cx="2" cy="2" r="1.4" fill="#E9C46A" fill-opacity="0.16"></circle>
+      </pattern>
+    </defs>
+    <rect width="1440" height="900" fill="#14100D"></rect>
+    <rect width="1440" height="900" fill="url(#dotMatrix)"></rect>
+    <circle cx="720" cy="414" r="300" fill="url(#emberGrad)"></circle>
+    <g fill="none" stroke="#E9C46A" stroke-opacity="0.12">
+      <circle cx="720" cy="414" r="120"></circle>
+      <circle cx="720" cy="414" r="180"></circle>
+      <circle cx="720" cy="414" r="240"></circle>
+      <circle cx="720" cy="414" r="300"></circle>
+    </g>
+  </svg>
+  <span class="hero-poster__hud">
+    <HudCoordinate text="X:0420 Y:1080 [REC]" />
+  </span>
+</div>
+
+<style>
+  .hero-poster {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    background: var(--bg);
+  }
+  .hero-poster__svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .hero-poster__hud {
+    position: absolute;
+    left: clamp(1rem, 4vw, 4rem);
+    bottom: clamp(1rem, 4vw, 3rem);
+  }
+</style>
