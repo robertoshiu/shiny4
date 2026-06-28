@@ -1,0 +1,341 @@
+---
+import { getCollection } from 'astro:content';
+
+const phases = (await getCollection('phases')).sort((a, b) => a.data.order - b.data.order);
+
+// Semantic accent: sage = governance/gate, gold = delivery/performance, clay = resilience/DR
+const accentMap: Record<string, 'clay' | 'gold' | 'sage'> = {
+  P1: 'sage',   // six-layer foundation, gate governance
+  P2: 'gold',   // main delivery milestone, AI Fabric performance
+  P3: 'clay',   // DR first drill, resilience validation
+  P4: 'gold',   // SLO ≥ 95% continuous production
+};
+
+// Parse gate count from strings like "Gate 1–2" (2 gates) or "Gate 8" (1 gate)
+function gateCount(str: string): number {
+  const range = str.match(/(\d+)[–\-](\d+)/);
+  if (range) return parseInt(range[2]) - parseInt(range[1]) + 1;
+  return 1;
+}
+
+// Accent label for semantic text
+const accentLabel: Record<'clay' | 'gold' | 'sage', string> = {
+  clay: 'RESILIENCE',
+  gold: 'PERFORMANCE',
+  sage: 'GOVERNANCE',
+};
+---
+
+<div class="phase-timeline" role="list" aria-label="專案時程 P1–P4">
+  <!-- Horizontal track with phase nodes -->
+  <div class="phase-track" aria-hidden="true">
+    {phases.map((p, i) => {
+      const accent = accentMap[p.data.code] ?? 'sage';
+      return (
+        <div class={`phase-track__node phase-track__node--${accent}`}>
+          <span class="phase-track__code">{p.data.code}</span>
+          {i < phases.length - 1 && <span class="phase-track__connector" />}
+        </div>
+      );
+    })}
+  </div>
+
+  <!-- Phase cards -->
+  <div class="phase-cards">
+    {phases.map((p) => {
+      const accent = accentMap[p.data.code] ?? 'sage';
+      const dots = gateCount(p.data.gate);
+      return (
+        <article
+          class={`phase-card phase-card--${accent}`}
+          role="listitem"
+          aria-label={`${p.data.code} ${p.data.zhName}`}
+        >
+          <!-- Month range -->
+          <p class="phase-card__months">{p.data.months}</p>
+
+          <!-- Phase name -->
+          <h3 class="phase-card__name">{p.data.zhName}</h3>
+
+          <!-- Gate row -->
+          <div class="phase-card__gates">
+            <span class="phase-card__gate-label">{p.data.gate}</span>
+            <span class="phase-card__gate-dots" aria-hidden="true">
+              {Array.from({ length: dots }).map(() => (
+                <span class={`gate-dot gate-dot--${accent}`} />
+              ))}
+            </span>
+          </div>
+
+          <!-- Accent semantic badge -->
+          <p class={`phase-card__accent-tag phase-card__accent-tag--${accent}`}>
+            {accentLabel[accent]}
+          </p>
+
+          <!-- Deliverables teaser (first 2 only) -->
+          <ul class="phase-card__deliverables">
+            {p.data.deliverables.slice(0, 2).map((d) => (
+              <li class="phase-card__deliverable">{d}</li>
+            ))}
+            {p.data.deliverables.length > 2 && (
+              <li class="phase-card__deliverable phase-card__deliverable--more">
+                +{p.data.deliverables.length - 2} more
+              </li>
+            )}
+          </ul>
+        </article>
+      );
+    })}
+  </div>
+</div>
+
+<style>
+  /* ─── Container ────────────────────────────────────────── */
+  .phase-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* ─── Track (desktop horizontal axis) ──────────────────── */
+  .phase-track {
+    display: none; /* hidden on mobile; grid picks up the visual rhythm */
+  }
+
+  @media (min-width: 768px) {
+    .phase-track {
+      display: flex;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding: 0 calc(12.5%); /* align with card centers */
+    }
+  }
+
+  .phase-track__node {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex: 1;
+  }
+
+  .phase-track__node:last-child {
+    flex: 0 0 auto;
+  }
+
+  .phase-track__code {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    font-weight: 600;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* dot above the code label */
+  .phase-track__code::before {
+    content: '';
+    display: block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .phase-track__node--sage .phase-track__code {
+    color: var(--sage);
+  }
+  .phase-track__node--sage .phase-track__code::before {
+    background: var(--sage);
+    box-shadow: 0 0 8px rgba(129, 166, 132, 0.5);
+  }
+
+  .phase-track__node--gold .phase-track__code {
+    color: var(--sun);
+  }
+  .phase-track__node--gold .phase-track__code::before {
+    background: var(--sun);
+    box-shadow: 0 0 8px rgba(233, 196, 106, 0.5);
+  }
+
+  .phase-track__node--clay .phase-track__code {
+    color: var(--clay);
+  }
+  .phase-track__node--clay .phase-track__code::before {
+    background: var(--clay);
+    box-shadow: 0 0 8px rgba(224, 122, 95, 0.5);
+  }
+
+  /* connector line between nodes */
+  .phase-track__connector {
+    flex: 1;
+    display: block;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border-strong), var(--border));
+    margin: 0 0.25rem;
+    margin-top: -1.2rem; /* align with dot row */
+  }
+
+  /* ─── Phase cards grid ──────────────────────────────────── */
+  .phase-cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  @media (min-width: 640px) {
+    .phase-cards {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .phase-cards {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  /* ─── Individual card ───────────────────────────────────── */
+  .phase-card {
+    background: var(--surface);
+    padding: clamp(1.25rem, 3vw, 1.75rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    position: relative;
+    overflow: hidden;
+    transition: background var(--dur-quick) var(--ease-out);
+  }
+
+  /* subtle left accent bar */
+  .phase-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 2px;
+    height: 100%;
+  }
+
+  .phase-card--sage::before   { background: var(--sage); }
+  .phase-card--gold::before   { background: var(--sun); }
+  .phase-card--clay::before   { background: var(--clay); }
+
+  /* ─── Month range ───────────────────────────────────────── */
+  .phase-card__months {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    color: var(--ink-faint);
+    margin: 0;
+  }
+
+  /* ─── Phase name ─────────────────────────────────────────── */
+  .phase-card__name {
+    font-size: clamp(1.05rem, 2.5vw, 1.2rem);
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0;
+    line-height: 1.25;
+  }
+
+  /* ─── Gate row ───────────────────────────────────────────── */
+  .phase-card__gates {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.2rem;
+  }
+
+  .phase-card__gate-label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    color: var(--ink-muted);
+    white-space: nowrap;
+  }
+
+  .phase-card__gate-dots {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .gate-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .gate-dot--sage { background: var(--sage); }
+  .gate-dot--gold { background: var(--sun); }
+  .gate-dot--clay { background: var(--clay); }
+
+  /* ─── Semantic accent tag ────────────────────────────────── */
+  .phase-card__accent-tag {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    font-weight: 600;
+    margin: 0;
+    margin-top: 0.25rem;
+  }
+
+  .phase-card__accent-tag--sage { color: var(--sage); }
+  .phase-card__accent-tag--gold { color: var(--sun); }
+  .phase-card__accent-tag--clay { color: var(--clay); }
+
+  /* ─── Deliverables list ──────────────────────────────────── */
+  .phase-card__deliverables {
+    list-style: none;
+    margin: 0.5rem 0 0;
+    padding: 0;
+    border-top: 1px solid var(--border);
+    padding-top: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .phase-card__deliverable {
+    font-size: 0.8rem;
+    color: var(--ink-muted);
+    line-height: 1.45;
+    padding-left: 0.9rem;
+    position: relative;
+  }
+
+  /* small square bullet */
+  .phase-card__deliverable::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.52em;
+    width: 4px;
+    height: 4px;
+    background: var(--ink-faint);
+  }
+
+  .phase-card__deliverable--more {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    color: var(--ink-faint);
+  }
+
+  .phase-card__deliverable--more::before {
+    display: none;
+  }
+
+  /* ─── Reduced motion ─────────────────────────────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    .phase-card {
+      transition: none;
+    }
+  }
+</style>

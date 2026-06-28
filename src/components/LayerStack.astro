@@ -1,0 +1,235 @@
+---
+import { getCollection } from 'astro:content';
+
+const layers = (await getCollection('layers')).sort((a, b) => a.data.order - b.data.order);
+
+// Semantic accent mapping (locked per tri-accent system — no accent field in schema)
+// clay = resilience/DR · sun = service level/performance · sage = coverage/archive/governance
+const ACCENTS: Record<string, 'clay' | 'sun' | 'sage' | null> = {
+  L1: null,    // Input — infrastructure, pre-semantic
+  L2: 'sage',  // Data — 歸檔 / archive
+  L3: 'sun',   // Compute — performance
+  L4: 'sun',   // Application — service level / SLO
+  L5: 'sage',  // Governance — coverage / compliance gate
+  L6: 'clay',  // Resilience — DR · RTO/RPO
+};
+
+const ACCENT_LABEL: Record<string, string> = {
+  clay: 'RESILIENCE',
+  sun:  'PERFORMANCE',
+  sage: 'COVERAGE',
+};
+---
+
+<div class="layer-stack" role="list" aria-label="六層架構">
+  {layers.map((layer, i) => {
+    const accent = ACCENTS[layer.data.num] ?? null;
+    const total  = layers.length;
+    return (
+      <article
+        class={`layer-chapter${accent ? ` layer-chapter--${accent}` : ''}`}
+        role="listitem"
+        aria-label={`${layer.data.num} ${layer.data.zhName}`}
+      >
+        {/* Left progress gutter */}
+        <div class="layer-chapter__gutter" aria-hidden="true">
+          <span class={`layer-chapter__dot${accent ? ` layer-chapter__dot--${accent}` : ''}`} />
+          {i < total - 1 && <span class="layer-chapter__line" />}
+          <span class="layer-chapter__idx">{i + 1}<em>/{total}</em></span>
+        </div>
+
+        {/* Content */}
+        <div class="layer-chapter__body">
+          <div class="layer-chapter__meta">
+            <span class="layer-chapter__num">{layer.data.num}</span>
+            {accent && (
+              <span class={`layer-chapter__tag layer-chapter__tag--${accent}`}>
+                {ACCENT_LABEL[accent]}
+              </span>
+            )}
+          </div>
+          <h3 class="layer-chapter__zh">{layer.data.zhName}</h3>
+          <p  class="layer-chapter__en">{layer.data.enLabel}</p>
+          <p  class="layer-chapter__scope">{layer.data.scope}</p>
+        </div>
+
+        {/* Ghost numeral — background decoration only */}
+        <span class="layer-chapter__ghost" aria-hidden="true">{layer.data.num}</span>
+      </article>
+    );
+  })}
+</div>
+
+<style>
+  /* ── Stack wrapper ── */
+  .layer-stack {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Chapter block ── */
+  .layer-chapter {
+    position: relative;
+    display: grid;
+    grid-template-columns: 3.5rem 1fr;
+    gap: 0 1.5rem;
+    padding: clamp(1.75rem, 4vw, 2.75rem) 0;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .layer-chapter:first-child {
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── Left gutter: progress dot + connecting line + fraction ── */
+  .layer-chapter__gutter {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 0.2rem;
+    gap: 0;
+  }
+
+  .layer-chapter__dot {
+    flex-shrink: 0;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border-strong);
+    background: var(--surface);
+    z-index: 1;
+  }
+  .layer-chapter__dot--clay { border-color: var(--clay);  background: var(--clay);  }
+  .layer-chapter__dot--sun  { border-color: var(--sun);   background: var(--sun);   }
+  .layer-chapter__dot--sage { border-color: var(--sage);  background: var(--sage);  }
+
+  .layer-chapter__line {
+    flex: 1;
+    width: 1px;
+    background: var(--border);
+    margin: 6px 0;
+    min-height: 2rem;
+  }
+
+  .layer-chapter__idx {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.04em;
+    margin-top: 0.4rem;
+    white-space: nowrap;
+  }
+  .layer-chapter__idx em {
+    font-style: normal;
+    color: var(--ink-faint);
+    opacity: 0.5;
+  }
+
+  /* ── Body ── */
+  .layer-chapter__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .layer-chapter__meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .layer-chapter__num {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.16em;
+    color: var(--ink-muted);
+  }
+
+  /* Accent tag — semantic label badge */
+  .layer-chapter__tag {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    font-weight: 600;
+    padding: 0.15em 0.55em;
+    border-radius: 2px;
+    border: 1px solid;
+  }
+  .layer-chapter__tag--clay {
+    color: var(--clay);
+    border-color: color-mix(in srgb, var(--clay) 40%, transparent);
+    background: color-mix(in srgb, var(--clay) 8%, transparent);
+  }
+  .layer-chapter__tag--sun {
+    color: var(--sun);
+    border-color: color-mix(in srgb, var(--sun) 40%, transparent);
+    background: color-mix(in srgb, var(--sun) 8%, transparent);
+  }
+  .layer-chapter__tag--sage {
+    color: var(--sage);
+    border-color: color-mix(in srgb, var(--sage) 40%, transparent);
+    background: color-mix(in srgb, var(--sage) 8%, transparent);
+  }
+
+  /* Chinese name — editorial display */
+  .layer-chapter__zh {
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    font-weight: 600;
+    line-height: 1.1;
+    margin: 0;
+    color: var(--ink);
+  }
+
+  /* EN label — mono sub-heading */
+  .layer-chapter__en {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    color: var(--ink-muted);
+    margin: 0;
+  }
+
+  /* Scope / description */
+  .layer-chapter__scope {
+    font-size: 0.9rem;
+    color: var(--ink-muted);
+    line-height: 1.6;
+    margin: 0.25rem 0 0;
+    max-width: 60ch;
+  }
+
+  /* ── Ghost numeral — background watermark ── */
+  .layer-chapter__ghost {
+    position: absolute;
+    right: -0.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: var(--font-display, serif);
+    font-size: clamp(5rem, 14vw, 10rem);
+    font-weight: 700;
+    line-height: 1;
+    color: var(--ink);
+    opacity: 0.03;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+  }
+
+  /* ── Left accent stripe on hover ── */
+  .layer-chapter::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: transparent;
+    transition: background var(--dur-quick) var(--ease-out);
+  }
+  .layer-chapter--clay:hover::before { background: var(--clay); }
+  .layer-chapter--sun:hover::before  { background: var(--sun);  }
+  .layer-chapter--sage:hover::before { background: var(--sage); }
+</style>

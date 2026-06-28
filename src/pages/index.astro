@@ -7,12 +7,13 @@ import CTAButton from '../components/CTAButton.astro';
 import SlaStrip from '../components/SlaStrip.astro';
 import ComplianceBadges from '../components/ComplianceBadges.astro';
 import EngageCTA from '../components/EngageCTA.astro';
-import { getCollection } from 'astro:content';
+import LayerStack from '../components/LayerStack.astro';
+import PhaseTimeline from '../components/PhaseTimeline.astro';
+import ByTheNumbers from '../components/ByTheNumbers.astro';
+import BuildVsBuy from '../components/BuildVsBuy.astro';
 import { t } from '../i18n/utils';
 
 const locale = 'zh-Hant' as const;
-const layers = (await getCollection('layers')).sort((a, b) => a.data.order - b.data.order);
-const phases = (await getCollection('phases')).sort((a, b) => a.data.order - b.data.order);
 
 const chips = [
   { label: '≤4hr', accent: 'clay' },
@@ -34,7 +35,7 @@ const chips = [
       <p class="hero__eyebrow" aria-hidden="true">WHO WE ARE // SYSTEMS INTEGRATOR</p>
       <h1 class="hero__title">
         <span class="hero__line">把設備數據，</span>
-        <span class="hero__line">鍛造成可決策的智能。</span>
+        <span class="hero__line">鍛造成可決策<span class="hero__nowrap">的智能。</span></span>
       </h1>
       <p class="hero__lead">
         顯藝科技為晶圓廠直接交付 IT/OT+AI 全棧技術棧 — 從 L1 設備訊號到 L6 備援層，以明確 SLA
@@ -65,26 +66,10 @@ const chips = [
     </div>
   </section>
 
-  <!-- 02 Six-layer architecture as editorial chapters -->
+  <!-- 02 Six-layer architecture -->
   <section class="section" id="architecture" aria-labelledby="heading-02">
     <SectionHeader index="02" zh="六層架構" en="WHAT WE DELIVER" />
-    <ol class="layers">
-      {
-        layers.map((l) => (
-          <li class="layer reveal">
-            <span class="layer__num" aria-hidden="true">
-              {l.data.num}
-            </span>
-            <div class="layer__body">
-              <h3 class="layer__name">
-                {l.data.zhName} <span class="layer__en">{l.data.enLabel}</span>
-              </h3>
-              <p class="layer__scope">{l.data.scope}</p>
-            </div>
-          </li>
-        ))
-      }
-    </ol>
+    <LayerStack />
   </section>
 
   <!-- 03 Universal SLA strip -->
@@ -96,45 +81,13 @@ const chips = [
   <!-- 04 FAB300 4-phase / 8-gate teaser -->
   <section class="section" id="phases" aria-labelledby="heading-04">
     <SectionHeader index="04" zh="交付節奏" en="DELIVERY RHYTHM" />
-    <ol class="phases">
-      {
-        phases.map((p) => (
-          <li class="phase reveal">
-            <span class="phase__code" aria-hidden="true">
-              {p.data.code}
-            </span>
-            <h3 class="phase__name">{p.data.zhName}</h3>
-            <p class="phase__meta">
-              {p.data.months} · {p.data.gate}
-            </p>
-            <p class="phase__milestone">{p.data.milestone}</p>
-          </li>
-        ))
-      }
-    </ol>
+    <PhaseTimeline />
   </section>
 
   <!-- 05 By the Numbers -->
   <section class="section" id="numbers" aria-labelledby="heading-05">
     <SectionHeader index="05" zh="關鍵數字" en="BY THE NUMBERS" />
-    <div class="numbers">
-      <div class="number reveal">
-        <span class="number__v number__v--gold">GB300</span>
-        <span class="number__l">AI Fabric 算力底座 · GB300 NVL72 + HGX B300 推理節點</span>
-      </div>
-      <div class="number reveal">
-        <span class="number__v">四階段</span>
-        <span class="number__l">建廠 → 裝機 → 試產 → 量產</span>
-      </div>
-      <div class="number reveal">
-        <span class="number__v number__v--clay">≤ 4hr</span>
-        <span class="number__l">DR RTO · RPO ≤15min · 溫備援跨區域</span>
-      </div>
-      <div class="number reveal">
-        <span class="number__v number__v--sage">100%</span>
-        <span class="number__l">跨廠範本歸檔 · 可在每座新廠重複套用</span>
-      </div>
-    </div>
+    <ByTheNumbers />
   </section>
 
   <!-- 06 Compliance cluster + NVIDIA Blackwell / GB300 ecosystem signal -->
@@ -148,33 +101,7 @@ const chips = [
   </section>
 
   <!-- 07 Build vs Buy -->
-  <section class="section" id="build-vs-buy" aria-labelledby="heading-07">
-    <SectionHeader index="07" zh="為何委外，而非自建" en="BUILD VS BUY" />
-    <div class="bvb">
-      <article class="bvb__card reveal">
-        <h3>人才根本招不到</h3>
-        <p class="bvb__en" aria-hidden="true">TALENT SCARCITY</p>
-        <p>
-          懂 SECS-GEM 設備接入、又能整合 GB300 NVL72 液冷 AI Fabric、再對齊 IEC 62443
-          合規底座的複合型工程師，全球供給嚴重不足。
-        </p>
-      </article>
-      <article class="bvb__card reveal">
-        <h3>進度風險壓縮試產窗口</h3>
-        <p class="bvb__en" aria-hidden="true">SCHEDULE RISK</p>
-        <p>
-          自建團隊的學習曲線與人員流動直接轉化為進度延誤；每滑移一個月，都壓縮試產爬坡窗口、拉高良率達成風險。
-        </p>
-      </article>
-      <article class="bvb__card reveal">
-        <h3>沒有鎖定 — 模板 100% 歸您</h3>
-        <p class="bvb__en" aria-hidden="true">NO LOCK-IN</p>
-        <p>
-          每次建置完成後，跨廠複製就緒的整合模板 100% 歸檔移交給您；您掌握知識資產，可在下一座晶圓廠直接複用。
-        </p>
-      </article>
-    </div>
-  </section>
+  <BuildVsBuy />
 
   <!-- 08 ENGAGE -->
   <EngageCTA locale={locale} />
@@ -205,9 +132,14 @@ const chips = [
     font-size: clamp(2.8rem, 9vw, 7rem);
     font-weight: 900;
     margin: 0 0 1.5rem;
+    text-wrap: balance;
   }
   .hero__line {
     display: block;
+  }
+  /* Prevents trailing single glyph orphan on the closing clause */
+  .hero__nowrap {
+    white-space: nowrap;
   }
   .hero__lead {
     max-width: 52ch;
@@ -269,111 +201,6 @@ const chips = [
     line-height: 1.5;
   }
 
-  .layers {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-  }
-  .layer {
-    background: var(--surface);
-    display: flex;
-    gap: 1.5rem;
-    padding: clamp(1.25rem, 3vw, 2rem);
-    align-items: baseline;
-  }
-  .layer__num {
-    font-family: var(--font-mono);
-    font-size: 1.1rem;
-    color: var(--sun);
-    min-width: 2.5rem;
-  }
-  .layer__name {
-    font-size: 1.35rem;
-    margin: 0 0 0.4rem;
-  }
-  .layer__en {
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.1em;
-    color: var(--ink-faint);
-  }
-  .layer__scope {
-    color: var(--ink-muted);
-    margin: 0;
-  }
-
-  .phases {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    gap: 1.5rem;
-    grid-template-columns: 1fr;
-  }
-  @media (min-width: 768px) {
-    .phases {
-      grid-template-columns: repeat(4, 1fr);
-    }
-  }
-  .phase {
-    border-top: 2px solid var(--clay);
-    padding-top: 1.25rem;
-  }
-  .phase__code {
-    font-family: var(--font-mono);
-    color: var(--sun);
-  }
-  .phase__name {
-    font-size: 1.4rem;
-    margin: 0.5rem 0 0.3rem;
-  }
-  .phase__meta {
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    color: var(--ink-faint);
-    margin: 0 0 0.6rem;
-  }
-  .phase__milestone {
-    color: var(--ink-muted);
-    margin: 0;
-  }
-
-  .numbers {
-    display: grid;
-    gap: 2.5rem;
-    grid-template-columns: 1fr;
-  }
-  @media (min-width: 768px) {
-    .numbers {
-      grid-template-columns: repeat(4, 1fr);
-    }
-  }
-  .number__v {
-    display: block;
-    font-family: var(--font-display);
-    font-size: clamp(2.5rem, 6vw, 4rem);
-    font-weight: 900;
-    line-height: 1;
-    margin-bottom: 0.75rem;
-  }
-  .number__v--gold {
-    color: var(--sun);
-  }
-  .number__v--clay {
-    color: var(--clay);
-  }
-  .number__v--sage {
-    color: var(--sage);
-  }
-  .number__l {
-    color: var(--ink-muted);
-    font-size: 0.95rem;
-  }
-
   .ecosystem {
     margin-top: 2rem;
     max-width: 62ch;
@@ -381,36 +208,5 @@ const chips = [
     font-family: var(--font-mono);
     font-size: 0.95rem;
     line-height: 1.7;
-  }
-
-  .bvb {
-    display: grid;
-    gap: 1.5rem;
-    grid-template-columns: 1fr;
-  }
-  @media (min-width: 768px) {
-    .bvb {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-  .bvb__card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: clamp(1.5rem, 3vw, 2.25rem);
-  }
-  .bvb__card h3 {
-    font-size: 1.3rem;
-    margin: 0 0 0.5rem;
-  }
-  .bvb__en {
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.12em;
-    color: var(--sun);
-    margin: 0 0 1rem;
-  }
-  .bvb__card p:last-child {
-    color: var(--ink-muted);
-    margin: 0;
   }
 </style>
