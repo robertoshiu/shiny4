@@ -1,0 +1,172 @@
+---
+/**
+ * TeamFunctionCard — renders one `teams` collection entry (T1–T8).
+ *
+ * Props match teamSchema fields plus an optional tri-accent key.
+ * The parent page (getCollection → sort → map) passes all fields.
+ * accent: clay = resilience/DR · sun = service/performance · sage = governance/coverage
+ */
+interface Props {
+  id: string;          // e.g. "T1"
+  zhName: string;      // e.g. "架構治理"
+  enLabel: string;     // e.g. "ARCHITECTURE & GOVERNANCE"
+  description: string;
+  tags: [string, string, string]; // exactly 3
+  accent?: 'clay' | 'sun' | 'sage';
+}
+
+const { id, zhName, enLabel, description, tags, accent } = Astro.props;
+
+const ACCENT_LABEL: Record<string, string> = {
+  clay: 'RESILIENCE',
+  sun:  'PERFORMANCE',
+  sage: 'COVERAGE',
+};
+---
+
+<article class={`tfc${accent ? ` tfc--${accent}` : ''}`} aria-label={`${id} ${zhName}`}>
+  {/* Top accent stripe is handled via inset box-shadow in CSS */}
+
+  <header class="tfc__header">
+    <span class="tfc__id" aria-label={`Team ${id}`}>{id}</span>
+    {accent && (
+      <span class={`tfc__accent-tag tfc__accent-tag--${accent}`}>
+        {ACCENT_LABEL[accent]}
+      </span>
+    )}
+  </header>
+
+  <h3 class="tfc__zh">{zhName}</h3>
+  <p  class="tfc__en">{enLabel}</p>
+  <p  class="tfc__desc">{description}</p>
+
+  <footer class="tfc__tags" aria-label="功能標籤">
+    {tags.map((tag) => (
+      <span class="tfc__tag">{tag}</span>
+    ))}
+  </footer>
+</article>
+
+<style>
+  /* ── Card shell ── */
+  .tfc {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: clamp(1.5rem, 3vw, 2rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    /* restrained elevation (Direction C) */
+    box-shadow:
+      0 2px 8px rgba(0, 0, 0, 0.28),
+      0 6px 24px rgba(0, 0, 0, 0.2);
+    transition:
+      border-color var(--dur-quick) var(--ease-out),
+      box-shadow   var(--dur-quick) var(--ease-out);
+  }
+
+  /* Inset top accent stripe — same pattern as SlaStrip */
+  .tfc--clay { box-shadow: inset 0 2px 0 var(--clay),  0 2px 8px rgba(0,0,0,.28), 0 6px 24px rgba(0,0,0,.2); }
+  .tfc--sun  { box-shadow: inset 0 2px 0 var(--sun),   0 2px 8px rgba(0,0,0,.28), 0 6px 24px rgba(0,0,0,.2); }
+  .tfc--sage { box-shadow: inset 0 2px 0 var(--sage),  0 2px 8px rgba(0,0,0,.28), 0 6px 24px rgba(0,0,0,.2); }
+
+  .tfc:hover {
+    border-color: var(--border-strong);
+    box-shadow:
+      inset 0 2px 0 transparent,
+      0 4px 16px rgba(0, 0, 0, 0.36),
+      0 12px 40px rgba(0, 0, 0, 0.28);
+  }
+  .tfc--clay:hover { box-shadow: inset 0 2px 0 var(--clay), 0 4px 16px rgba(0,0,0,.36), 0 12px 40px rgba(0,0,0,.28); }
+  .tfc--sun:hover  { box-shadow: inset 0 2px 0 var(--sun),  0 4px 16px rgba(0,0,0,.36), 0 12px 40px rgba(0,0,0,.28); }
+  .tfc--sage:hover { box-shadow: inset 0 2px 0 var(--sage), 0 4px 16px rgba(0,0,0,.36), 0 12px 40px rgba(0,0,0,.28); }
+
+  /* ── Header row: mono ID + optional accent badge ── */
+  .tfc__header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .tfc__id {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    color: var(--ink-faint);
+  }
+
+  /* Accent tag — mirrors LayerStack pattern */
+  .tfc__accent-tag {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    font-weight: 600;
+    padding: 0.15em 0.5em;
+    border-radius: 2px;
+    border: 1px solid;
+  }
+  .tfc__accent-tag--clay {
+    color: var(--clay);
+    border-color: color-mix(in srgb, var(--clay) 40%, transparent);
+    background: color-mix(in srgb, var(--clay) 8%, transparent);
+  }
+  .tfc__accent-tag--sun {
+    color: var(--sun);
+    border-color: color-mix(in srgb, var(--sun) 40%, transparent);
+    background: color-mix(in srgb, var(--sun) 8%, transparent);
+  }
+  .tfc__accent-tag--sage {
+    color: var(--sage);
+    border-color: color-mix(in srgb, var(--sage) 40%, transparent);
+    background: color-mix(in srgb, var(--sage) 8%, transparent);
+  }
+
+  /* ── Chinese name — editorial display ── */
+  .tfc__zh {
+    font-size: clamp(1.25rem, 3vw, 1.6rem);
+    font-weight: 600;
+    line-height: 1.15;
+    margin: 0;
+    color: var(--ink);
+  }
+
+  /* ── EN label — mono sub-heading ── */
+  .tfc__en {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    color: var(--ink-muted);
+    margin: 0;
+  }
+
+  /* ── Description ── */
+  .tfc__desc {
+    font-size: 0.88rem;
+    color: var(--ink-muted);
+    line-height: 1.6;
+    margin: 0.25rem 0 0;
+    flex: 1; /* push tags to bottom when cards share a row height */
+  }
+
+  /* ── Tags row ── */
+  .tfc__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-top: 0.75rem;
+  }
+
+  .tfc__tag {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+    padding: 0.2em 0.6em;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: var(--bg-deep);
+    white-space: nowrap;
+  }
+</style>

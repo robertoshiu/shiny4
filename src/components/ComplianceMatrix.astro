@@ -1,0 +1,342 @@
+---
+/**
+ * ComplianceMatrix — five-standard compliance matrix for technology page §07 and methodology FIG.04.
+ * Richer than ComplianceBadges: shows definition, domain, and scope for each standard.
+ * Tri-accent: all five standards map to sage (coverage / governance / archive).
+ * Summary statement sourced verbatim from content-inventory.md §07.
+ */
+import { getCollection } from 'astro:content';
+
+const standards = (await getCollection('compliance')).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+
+// Domain → accent mapping.
+// All compliance standards represent coverage/archive/governance → sage.
+// Sub-labels distinguish OT, cryptographic, and enterprise-integration scope.
+const DOMAIN_LABEL: Record<string, string> = {
+  'OT':       'OT COVERAGE',
+  'OT / 設備': 'OT COVERAGE',
+  'IT / 合規': 'GOVERNANCE',
+  '合規':      'GOVERNANCE',
+  'IT / OT':  'GOVERNANCE',
+};
+---
+
+<section class="cm" aria-label="合規基準矩陣">
+  {/* Ambient HUD coordinate — decoration only */}
+  <span class="cm__hud" aria-hidden="true">X:0720&nbsp;Y:GOV</span>
+
+  <div class="cm__table-wrap" role="region" aria-label="五項合規標準">
+    <table class="cm__table">
+      <caption class="cm__caption">
+        五項合規標準 · FIVE COMPLIANCE STANDARDS
+      </caption>
+
+      <thead>
+        <tr>
+          <th class="cm__th cm__th--idx" scope="col" aria-label="序號">#</th>
+          <th class="cm__th cm__th--name" scope="col">標準</th>
+          <th class="cm__th cm__th--full" scope="col">全名</th>
+          <th class="cm__th cm__th--domain" scope="col">領域</th>
+          <th class="cm__th cm__th--def" scope="col">定義與範圍</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {standards.map((s) => {
+          const domainLabel = DOMAIN_LABEL[s.data.domain] ?? 'COVERAGE';
+          return (
+            <tr class="cm__row">
+              {/* Left accent rail rendered via ::before on <tr> */}
+              <td class="cm__td cm__td--idx" aria-hidden="true">
+                {String(s.data.order).padStart(2, '0')}
+              </td>
+
+              <td class="cm__td cm__td--name">
+                <span class="cm__name">{s.data.name}</span>
+              </td>
+
+              <td class="cm__td cm__td--full">
+                <span class="cm__full">{s.data.fullName}</span>
+              </td>
+
+              <td class="cm__td cm__td--domain">
+                {/* Sage accent badge with text label — required by tri-accent rule */}
+                <span class="cm__domain-badge" aria-label={`領域：${s.data.domain} · ${domainLabel}`}>
+                  <span class="cm__domain-dot" aria-hidden="true" />
+                  <span class="cm__domain-zh">{s.data.domain}</span>
+                  <span class="cm__domain-label" aria-hidden="true">{domainLabel}</span>
+                </span>
+              </td>
+
+              <td class="cm__td cm__td--def">
+                <p class="cm__def">{s.data.definition}</p>
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+
+      <tfoot>
+        <tr class="cm__footer-row">
+          <td class="cm__footer-cell" colspan="5">
+            <span class="cm__footer-label" aria-hidden="true">COMPLIANCE NOTE</span>
+            <span class="cm__footer-text">
+              所有架構層均對齊以上五項標準；合規文件於 8 道 Gate 逐階驗證。
+            </span>
+            {/* Sage accent marker — tri-accent system requires text label when color is used */}
+            <span class="cm__footer-badge">
+              <span class="cm__footer-dot" aria-hidden="true" />
+              COVERAGE
+            </span>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</section>
+
+<style>
+  /* ── Section wrapper ── */
+  .cm {
+    position: relative;
+  }
+
+  /* ── Ambient HUD coordinate (decoration only) ── */
+  .cm__hud {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    color: var(--ink-faint);
+    opacity: 0.45;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  /* ── Scroll wrapper for narrow viewports ── */
+  .cm__table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--border-strong);
+    border-radius: 2px;
+  }
+
+  /* ── Table base ── */
+  .cm__table {
+    width: 100%;
+    min-width: 660px;
+    border-collapse: collapse;
+    background: var(--surface);
+    table-layout: fixed;
+  }
+
+  /* Hidden caption for accessibility */
+  .cm__caption {
+    caption-side: top;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    color: var(--sage);
+    text-align: left;
+    padding: 0.9rem 1.25rem 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── Column widths ── */
+  .cm__th--idx    { width: 3rem; }
+  .cm__th--name   { width: 9rem; }
+  .cm__th--full   { width: 16rem; }
+  .cm__th--domain { width: 12rem; }
+  .cm__th--def    { /* remaining */ }
+
+  /* ── Header ── */
+  .cm__th {
+    padding: 0.65rem 1.1rem;
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.14em;
+    font-weight: 600;
+    color: var(--ink-muted);
+    text-align: left;
+    border-bottom: 1px solid var(--border-strong);
+    white-space: nowrap;
+    background: var(--surface);
+  }
+  .cm__th--idx { text-align: center; }
+
+  /* ── Body rows ── */
+  .cm__row {
+    position: relative;
+    border-bottom: 1px solid var(--border);
+    transition:
+      background var(--dur-instant) var(--ease-out);
+  }
+  .cm__row:last-child {
+    border-bottom: none;
+  }
+  .cm__row:hover {
+    background: var(--surface-raised);
+  }
+
+  /* Left accent rail — sage (coverage/governance) */
+  .cm__row::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: transparent;
+    transition: background var(--dur-quick) var(--ease-out);
+  }
+  .cm__row:hover::before {
+    background: var(--sage);
+  }
+
+  /* ── Cells ── */
+  .cm__td {
+    padding: 1rem 1.1rem;
+    vertical-align: top;
+  }
+  .cm__td--idx {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.08em;
+    text-align: center;
+    padding-top: 1.1rem;
+  }
+
+  /* Standard code — primary identifier */
+  .cm__name {
+    display: block;
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+
+  /* Full name */
+  .cm__full {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--ink-muted);
+    line-height: 1.5;
+    letter-spacing: 0.02em;
+  }
+
+  /* Domain badge */
+  .cm__domain-badge {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  .cm__domain-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--sage);
+    flex-shrink: 0;
+  }
+  .cm__domain-zh {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--sage);
+    letter-spacing: 0.04em;
+  }
+  .cm__domain-label {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    color: var(--sage);
+    opacity: 0.65;
+    font-weight: 600;
+    padding: 0.12em 0.4em;
+    border: 1px solid color-mix(in srgb, var(--sage) 30%, transparent);
+    border-radius: 2px;
+    background: color-mix(in srgb, var(--sage) 7%, transparent);
+    display: inline-block;
+    white-space: nowrap;
+  }
+
+  /* Definition text */
+  .cm__def {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--ink-muted);
+    line-height: 1.65;
+  }
+
+  /* ── Footer summary row ── */
+  .cm__footer-row {
+    background: var(--bg-deep);
+  }
+  .cm__footer-cell {
+    padding: 0.85rem 1.1rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.65rem;
+    border-top: 1px solid var(--border-strong);
+  }
+  .cm__footer-label {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    color: var(--ink-faint);
+    flex-shrink: 0;
+  }
+  .cm__footer-text {
+    font-size: 0.8rem;
+    color: var(--ink-muted);
+    line-height: 1.5;
+    flex: 1 1 auto;
+  }
+  .cm__footer-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    font-weight: 600;
+    color: var(--sage);
+    padding: 0.15em 0.55em;
+    border: 1px solid color-mix(in srgb, var(--sage) 35%, transparent);
+    border-radius: 2px;
+    background: color-mix(in srgb, var(--sage) 7%, transparent);
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .cm__footer-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--sage);
+  }
+
+  /* ── Responsive: stack domain badge on small screens ── */
+  @media (max-width: 600px) {
+    .cm__th--full,
+    .cm__td--full {
+      display: none;
+    }
+    .cm__th--domain { width: 8rem; }
+  }
+
+  /* ── Reduced motion: no transitions ── */
+  @media (prefers-reduced-motion: reduce) {
+    .cm__row,
+    .cm__row::before {
+      transition: none;
+    }
+  }
+</style>

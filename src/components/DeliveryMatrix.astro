@@ -1,0 +1,317 @@
+---
+import { getCollection } from 'astro:content';
+
+const rows = (await getCollection('deliveryMatrix')).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+const phases = (await getCollection('phases')).sort((a, b) => a.data.order - b.data.order);
+
+// Tri-accent mapping (locked semantic system — clay/sun/sage with text labels)
+// clay = resilience/DR · sun = service/performance · sage = coverage/governance
+const ROW_ACCENT: Record<number, { accent: 'clay' | 'sun' | 'sage'; label: string }> = {
+  2: { accent: 'sun',  label: 'SERVICE' },   // 平台軟體 — SLO 監控
+  4: { accent: 'clay', label: 'RESILIENCE' }, // 異地備援DR
+  5: { accent: 'sage', label: 'COVERAGE' },   // 資訊安全OT/IT — compliance gates
+};
+
+const PHASE_CELL = ['p1', 'p2', 'p3', 'p4'] as const;
+---
+
+<div class="dm-wrap">
+  <!-- mobile scroll hint: fade edge visible on overflow -->
+  <div class="dm-scroll" role="region" aria-label="交付里程碑矩陣" tabindex="0">
+    <table class="dm-table">
+      <thead>
+        <tr>
+          <th class="dm-th dm-th--cat" scope="col">
+            <span class="dm-th__label">交付項目</span>
+          </th>
+          {phases.map((ph) => (
+            <th class="dm-th dm-th--phase" scope="col" data-phase={ph.data.code}>
+              <span class="dm-th__code">{ph.data.code}</span>
+              <span class="dm-th__zh">{ph.data.zhName}</span>
+              <span class="dm-th__months">{ph.data.months}</span>
+              <span class="dm-th__gate">{ph.data.gate}</span>
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row) => {
+          const meta = ROW_ACCENT[row.data.order] ?? null;
+          return (
+            <tr class={`dm-row${meta ? ` dm-row--${meta.accent}` : ''}`}>
+              <th class="dm-cat" scope="row">
+                <span class="dm-cat__idx">
+                  {String(row.data.order).padStart(2, '0')}
+                </span>
+                <span class="dm-cat__name">{row.data.category}</span>
+                {meta && (
+                  <span class={`dm-tag dm-tag--${meta.accent}`}>{meta.label}</span>
+                )}
+              </th>
+              {PHASE_CELL.map((key) => (
+                <td class="dm-cell">{row.data[key]}</td>
+              ))}
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<style>
+  /* ── Outer wrapper: positions the fade overlay ── */
+  .dm-wrap {
+    position: relative;
+  }
+
+  /* Mobile scroll-fade: right edge feather */
+  .dm-wrap::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 3rem;
+    background: linear-gradient(to right, transparent, var(--bg));
+    pointer-events: none;
+    /* Hide once fully scrolled; JS-free — acceptable on first render */
+    z-index: 2;
+  }
+  @media (min-width: 900px) {
+    .dm-wrap::after {
+      display: none;
+    }
+  }
+
+  /* ── Scroll container ── */
+  .dm-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
+  }
+  .dm-scroll::-webkit-scrollbar {
+    height: 4px;
+  }
+  .dm-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .dm-scroll::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 2px;
+  }
+
+  /* ── Table core ── */
+  .dm-table {
+    width: 100%;
+    min-width: 640px;
+    border-collapse: collapse;
+    font-size: clamp(0.78rem, 1.5vw, 0.875rem);
+    table-layout: fixed;
+  }
+
+  /* ── Phase header cells ── */
+  .dm-th {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border-strong);
+    padding: 0.85rem 1rem;
+    text-align: left;
+    vertical-align: bottom;
+    white-space: nowrap;
+  }
+
+  .dm-th--cat {
+    width: 28%;
+    /* Sticky left on mobile */
+    position: sticky;
+    left: 0;
+    z-index: 3;
+    background: var(--surface);
+    box-shadow: 1px 0 0 var(--border);
+  }
+
+  .dm-th--phase {
+    width: 18%;
+    border-left: 1px solid var(--border);
+  }
+
+  .dm-th__label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    color: var(--ink-faint);
+    display: block;
+  }
+
+  /* Phase column header layout */
+  .dm-th__code {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    color: var(--ink-faint);
+    margin-bottom: 0.2rem;
+  }
+  .dm-th__zh {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+  }
+  .dm-th__months {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--ink-muted);
+    margin-top: 0.2rem;
+    letter-spacing: 0.06em;
+  }
+  .dm-th__gate {
+    display: inline-block;
+    margin-top: 0.45rem;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    color: var(--sun);
+    border: 1px solid color-mix(in srgb, var(--sun) 35%, transparent);
+    background: color-mix(in srgb, var(--sun) 6%, transparent);
+    padding: 0.1em 0.45em;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+
+  /* ── Data rows ── */
+  .dm-row {
+    border-bottom: 1px solid var(--border);
+    transition: background var(--dur-instant) var(--ease-out);
+  }
+  .dm-row:hover {
+    background: color-mix(in srgb, var(--ink) 3%, transparent);
+  }
+  .dm-row:last-child {
+    border-bottom: none;
+  }
+
+  /* Accent left stripe (2px inset on category cell) */
+  .dm-row--clay .dm-cat { box-shadow: inset 3px 0 0 var(--clay); }
+  .dm-row--sun  .dm-cat { box-shadow: inset 3px 0 0 var(--sun);  }
+  .dm-row--sage .dm-cat { box-shadow: inset 3px 0 0 var(--sage); }
+
+  /* ── Category (sticky row header) ── */
+  .dm-cat {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: var(--bg-deep);
+    padding: 0.75rem 1rem;
+    vertical-align: middle;
+    border-right: 1px solid var(--border);
+    /* Inherit parent background when row is hovered */
+    transition: background var(--dur-instant) var(--ease-out);
+  }
+  .dm-row:hover .dm-cat {
+    background: color-mix(in srgb, var(--bg-deep) 90%, var(--ink) 3%);
+  }
+
+  .dm-cat__idx {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+    line-height: 1;
+    margin-bottom: 0.2rem;
+  }
+  .dm-cat__name {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+
+  /* Accent semantic tag */
+  .dm-tag {
+    display: inline-block;
+    margin-top: 0.35rem;
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.14em;
+    font-weight: 600;
+    padding: 0.12em 0.45em;
+    border-radius: 2px;
+    border: 1px solid;
+    line-height: 1.4;
+  }
+  .dm-tag--clay {
+    color: var(--clay);
+    border-color: color-mix(in srgb, var(--clay) 40%, transparent);
+    background: color-mix(in srgb, var(--clay) 8%, transparent);
+  }
+  .dm-tag--sun {
+    color: var(--sun);
+    border-color: color-mix(in srgb, var(--sun) 40%, transparent);
+    background: color-mix(in srgb, var(--sun) 8%, transparent);
+  }
+  .dm-tag--sage {
+    color: var(--sage);
+    border-color: color-mix(in srgb, var(--sage) 40%, transparent);
+    background: color-mix(in srgb, var(--sage) 8%, transparent);
+  }
+
+  /* ── Data cells ── */
+  .dm-cell {
+    padding: 0.75rem 1rem;
+    vertical-align: middle;
+    border-left: 1px solid var(--border);
+    color: var(--ink-muted);
+    font-size: 0.82rem;
+    line-height: 1.4;
+    /* Prevent runaway wrapping in narrow columns */
+    word-break: break-word;
+    hyphens: auto;
+  }
+  /* Subtly distinguish alternating rows without heavy banding */
+  .dm-row:nth-child(even) .dm-cell {
+    background: color-mix(in srgb, var(--surface) 40%, transparent);
+  }
+  .dm-row:nth-child(even) .dm-cat {
+    background: color-mix(in srgb, var(--bg-deep) 90%, var(--surface) 10%);
+  }
+
+  /* Accent row: elevate cell text slightly */
+  .dm-row--clay .dm-cell,
+  .dm-row--sun  .dm-cell,
+  .dm-row--sage .dm-cell {
+    color: var(--ink);
+  }
+
+  /* ── Outer border on the whole table ── */
+  .dm-table,
+  .dm-th,
+  .dm-cat,
+  .dm-cell {
+    /* hairline approach: rely on border-collapse + individual cell borders */
+  }
+  .dm-scroll {
+    border: 1px solid var(--border-strong);
+    box-shadow:
+      0 2px 8px rgba(0, 0, 0, 0.3),
+      0 8px 32px rgba(0, 0, 0, 0.2);
+  }
+
+  /* ── Responsive: reduce padding on very small screens ── */
+  @media (max-width: 480px) {
+    .dm-th,
+    .dm-cat,
+    .dm-cell {
+      padding-left: 0.65rem;
+      padding-right: 0.65rem;
+    }
+  }
+</style>

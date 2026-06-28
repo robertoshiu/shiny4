@@ -1,0 +1,322 @@
+---
+import { getCollection } from 'astro:content';
+
+/**
+ * HardwareTable — FAB300 reference hardware configuration table.
+ *
+ * Renders the five core hardware items from the techComponents collection
+ * (GB300 NVL72 / HGX B300 / Quantum-X800 / Spectrum-X SN5600 / NVMe Lake)
+ * with exact specs and the liquid-cooling callout.
+ *
+ * Tri-accent (locked):
+ *   clay  = resilience / DR  → HGX B300 (DR/edge inference backup role)
+ *   sun   = performance      → GB300 NVL72, NVMe Lake
+ *   sage  = coverage/fabric  → Quantum-X800, Spectrum-X SN5600
+ */
+
+const TARGET_IDS = [
+  'GB300-NVL72',
+  'HGX-B300',
+  'Quantum-X800',
+  'Spectrum-X-SN5600',
+  'NVMe-Lake',
+] as const;
+type TargetId = (typeof TARGET_IDS)[number];
+
+const ORDER: Record<string, number> = Object.fromEntries(
+  TARGET_IDS.map((id, i) => [id, i]),
+);
+
+const all = await getCollection('techComponents');
+const rows = all
+  .filter((c) => (TARGET_IDS as readonly string[]).includes(c.data.id))
+  .sort((a, b) => ORDER[a.data.id] - ORDER[b.data.id]);
+
+const ACCENT: Record<string, 'clay' | 'sun' | 'sage'> = {
+  'GB300-NVL72':       'sun',   // primary AI compute — performance
+  'HGX-B300':          'clay',  // edge + DR inference reserve — resilience
+  'Quantum-X800':      'sage',  // AI fabric interconnect — coverage
+  'Spectrum-X-SN5600': 'sage',  // production/OT network — coverage
+  'NVMe-Lake':         'sun',   // high-speed storage — performance
+};
+
+const ACCENT_LABEL: Record<string, string> = {
+  clay: 'RESILIENCE',
+  sun:  'PERFORMANCE',
+  sage: 'COVERAGE',
+};
+
+const DOMAIN_ZH: Record<string, string> = {
+  compute: '算力',
+  network: '網絡',
+  'data-AI': '數據·AI',
+  MES: 'MES',
+  security: '資安',
+  DR: '備援',
+};
+
+const liquidCoolRow = rows.find((r) => r.data.id === 'GB300-NVL72');
+const liquidCoolNote = liquidCoolRow?.data.note;
+---
+
+<div class="hw-wrap">
+  <div class="hw-scroll" role="region" aria-label="硬體配置規格表，可橫向捲動">
+    <table class="hw-table" aria-label="FAB300 硬體配置規格表">
+      <thead>
+        <tr>
+          <th scope="col" class="hw-th hw-th--component">
+            <span class="hw-th__zh">硬體</span>
+            <span class="hw-th__en">HARDWARE</span>
+          </th>
+          <th scope="col" class="hw-th hw-th--domain">
+            <span class="hw-th__zh">類型</span>
+            <span class="hw-th__en">DOMAIN</span>
+          </th>
+          <th scope="col" class="hw-th hw-th--spec">
+            <span class="hw-th__zh">規格</span>
+            <span class="hw-th__en">SPEC</span>
+          </th>
+          <th scope="col" class="hw-th hw-th--tag">
+            <span class="hw-th__zh">角色</span>
+            <span class="hw-th__en">ROLE</span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          rows.map((row) => {
+            const accent = ACCENT[row.data.id] ?? 'sun';
+            return (
+              <tr class={`hw-tr hw-tr--${accent}`}>
+                {/* Hardware name */}
+                <td class="hw-td hw-td--component">
+                  <span class="hw-name">{row.data.zhName}</span>
+                </td>
+
+                {/* Domain label */}
+                <td class="hw-td hw-td--domain">
+                  <span class="hw-domain">
+                    {DOMAIN_ZH[row.data.domain] ?? row.data.domain}
+                  </span>
+                </td>
+
+                {/* Spec — mono, verbatim from collection */}
+                <td class="hw-td hw-td--spec">
+                  <span class="hw-spec">{row.data.spec}</span>
+                </td>
+
+                {/* Semantic accent tag */}
+                <td class="hw-td hw-td--tag">
+                  <span class={`hw-tag hw-tag--${accent}`}>
+                    {ACCENT_LABEL[accent]}
+                  </span>
+                </td>
+              </tr>
+            );
+          })
+        }
+      </tbody>
+    </table>
+  </div>
+
+  {/* Liquid-cooling callout — from GB300 NVL72 note field */}
+  {
+    liquidCoolNote && (
+      <aside class="hw-liquid-note" role="note" aria-label="液冷要求說明">
+        <span class="hw-liquid-note__badge" aria-hidden="true">液冷</span>
+        <p class="hw-liquid-note__text">{liquidCoolNote}</p>
+      </aside>
+    )
+  }
+</div>
+
+<style>
+  /* ── Outer wrapper ── */
+  .hw-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* ── Horizontal scroll container (mobile) ── */
+  .hw-scroll {
+    overflow-x: auto;
+    /* Thin warm scrollbar on Webkit */
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
+  }
+  .hw-scroll::-webkit-scrollbar {
+    height: 4px;
+  }
+  .hw-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .hw-scroll::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 2px;
+  }
+
+  /* ── Table ── */
+  .hw-table {
+    width: 100%;
+    min-width: 640px;
+    border-collapse: collapse;
+    /* Outer frame uses the standard border token */
+    border: 1px solid var(--border);
+    background: var(--surface);
+    /* C3 restrained elevation */
+    box-shadow:
+      0 2px 8px rgba(0, 0, 0, 0.28),
+      0 8px 32px rgba(0, 0, 0, 0.22);
+  }
+
+  /* ── Header row ── */
+  .hw-th {
+    padding: 0.75rem 1.25rem;
+    text-align: left;
+    vertical-align: bottom;
+    border-bottom: 1px solid var(--border-strong);
+    background: var(--bg-deep);
+    white-space: nowrap;
+  }
+  .hw-th__zh {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+  .hw-th__en {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    color: var(--ink-faint);
+    margin-top: 0.15rem;
+  }
+
+  /* Column widths (relative) */
+  .hw-th--component { width: 20%; }
+  .hw-th--domain    { width: 10%; }
+  .hw-th--spec      { width: 52%; }
+  .hw-th--tag       { width: 18%; }
+
+  /* ── Data rows ── */
+  .hw-tr {
+    border-bottom: 1px solid var(--border);
+    transition: background var(--dur-instant) var(--ease-out);
+  }
+  .hw-tr:last-child {
+    border-bottom: none;
+  }
+  .hw-tr:hover {
+    background: var(--surface-raised);
+  }
+
+  /* Left accent stripe — 2 px inset on the left edge of first cell */
+  .hw-tr--clay .hw-td--component { box-shadow: inset 3px 0 0 var(--clay); }
+  .hw-tr--sun  .hw-td--component { box-shadow: inset 3px 0 0 var(--sun);  }
+  .hw-tr--sage .hw-td--component { box-shadow: inset 3px 0 0 var(--sage); }
+
+  /* ── Data cells ── */
+  .hw-td {
+    padding: 1rem 1.25rem;
+    vertical-align: top;
+  }
+
+  /* Hardware name — display weight */
+  .hw-name {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+
+  /* Domain pill — subtle, muted */
+  .hw-domain {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    color: var(--ink-muted);
+    background: var(--bg-deep);
+    border: 1px solid var(--border);
+    padding: 0.2em 0.5em;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+
+  /* Spec value — mono, warm ink */
+  .hw-spec {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--ink-muted);
+    line-height: 1.55;
+    /* Middle-dot separator rendered naturally from data */
+  }
+
+  /* Tri-accent semantic tag */
+  .hw-tag {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.63rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    padding: 0.2em 0.6em;
+    border-radius: 2px;
+    border: 1px solid;
+    white-space: nowrap;
+  }
+  .hw-tag--clay {
+    color: var(--clay);
+    border-color: color-mix(in srgb, var(--clay) 40%, transparent);
+    background:   color-mix(in srgb, var(--clay) 8%, transparent);
+  }
+  .hw-tag--sun {
+    color: var(--sun);
+    border-color: color-mix(in srgb, var(--sun) 40%, transparent);
+    background:   color-mix(in srgb, var(--sun) 8%, transparent);
+  }
+  .hw-tag--sage {
+    color: var(--sage);
+    border-color: color-mix(in srgb, var(--sage) 40%, transparent);
+    background:   color-mix(in srgb, var(--sage) 8%, transparent);
+  }
+
+  /* ── Liquid-cooling callout ── */
+  .hw-liquid-note {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding: 0.9rem 1.25rem;
+    background: color-mix(in srgb, var(--clay) 6%, var(--surface));
+    border: 1px solid color-mix(in srgb, var(--clay) 22%, transparent);
+    border-top: none;          /* flush under table */
+    /* subtle left stripe to signal the clay/resilience domain */
+    box-shadow: inset 3px 0 0 var(--clay);
+  }
+
+  .hw-liquid-note__badge {
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: var(--clay);
+    background: color-mix(in srgb, var(--clay) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--clay) 35%, transparent);
+    padding: 0.2em 0.55em;
+    border-radius: 2px;
+  }
+
+  .hw-liquid-note__text {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--ink-muted);
+    line-height: 1.5;
+  }
+</style>

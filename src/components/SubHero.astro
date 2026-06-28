@@ -1,0 +1,358 @@
+---
+/**
+ * SubHero — lighter sub-page hero used by all 6 sub-pages.
+ *
+ * Props:
+ *   eyebrow   — mono all-caps label above the title
+ *   zhTitle   — large Fraunces display title (繁中)
+ *   enLabel   — mono sub-heading below the title
+ *   lede      — optional short body paragraph
+ *   stats     — optional inline stat strip (max 4); each has value/label/sub?/accent?
+ *   ctas      — optional 1–2 call-to-action buttons
+ *
+ * Visual: static molten accent SVG (rings + dot-matrix), never WebGL.
+ * Tri-accent tokens: clay=resilience/DR · sun=performance · sage=coverage/governance.
+ * Every accent color is accompanied by a text label (non-negotiable per DESIGN.md).
+ */
+
+import CTAButton from './CTAButton.astro';
+import HudCoordinate from './HudCoordinate.astro';
+
+interface Stat {
+  value: string;
+  label: string;
+  sub?: string;
+  /** Tri-accent semantic tag — MUST include text label (rendered automatically). */
+  accent?: 'clay' | 'sun' | 'sage';
+}
+
+interface CTA {
+  href: string;
+  label: string;
+  variant?: 'clay' | 'ghost';
+}
+
+interface Props {
+  eyebrow: string;
+  zhTitle: string;
+  enLabel: string;
+  lede?: string;
+  stats?: Stat[];
+  ctas?: CTA[];
+}
+
+const { eyebrow, zhTitle, enLabel, lede, stats, ctas } = Astro.props;
+
+// Semantic text labels for tri-accent tags (text always accompanies color)
+const ACCENT_LABEL: Record<string, string> = {
+  clay: 'RESILIENCE',
+  sun:  'PERFORMANCE',
+  sage: 'COVERAGE',
+};
+---
+
+<section class="sub-hero" aria-label={zhTitle}>
+  {/* — Static molten SVG accent — restrained sub-page version of HeroPoster — */}
+  <div class="sub-hero__poster" aria-hidden="true">
+    <svg
+      class="sub-hero__svg"
+      viewBox="0 0 960 480"
+      preserveAspectRatio="xMaxYMid slice"
+      role="presentation"
+    >
+      <defs>
+        {/* Ember bloom — toned down vs. main hero */}
+        <radialGradient id="sh-emberGrad" cx="78%" cy="50%" r="55%">
+          <stop offset="0%"   stop-color="#E9C46A" stop-opacity="0.09" />
+          <stop offset="38%"  stop-color="#E07A5F" stop-opacity="0.10" />
+          <stop offset="100%" stop-color="#14100D" stop-opacity="0" />
+        </radialGradient>
+
+        {/* Dot-matrix tile — same gold as HeroPoster, lower opacity for sub-hero scale */}
+        <pattern id="sh-dotMatrix" width="34" height="34" patternUnits="userSpaceOnUse">
+          <circle cx="2" cy="2" r="1.3" fill="#E9C46A" fill-opacity="0.14" />
+        </pattern>
+
+        {/* Diagonal fade: denser at right edge (where rings live), sparse toward text */}
+        <linearGradient id="sh-dotFade" x1="0%" y1="50%" x2="100%" y2="50%">
+          <stop offset="0%"   stop-color="white" stop-opacity="0.04" />
+          <stop offset="60%"  stop-color="white" stop-opacity="0.55" />
+          <stop offset="100%" stop-color="white" stop-opacity="0.80" />
+        </linearGradient>
+        <mask id="sh-dotFadeMask">
+          <rect width="960" height="480" fill="url(#sh-dotFade)" />
+        </mask>
+
+        {/* Soft ring-glow filter */}
+        <filter id="sh-ringGlow" x="-14%" y="-14%" width="128%" height="128%">
+          <feGaussianBlur stdDeviation="1.4" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+
+      {/* Base fill */}
+      <rect width="960" height="480" fill="#14100D" />
+
+      {/* Dot-matrix with directional fade */}
+      <rect width="960" height="480" fill="url(#sh-dotMatrix)" mask="url(#sh-dotFadeMask)" />
+
+      {/* Ember bloom anchored right-center */}
+      <circle cx="810" cy="240" r="280" fill="url(#sh-emberGrad)" />
+
+      {/* Diffraction rings — 3 rings (vs 5 in full hero), right-anchored */}
+      <g fill="none" filter="url(#sh-ringGlow)">
+        <circle cx="810" cy="240" r="64"  stroke="#E9C46A" stroke-opacity="0.10" stroke-width="0.7" />
+        <circle cx="810" cy="240" r="128" stroke="#E9C46A" stroke-opacity="0.16" stroke-width="1.0" />
+        <circle cx="810" cy="240" r="208" stroke="#E07A5F" stroke-opacity="0.11" stroke-width="0.8" />
+        <circle cx="810" cy="240" r="300" stroke="#E07A5F" stroke-opacity="0.06" stroke-width="0.7" />
+      </g>
+    </svg>
+
+    <span class="sub-hero__hud-coord">
+      <HudCoordinate text="X:0810 Y:0240 [SECTION]" />
+    </span>
+  </div>
+
+  {/* — Text content — */}
+  <div class="sub-hero__inner">
+    <div class="sub-hero__content">
+      <p class="sub-hero__eyebrow" aria-hidden="true">{eyebrow}</p>
+
+      <h1 class="sub-hero__title">{zhTitle}</h1>
+
+      <p class="sub-hero__en-label" aria-hidden="true">{enLabel}</p>
+
+      {lede && <p class="sub-hero__lede">{lede}</p>}
+
+      {stats && stats.length > 0 && (
+        <div class="sub-hero__stats" role="list" aria-label="關鍵指標">
+          {stats.map((s) => (
+            <div class={`sub-hero__stat${s.accent ? ` sub-hero__stat--${s.accent}` : ''}`} role="listitem">
+              <span class="sub-hero__stat-value">{s.value}</span>
+              <span class="sub-hero__stat-label">{s.label}</span>
+              {s.sub && <span class="sub-hero__stat-sub">{s.sub}</span>}
+              {s.accent && (
+                <span class={`sub-hero__accent-tag sub-hero__accent-tag--${s.accent}`}>
+                  {ACCENT_LABEL[s.accent]}
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {ctas && ctas.length > 0 && (
+        <div class="sub-hero__ctas">
+          {ctas.map((c) => (
+            <CTAButton variant={c.variant ?? 'clay'} href={c.href} label={c.label} />
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ── Wrapper ── */
+  .sub-hero {
+    position: relative;
+    background: var(--bg);
+    min-height: clamp(280px, 42vh, 480px);
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── Poster: full-bleed static SVG backdrop ── */
+  .sub-hero__poster {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  .sub-hero__svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .sub-hero__hud-coord {
+    position: absolute;
+    right: clamp(1rem, 4vw, 4rem);
+    bottom: clamp(0.75rem, 2vw, 1.5rem);
+  }
+
+  /* ── Inner layout ── */
+  .sub-hero__inner {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: clamp(2.5rem, 7vw, 5rem) var(--gutter);
+  }
+
+  .sub-hero__content {
+    max-width: 52ch;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* ── Eyebrow ── */
+  .sub-hero__eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    color: var(--sun);
+    text-transform: uppercase;
+    margin: 0 0 1rem;
+  }
+
+  /* ── Title (Fraunces display) ── */
+  .sub-hero__title {
+    font-family: var(--font-display);
+    font-size: clamp(2.4rem, 7vw, 4.8rem);
+    font-weight: 600;
+    line-height: 1.05;
+    color: var(--ink);
+    margin: 0;
+    /* Optical-size axis if supported */
+    font-variation-settings: 'opsz' 72;
+  }
+
+  /* ── EN label ── */
+  .sub-hero__en-label {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.16em;
+    color: var(--ink-muted);
+    margin: 0.65rem 0 0;
+  }
+
+  /* ── Lede ── */
+  .sub-hero__lede {
+    font-family: var(--font-body);
+    font-size: clamp(1rem, 2.2vw, 1.1rem);
+    line-height: 1.65;
+    color: var(--ink-muted);
+    margin: 1.25rem 0 0;
+    max-width: 48ch;
+  }
+
+  /* ── Stat strip ── */
+  .sub-hero__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    margin-top: 2rem;
+    border: 1px solid var(--border);
+    background: color-mix(in srgb, var(--surface) 70%, transparent);
+    /* Frosted surface so text remains readable over SVG */
+    backdrop-filter: blur(4px);
+  }
+
+  .sub-hero__stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: clamp(1rem, 3vw, 1.5rem) clamp(1rem, 3vw, 1.75rem);
+    border-right: 1px solid var(--border);
+    position: relative;
+  }
+  .sub-hero__stat:last-child {
+    border-right: none;
+  }
+
+  /* Inset top-hairline accent per stat */
+  .sub-hero__stat--clay { box-shadow: inset 0 2px 0 var(--clay); }
+  .sub-hero__stat--sun  { box-shadow: inset 0 2px 0 var(--sun);  }
+  .sub-hero__stat--sage { box-shadow: inset 0 2px 0 var(--sage); }
+
+  .sub-hero__stat-value {
+    font-family: var(--font-mono);
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    font-weight: 500;
+    line-height: 1;
+  }
+  .sub-hero__stat--clay .sub-hero__stat-value { color: var(--clay); }
+  .sub-hero__stat--sun  .sub-hero__stat-value { color: var(--sun);  }
+  .sub-hero__stat--sage .sub-hero__stat-value { color: var(--sage); }
+  /* Default: no accent — use ink */
+  .sub-hero__stat:not([class*='--']) .sub-hero__stat-value { color: var(--ink); }
+
+  .sub-hero__stat-label {
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+
+  .sub-hero__stat-sub {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--ink-muted);
+    line-height: 1.4;
+  }
+
+  /* Accent semantic tag — text label accompanies every color (DESIGN.md rule) */
+  .sub-hero__accent-tag {
+    font-family: var(--font-mono);
+    font-size: 0.60rem;
+    letter-spacing: 0.14em;
+    font-weight: 600;
+    padding: 0.12em 0.45em;
+    border-radius: 2px;
+    border: 1px solid;
+    align-self: flex-start;
+    margin-top: 0.1em;
+  }
+  .sub-hero__accent-tag--clay {
+    color: var(--clay);
+    border-color: color-mix(in srgb, var(--clay) 40%, transparent);
+    background: color-mix(in srgb, var(--clay) 8%, transparent);
+  }
+  .sub-hero__accent-tag--sun {
+    color: var(--sun);
+    border-color: color-mix(in srgb, var(--sun) 40%, transparent);
+    background: color-mix(in srgb, var(--sun) 8%, transparent);
+  }
+  .sub-hero__accent-tag--sage {
+    color: var(--sage);
+    border-color: color-mix(in srgb, var(--sage) 40%, transparent);
+    background: color-mix(in srgb, var(--sage) 8%, transparent);
+  }
+
+  /* ── CTAs ── */
+  .sub-hero__ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+
+  /* ── Responsive: stack stats on narrow viewports ── */
+  @media (max-width: 480px) {
+    .sub-hero__stats {
+      flex-direction: column;
+    }
+    .sub-hero__stat {
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+    }
+    .sub-hero__stat:last-child {
+      border-bottom: none;
+    }
+  }
+
+  /* ── Reduced-motion: no backdrop-filter animation, content renders final ── */
+  @media (prefers-reduced-motion: reduce) {
+    .sub-hero__stats {
+      backdrop-filter: none;
+      background: var(--surface);
+    }
+  }
+</style>

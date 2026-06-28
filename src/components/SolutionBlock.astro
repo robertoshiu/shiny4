@@ -1,0 +1,554 @@
+---
+/**
+ * SolutionBlock — renders ONE solutions collection entry.
+ *
+ * Usage:
+ *   const entries = (await getCollection('solutions'));
+ *   <SolutionBlock {...entry.data} index={i} />
+ *
+ * Tri-accent is applied per-spec, not per-block, because meaning lives in the
+ * individual spec claim:
+ *   clay  = RESILIENCE  (RTO / RPO / DR / 備援 / 異步複製)
+ *   sun   = PERFORMANCE (GB300 / HGX / SLO / 良率 / Fabric)
+ *   sage  = COVERAGE    (合規 / IEC / SEMI / ISA-95 / 等保 / SOC / 歸檔 / OT可視化)
+ *
+ * The block's top hairline infers the dominant accent across its specs.
+ */
+
+interface Props {
+  id: string;
+  zhName: string;
+  enLabel: string;
+  problem: string;
+  scope: string;
+  keySpecs: string[];
+  sharePct?: number;
+  /** 0-based insertion order — drives the ghost numeral. */
+  index?: number;
+}
+
+const { zhName, enLabel, problem, scope, keySpecs, sharePct, index = 0 } = Astro.props;
+
+type Accent = 'clay' | 'sun' | 'sage';
+
+const ACCENT_LABEL: Record<Accent, string> = {
+  clay: 'RESILIENCE',
+  sun:  'PERFORMANCE',
+  sage: 'COVERAGE',
+};
+
+/** Map a single keySpec string to its semantic tri-accent. */
+function accentFor(spec: string): Accent | null {
+  // clay = resilience / DR / RTO / RPO
+  if (/RTO|RPO|備援|DR維運|異步複製|SD-WAN|跨區域/.test(spec)) return 'clay';
+  // sun = performance / compute / SLO / yield
+  if (/GB300|HGX|NVL72|推理|SLO|良率|800Gb|Fabric/.test(spec)) return 'sun';
+  // sage = coverage / compliance / governance / archive
+  if (/合規|IEC|SEMI|ISA-95|等保|密評|SOC|24×7|歸檔|OT可視化|OT入侵|資產可視/.test(spec)) return 'sage';
+  return null;
+}
+
+/** Derive block-level accent from whichever accent appears most in specs. */
+function primaryAccent(specs: string[]): Accent | null {
+  const counts: Record<string, number> = {};
+  for (const s of specs) {
+    const a = accentFor(s);
+    if (a) counts[a] = (counts[a] ?? 0) + 1;
+  }
+  const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  return (sorted[0]?.[0] ?? null) as Accent | null;
+}
+
+const blockAccent = primaryAccent(keySpecs);
+const ghostNum   = String(index + 1).padStart(2, '0');
+---
+
+<article
+  class={`sol-block${blockAccent ? ` sol-block--${blockAccent}` : ''}`}
+  aria-label={zhName}
+>
+  {/* Ghost numeral — ambient decoration only, never semantic */}
+  <span class="sol-block__ghost" aria-hidden="true">{ghostNum}</span>
+
+  {/* ── Always-visible header ── */}
+  <div class="sol-block__head">
+    <div class="sol-block__meta">
+      <span class="sol-block__en">{enLabel}</span>
+      {blockAccent && (
+        <span class={`sol-block__accent-tag sol-block__accent-tag--${blockAccent}`}>
+          {ACCENT_LABEL[blockAccent]}
+        </span>
+      )}
+    </div>
+
+    <h3 class="sol-block__zh">{zhName}</h3>
+
+    <div class="sol-block__problem">
+      <span class="sol-block__problem-kicker">問題</span>
+      <p class="sol-block__problem-text">{problem}</p>
+    </div>
+  </div>
+
+  {/* ── Expandable: scope + specs + gauge ── */}
+  <details class="sol-block__details">
+    <summary class="sol-block__toggle">
+      <span class="sol-block__toggle-label">交付範圍 · 關鍵規格</span>
+      <span class="sol-block__toggle-icon" aria-hidden="true">
+        <span class="sol-block__toggle-bar sol-block__toggle-bar--h" />
+        <span class="sol-block__toggle-bar sol-block__toggle-bar--v" />
+      </span>
+    </summary>
+
+    {/* Animated body — grid-row trick for smooth height */}
+    <div class="sol-block__reveal">
+      <div class="sol-block__body">
+
+        {/* Scope */}
+        <section class="sol-block__section" aria-label="交付範圍">
+          <h4 class="sol-block__section-label">
+            <span class="sol-block__section-kicker">SCOPE</span>交付範圍
+          </h4>
+          <p class="sol-block__scope">{scope}</p>
+        </section>
+
+        {/* Key specs */}
+        <section class="sol-block__section" aria-label="關鍵規格">
+          <h4 class="sol-block__section-label">
+            <span class="sol-block__section-kicker">SPECS</span>關鍵規格
+          </h4>
+          <ul class="sol-block__specs" role="list">
+            {keySpecs.map((spec) => {
+              const accent = accentFor(spec);
+              return (
+                <li class={`sol-block__spec${accent ? ` sol-block__spec--${accent}` : ''}`}>
+                  <span class={`sol-block__spec-pip${accent ? ` sol-block__spec-pip--${accent}` : ''}`} aria-hidden="true" />
+                  <span class="sol-block__spec-text">{spec}</span>
+                  {accent && (
+                    <span
+                      class={`sol-block__spec-tag sol-block__spec-tag--${accent}`}
+                      title={ACCENT_LABEL[accent]}
+                    >
+                      {ACCENT_LABEL[accent]}
+                    </span>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+
+        {/* sharePct gauge — only when populated */}
+        {sharePct !== undefined && (
+          <section class="sol-block__section sol-block__section--gauge" aria-label="解決方案佔比">
+            <h4 class="sol-block__section-label">
+              <span class="sol-block__section-kicker">SHARE</span>佔比
+            </h4>
+            <div
+              class="sol-block__gauge"
+              role="meter"
+              aria-valuenow={sharePct}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label={`解決方案佔比 ${sharePct}%`}
+            >
+              <div class="sol-block__gauge-track">
+                <div
+                  class={`sol-block__gauge-fill${blockAccent ? ` sol-block__gauge-fill--${blockAccent}` : ''}`}
+                  style={`--pct: ${sharePct}%`}
+                />
+              </div>
+              <span class="sol-block__gauge-value">
+                {sharePct}<em>%</em>
+              </span>
+            </div>
+          </section>
+        )}
+
+      </div>{/* /.sol-block__body */}
+    </div>{/* /.sol-block__reveal */}
+  </details>
+</article>
+
+<style>
+  /* ═══════════════════════════════════════════════════════════════════
+     SOL-BLOCK  — Direction C "Molten Editorial, elevated"
+     Warm-dark foundry; restrained; engineering-credible.
+     Tri-accent (clay / sun / sage) carries semantic meaning only;
+     every accent carries a visible text label.
+  ══════════════════════════════════════════════════════════════════ */
+
+  .sol-block {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    overflow: hidden;
+
+    /* Elevation: restrained, not heavy */
+    box-shadow:
+      0 1px 4px rgba(0, 0, 0, 0.25),
+      0 4px 20px rgba(0, 0, 0, 0.20);
+
+    /* Inset top hairline — neutral default */
+    box-shadow:
+      inset 0 2px 0 var(--border-strong),
+      0 1px 4px rgba(0, 0, 0, 0.25),
+      0 4px 20px rgba(0, 0, 0, 0.20);
+  }
+
+  /* Block-level top hairline inherits dominant accent */
+  .sol-block--clay {
+    box-shadow:
+      inset 0 2px 0 var(--clay),
+      0 1px 4px rgba(0, 0, 0, 0.25),
+      0 4px 20px rgba(0, 0, 0, 0.20);
+  }
+  .sol-block--sun {
+    box-shadow:
+      inset 0 2px 0 var(--sun),
+      0 1px 4px rgba(0, 0, 0, 0.25),
+      0 4px 20px rgba(0, 0, 0, 0.20);
+  }
+  .sol-block--sage {
+    box-shadow:
+      inset 0 2px 0 var(--sage),
+      0 1px 4px rgba(0, 0, 0, 0.25),
+      0 4px 20px rgba(0, 0, 0, 0.20);
+  }
+
+  /* ── Ghost numeral ── */
+  .sol-block__ghost {
+    position: absolute;
+    bottom: -1rem;
+    right: -0.5rem;
+    font-family: var(--font-display, serif);
+    font-size: clamp(6rem, 16vw, 11rem);
+    font-weight: 700;
+    line-height: 1;
+    color: var(--ink);
+    opacity: 0.03;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+  }
+
+  /* ── Header ── */
+  .sol-block__head {
+    position: relative;
+    z-index: 1;
+    padding: clamp(1.5rem, 4vw, 2.25rem) clamp(1.5rem, 4vw, 2.25rem) clamp(1rem, 3vw, 1.5rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .sol-block__meta {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+  }
+
+  .sol-block__en {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+  }
+
+  /* Accent tag — identical pill pattern to LayerStack */
+  .sol-block__accent-tag {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    font-weight: 600;
+    padding: 0.15em 0.55em;
+    border-radius: 2px;
+    border: 1px solid;
+  }
+  .sol-block__accent-tag--clay {
+    color: var(--clay);
+    border-color: color-mix(in srgb, var(--clay) 40%, transparent);
+    background: color-mix(in srgb, var(--clay) 8%, transparent);
+  }
+  .sol-block__accent-tag--sun {
+    color: var(--sun);
+    border-color: color-mix(in srgb, var(--sun) 40%, transparent);
+    background: color-mix(in srgb, var(--sun) 8%, transparent);
+  }
+  .sol-block__accent-tag--sage {
+    color: var(--sage);
+    border-color: color-mix(in srgb, var(--sage) 40%, transparent);
+    background: color-mix(in srgb, var(--sage) 8%, transparent);
+  }
+
+  .sol-block__zh {
+    font-size: clamp(1.4rem, 3.5vw, 2rem);
+    font-weight: 600;
+    line-height: 1.1;
+    margin: 0;
+    color: var(--ink);
+  }
+
+  /* Problem statement */
+  .sol-block__problem {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  .sol-block__problem-kicker {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.16em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+  }
+  .sol-block__problem-text {
+    font-size: clamp(0.88rem, 2vw, 1rem);
+    color: var(--ink-muted);
+    line-height: 1.65;
+    margin: 0;
+    max-width: 62ch;
+  }
+
+  /* ── Toggle / summary ── */
+  .sol-block__details {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--border);
+  }
+
+  /* Remove browser default marker */
+  .sol-block__toggle {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: clamp(0.9rem, 2.5vw, 1.25rem) clamp(1.5rem, 4vw, 2.25rem);
+    cursor: pointer;
+    user-select: none;
+    outline: none;
+
+    /* Subtle press target */
+    transition:
+      background var(--dur-quick) var(--ease-out);
+  }
+  .sol-block__toggle::-webkit-details-marker { display: none; }
+  .sol-block__toggle::marker { display: none; }
+
+  .sol-block__toggle:hover {
+    background: color-mix(in srgb, var(--ink) 4%, transparent);
+  }
+  .sol-block__toggle:focus-visible {
+    outline: 2px solid var(--sun);
+    outline-offset: -2px;
+  }
+
+  .sol-block__toggle-label {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    color: var(--ink-muted);
+  }
+
+  /* Plus / minus icon */
+  .sol-block__toggle-icon {
+    position: relative;
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+  }
+  .sol-block__toggle-bar {
+    position: absolute;
+    background: var(--ink-muted);
+    border-radius: 1px;
+    transition: transform var(--dur-quick) var(--ease-out), opacity var(--dur-quick) var(--ease-out);
+  }
+  .sol-block__toggle-bar--h {
+    top: 50%; left: 0;
+    width: 100%; height: 1.5px;
+    transform: translateY(-50%);
+  }
+  .sol-block__toggle-bar--v {
+    top: 0; left: 50%;
+    width: 1.5px; height: 100%;
+    transform: translateX(-50%);
+  }
+  /* Rotate vertical bar to form "×" when open (minus state) */
+  .sol-block__details[open] .sol-block__toggle-bar--v {
+    transform: translateX(-50%) rotate(90deg);
+    opacity: 0;
+  }
+
+  /* ── Animated reveal — grid-row height trick ── */
+  .sol-block__reveal {
+    display: grid;
+    grid-template-rows: 0fr;
+    overflow: hidden;
+    transition: grid-template-rows var(--dur-base) var(--ease-out);
+  }
+  .sol-block__details[open] .sol-block__reveal {
+    grid-template-rows: 1fr;
+  }
+
+  .sol-block__body {
+    min-height: 0; /* required for grid-row animation */
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* ── Inner sections ── */
+  .sol-block__section {
+    padding: clamp(1.25rem, 3vw, 1.75rem) clamp(1.5rem, 4vw, 2.25rem);
+    border-top: 1px solid var(--border);
+  }
+
+  .sol-block__section-label {
+    display: flex;
+    align-items: baseline;
+    gap: 0.65rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0 0 0.85rem;
+  }
+  .sol-block__section-kicker {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    color: var(--ink-faint);
+    font-weight: 400;
+  }
+
+  /* Scope paragraph */
+  .sol-block__scope {
+    font-size: 0.88rem;
+    color: var(--ink-muted);
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  /* Key specs list */
+  .sol-block__specs {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .sol-block__spec {
+    display: flex;
+    align-items: baseline;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+    font-size: 0.85rem;
+    color: var(--ink-muted);
+    line-height: 1.5;
+  }
+
+  /* Pip — small filled circle, colored when accented */
+  .sol-block__spec-pip {
+    flex-shrink: 0;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--border-strong);
+    margin-top: 0.35em; /* optical alignment to cap height */
+  }
+  .sol-block__spec-pip--clay { background: var(--clay); }
+  .sol-block__spec-pip--sun  { background: var(--sun);  }
+  .sol-block__spec-pip--sage { background: var(--sage); }
+
+  .sol-block__spec-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Spec accent tag — same pill system as block-level */
+  .sol-block__spec-tag {
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.14em;
+    font-weight: 600;
+    padding: 0.12em 0.5em;
+    border-radius: 2px;
+    border: 1px solid;
+    white-space: nowrap;
+  }
+  .sol-block__spec-tag--clay {
+    color: var(--clay);
+    border-color: color-mix(in srgb, var(--clay) 40%, transparent);
+    background: color-mix(in srgb, var(--clay) 8%, transparent);
+  }
+  .sol-block__spec-tag--sun {
+    color: var(--sun);
+    border-color: color-mix(in srgb, var(--sun) 40%, transparent);
+    background: color-mix(in srgb, var(--sun) 8%, transparent);
+  }
+  .sol-block__spec-tag--sage {
+    color: var(--sage);
+    border-color: color-mix(in srgb, var(--sage) 40%, transparent);
+    background: color-mix(in srgb, var(--sage) 8%, transparent);
+  }
+
+  /* ── sharePct gauge ── */
+  .sol-block__section--gauge {
+    background: var(--bg-deep);
+  }
+
+  .sol-block__gauge {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  .sol-block__gauge-track {
+    flex: 1;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .sol-block__gauge-fill {
+    height: 100%;
+    width: var(--pct);
+    border-radius: 2px;
+    background: var(--border-strong);
+    transition: width var(--dur-slow) var(--ease-emphasis);
+  }
+  .sol-block__gauge-fill--clay { background: var(--clay); }
+  .sol-block__gauge-fill--sun  { background: var(--sun);  }
+  .sol-block__gauge-fill--sage { background: var(--sage); }
+
+  .sol-block__gauge-value {
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .sol-block__gauge-value em {
+    font-style: normal;
+    font-size: 0.75em;
+    color: var(--ink-muted);
+    margin-left: 0.1em;
+  }
+
+  /* ── Reduced motion ── */
+  @media (prefers-reduced-motion: reduce) {
+    .sol-block__reveal {
+      transition: none;
+    }
+    .sol-block__toggle,
+    .sol-block__toggle-bar,
+    .sol-block__gauge-fill {
+      transition: none;
+    }
+  }
+</style>

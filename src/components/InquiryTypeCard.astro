@@ -1,0 +1,189 @@
+---
+/**
+ * InquiryTypeCard — renders ONE inquiryTypes collection entry.
+ * Caller iterates the collection and passes each item's .data fields.
+ *
+ * Accent is derived from `order` via locked tri-accent mapping:
+ *   clay = resilience / DR  (order 2: 技術諮詢 mentions DR)
+ *   sun  = service / perf   (order 3, 4: coordination & talent pipeline)
+ *   sage = coverage / gov   (order 1, 5: planning governance & media archive)
+ */
+
+interface Props {
+  order: number;
+  zhName: string;
+  enLabel: string;
+  description: string;
+  target: string;
+}
+
+const { order, zhName, enLabel, description, target } = Astro.props;
+
+// Semantic accent mapping — no accent field in schema, computed here (like LayerStack.astro)
+const ACCENT_MAP: Record<number, 'clay' | 'sun' | 'sage' | null> = {
+  1: 'sage',  // 建置規劃 — governance / planning coverage
+  2: 'clay',  // 技術諮詢 — DR / resilience architecture
+  3: 'sun',   // 供應商協調 — service / performance coordination
+  4: 'sun',   // 招募 — service / talent pipeline
+  5: 'sage',  // 媒體 — coverage / archive / governance
+};
+
+const ACCENT_LABEL: Record<string, string> = {
+  clay: 'RESILIENCE',
+  sun:  'PERFORMANCE',
+  sage: 'COVERAGE',
+};
+
+const accent = ACCENT_MAP[order] ?? null;
+const accentLabel = accent ? ACCENT_LABEL[accent] : null;
+const orderStr = String(order).padStart(2, '0');
+---
+
+<article class={`inq-card${accent ? ` inq-card--${accent}` : ''}`}>
+  <header class="inq-card__header">
+    <span class="inq-card__order" aria-hidden="true">{orderStr}</span>
+    <span class="inq-card__en">{enLabel}</span>
+    {accentLabel && (
+      <span class={`inq-card__tag inq-card__tag--${accent}`}>{accentLabel}</span>
+    )}
+  </header>
+
+  <h3 class="inq-card__zh">{zhName}</h3>
+  <p class="inq-card__desc">{description}</p>
+
+  <footer class="inq-card__footer">
+    <span class="inq-card__target-label" aria-hidden="true">適用</span>
+    <span class="inq-card__target">{target}</span>
+  </footer>
+</article>
+
+<style>
+  /* ── Card shell ── */
+  .inq-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: clamp(1.25rem, 3vw, 1.75rem);
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    /* 2px inset-top accent stripe — colour applied per variant below */
+    box-shadow: inset 0 2px 0 var(--border-strong);
+    transition: box-shadow var(--dur-quick) var(--ease-out),
+                border-color var(--dur-quick) var(--ease-out);
+  }
+
+  /* Hover: lift elevation slightly */
+  .inq-card:hover {
+    border-color: rgba(242, 233, 222, 0.28);
+  }
+
+  /* Accent stripe overrides */
+  .inq-card--clay { box-shadow: inset 0 2px 0 var(--clay); }
+  .inq-card--sun  { box-shadow: inset 0 2px 0 var(--sun);  }
+  .inq-card--sage { box-shadow: inset 0 2px 0 var(--sage); }
+
+  /* ── Header row: order · en label · accent tag ── */
+  .inq-card__header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+
+  .inq-card__order {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+  }
+
+  /* Separator dot between order and en label */
+  .inq-card__order::after {
+    content: '·';
+    margin-left: 0.5rem;
+    color: var(--ink-faint);
+    opacity: 0.5;
+  }
+
+  .inq-card__en {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    color: var(--ink-muted);
+    flex: 1;
+  }
+
+  /* Accent badge — reuses tag pattern from LayerStack.astro */
+  .inq-card__tag {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.13em;
+    font-weight: 600;
+    padding: 0.15em 0.5em;
+    border-radius: 2px;
+    border: 1px solid;
+  }
+  .inq-card__tag--clay {
+    color: var(--clay);
+    border-color: color-mix(in srgb, var(--clay) 40%, transparent);
+    background: color-mix(in srgb, var(--clay) 8%, transparent);
+  }
+  .inq-card__tag--sun {
+    color: var(--sun);
+    border-color: color-mix(in srgb, var(--sun) 40%, transparent);
+    background: color-mix(in srgb, var(--sun) 8%, transparent);
+  }
+  .inq-card__tag--sage {
+    color: var(--sage);
+    border-color: color-mix(in srgb, var(--sage) 40%, transparent);
+    background: color-mix(in srgb, var(--sage) 8%, transparent);
+  }
+
+  /* ── Chinese heading ── */
+  .inq-card__zh {
+    font-size: clamp(1.2rem, 3vw, 1.5rem);
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  /* Accent colour on the heading for accented cards */
+  .inq-card--clay .inq-card__zh { color: var(--ink); }
+  .inq-card--sun  .inq-card__zh { color: var(--ink); }
+  .inq-card--sage .inq-card__zh { color: var(--ink); }
+
+  /* ── Description ── */
+  .inq-card__desc {
+    font-size: 0.875rem;
+    line-height: 1.65;
+    color: var(--ink-muted);
+    margin: 0;
+    flex: 1; /* push footer to bottom when cards are in a grid with align-items:stretch */
+  }
+
+  /* ── Footer: target audience ── */
+  .inq-card__footer {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+    margin-top: auto;
+  }
+
+  .inq-card__target-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    color: var(--ink-faint);
+    flex-shrink: 0;
+  }
+
+  .inq-card__target {
+    font-size: 0.8rem;
+    color: var(--ink-muted);
+    line-height: 1.4;
+  }
+</style>

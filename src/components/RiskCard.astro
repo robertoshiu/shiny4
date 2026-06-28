@@ -1,0 +1,222 @@
+---
+/**
+ * RiskCard.astro
+ * Renders ONE entry from the 'risks' collection.
+ * Props mirror riskSchema fields exactly (see src/content/schemas.ts).
+ * Tier indicator is always text + icon — never color-only.
+ * Sage accent is applied to the mitigation label (governance / coverage layer).
+ */
+
+interface Props {
+  id: string;
+  zhRisk: string;
+  mitigation: string;
+  tier?: '綠' | '黃' | '紅';
+}
+
+const { id, zhRisk, mitigation, tier } = Astro.props;
+
+// zhRisk entries use full-width colon "：" to separate "category / EN" from description.
+// Split to render them at different typographic weights.
+const colonIdx = zhRisk.indexOf('：');
+const category    = colonIdx > -1 ? zhRisk.slice(0, colonIdx).trim() : zhRisk.trim();
+const description = colonIdx > -1 ? zhRisk.slice(colonIdx + 1).trim() : '';
+
+// Tier config — text label + distinct geometric icon + accent token.
+// Icon shapes are deliberately different so the distinction is never color-only.
+const TIER: Record<string, { zh: string; en: string; icon: string; accent: string }> = {
+  '綠': { zh: '低風險', en: 'LOW',  icon: '◆', accent: 'sage' },
+  '黃': { zh: '中風險', en: 'MED',  icon: '▲', accent: 'sun'  },
+  '紅': { zh: '高風險', en: 'HIGH', icon: '■', accent: 'clay' },
+};
+
+const tierCfg = tier ? TIER[tier] : null;
+---
+
+<article class={`risk-card${tierCfg ? ` risk-card--${tierCfg.accent}` : ''}`}>
+  {/* ── Top row: id + tier badge ── */}
+  <div class="risk-card__header">
+    <span class="risk-card__id" aria-label={`風險編號 ${id}`}>{id}</span>
+    {tierCfg && (
+      <span
+        class={`risk-card__tier risk-card__tier--${tierCfg.accent}`}
+        aria-label={`風險等級：${tierCfg.zh}`}
+      >
+        <span class="risk-card__tier-icon" aria-hidden="true">{tierCfg.icon}</span>
+        <span class="risk-card__tier-zh">{tierCfg.zh}</span>
+        <span class="risk-card__tier-en" aria-hidden="true">{tierCfg.en}</span>
+      </span>
+    )}
+  </div>
+
+  {/* ── Category label (hero) ── */}
+  <h3 class="risk-card__category">{category}</h3>
+
+  {/* ── Description (conditional — absent when no full-width colon) ── */}
+  {description && (
+    <p class="risk-card__description">{description}</p>
+  )}
+
+  {/* ── Mitigation block — sage accent = governance / coverage layer ── */}
+  <div class="risk-card__mitigation">
+    <span class="risk-card__mit-label" aria-hidden="true">
+      <span class="risk-card__mit-dot" aria-hidden="true"></span>
+      對策&thinsp;<span class="risk-card__mit-en">MITIGATION</span>
+    </span>
+    <p class="risk-card__mit-text">{mitigation}</p>
+  </div>
+</article>
+
+<style>
+  /* ── Card shell ── */
+  .risk-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    /* Inset accent stripe — set below per variant */
+    box-shadow: inset 0 2px 0 var(--border-strong);
+    overflow: hidden;
+    /* Subtle elevation matching Direction C */
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.28));
+    transition: border-color var(--dur-quick) var(--ease-out),
+                filter       var(--dur-quick) var(--ease-out);
+  }
+  .risk-card:hover {
+    border-color: var(--border-strong);
+    filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.38));
+  }
+
+  /* Tier-keyed top stripe overrides */
+  .risk-card--clay { box-shadow: inset 0 2px 0 var(--clay); }
+  .risk-card--sun  { box-shadow: inset 0 2px 0 var(--sun);  }
+  .risk-card--sage { box-shadow: inset 0 2px 0 var(--sage); }
+
+  /* ── Header row ── */
+  .risk-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: clamp(1rem, 3vw, 1.5rem) clamp(1rem, 3vw, 1.5rem) 0;
+    gap: 0.75rem;
+  }
+
+  /* Risk id — mono, muted, small-caps effect via letter-spacing */
+  .risk-card__id {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    color: var(--ink-faint);
+    flex-shrink: 0;
+  }
+
+  /* Tier badge — pill with icon + Chinese label + EN abbreviation */
+  .risk-card__tier {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+    padding: 0.2em 0.65em;
+    border-radius: 2px;
+    border: 1px solid transparent;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .risk-card__tier--clay {
+    color: var(--clay);
+    border-color: color-mix(in srgb, var(--clay) 35%, transparent);
+    background: color-mix(in srgb, var(--clay) 8%, transparent);
+  }
+  .risk-card__tier--sun {
+    color: var(--sun);
+    border-color: color-mix(in srgb, var(--sun) 35%, transparent);
+    background: color-mix(in srgb, var(--sun) 8%, transparent);
+  }
+  .risk-card__tier--sage {
+    color: var(--sage);
+    border-color: color-mix(in srgb, var(--sage) 35%, transparent);
+    background: color-mix(in srgb, var(--sage) 8%, transparent);
+  }
+
+  .risk-card__tier-icon {
+    font-size: 0.6em;
+    line-height: 1;
+  }
+  .risk-card__tier-zh {
+    /* primary accessible label */
+  }
+  .risk-card__tier-en {
+    opacity: 0.55;
+    font-size: 0.85em;
+  }
+
+  /* ── Category — editorial hero text ── */
+  .risk-card__category {
+    margin: 0;
+    padding: 0.75rem clamp(1rem, 3vw, 1.5rem) 0;
+    font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--ink);
+    /* Category text often contains "/" separator — let it wrap naturally */
+  }
+
+  /* ── Description ── */
+  .risk-card__description {
+    margin: 0;
+    padding: 0.5rem clamp(1rem, 3vw, 1.5rem) 0;
+    font-size: 0.875rem;
+    line-height: 1.65;
+    color: var(--ink-muted);
+  }
+
+  /* ── Mitigation block ── */
+  .risk-card__mitigation {
+    margin-top: auto;
+    padding: clamp(0.85rem, 2.5vw, 1.25rem) clamp(1rem, 3vw, 1.5rem) clamp(1rem, 3vw, 1.5rem);
+    /* Hairline separator above */
+    border-top: 1px solid var(--border);
+    margin-top: clamp(0.85rem, 2.5vw, 1.25rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  /* Label row: sage dot + "對策 MITIGATION" */
+  .risk-card__mit-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45em;
+    font-family: var(--font-mono);
+    font-size: 0.67rem;
+    letter-spacing: 0.16em;
+    color: var(--sage);          /* sage = governance / coverage — always visible */
+    font-weight: 600;
+  }
+
+  /* Sage dot — a small square aligned with the text */
+  .risk-card__mit-dot {
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    background: var(--sage);
+    border-radius: 1px;
+    flex-shrink: 0;
+  }
+
+  .risk-card__mit-en {
+    opacity: 0.6;
+    font-weight: 400;
+  }
+
+  .risk-card__mit-text {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--ink);
+  }
+</style>

@@ -1,0 +1,252 @@
+---
+import { getCollection } from 'astro:content';
+
+const steps = (await getCollection('processSteps')).sort((a, b) => a.data.order - b.data.order);
+
+// Tri-accent: sun = SLA/service-level (step 2); sage = archive/governance (step 4); rest neutral
+const STEP_ACCENT: Record<number, 'sun' | 'sage' | null> = {
+  1: null,
+  2: 'sun',   // 範圍評估 — SLA指標, scope alignment = service/performance
+  3: null,
+  4: 'sage',  // 交付+100%歸檔 — coverage/archive/governance
+};
+
+const ACCENT_LABEL: Record<string, string> = {
+  sun:  'SLA',
+  sage: 'ARCHIVE',
+};
+
+function pad(n: number) {
+  return String(n).padStart(2, '0');
+}
+---
+
+<div class="process-steps" role="list" aria-label="合作流程四步驟">
+  {steps.map((step, i) => {
+    const accent = STEP_ACCENT[step.data.order] ?? null;
+    const isLast = i === steps.length - 1;
+    return (
+      <div class="process-steps__item-wrap">
+        <article
+          class={`ps-card${accent ? ` ps-card--${accent}` : ''}`}
+          role="listitem"
+          aria-label={`Step ${pad(step.data.order)}: ${step.data.zhName}`}
+        >
+          {/* Step number — large mono, top-left */}
+          <div class="ps-card__header">
+            <span class={`ps-card__num${accent ? ` ps-card__num--${accent}` : ''}`}>
+              {pad(step.data.order)}
+            </span>
+            {accent && (
+              <span class={`ps-card__tag ps-card__tag--${accent}`}>
+                {ACCENT_LABEL[accent]}
+              </span>
+            )}
+          </div>
+
+          {/* Chinese name */}
+          <h3 class="ps-card__zh">{step.data.zhName}</h3>
+
+          {/* English label */}
+          <p class="ps-card__en" aria-hidden="true">{step.data.enLabel}</p>
+
+          {/* Description */}
+          <p class="ps-card__desc">{step.data.description}</p>
+        </article>
+
+        {/* Connector arrow between steps — hidden on last */}
+        {!isLast && (
+          <div class="ps-connector" aria-hidden="true">
+            <span class="ps-connector__line" />
+            <svg class="ps-connector__arrow" width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <path d="M1 5h8M6 1l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        )}
+      </div>
+    );
+  })}
+</div>
+
+<style>
+  /* ── Outer grid ── */
+  .process-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  @media (min-width: 900px) {
+    .process-steps {
+      flex-direction: row;
+      align-items: stretch;
+    }
+  }
+
+  /* ── Item wrapper: card + connector ── */
+  .process-steps__item-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    /* On mobile the connector sits below the card */
+  }
+
+  @media (min-width: 900px) {
+    .process-steps__item-wrap {
+      flex-direction: row;
+      align-items: center;
+      flex: 1;
+      /* Last item has no connector so it shouldn't flex-grow the connector */
+    }
+    .process-steps__item-wrap:last-child {
+      flex: 1;
+    }
+  }
+
+  /* ── Card ── */
+  .ps-card {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: clamp(1.5rem, 4vw, 2rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    position: relative;
+    overflow: hidden;
+    /* Restrained elevation — Direction C */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    transition: box-shadow var(--dur-quick) var(--ease-out),
+                border-color var(--dur-quick) var(--ease-out);
+  }
+
+  .ps-card:hover {
+    border-color: var(--border-strong);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  }
+
+  /* Accent top hairline */
+  .ps-card--sun  { box-shadow: inset 0 2px 0 var(--sun),  0 2px 8px rgba(0,0,0,0.25); }
+  .ps-card--sage { box-shadow: inset 0 2px 0 var(--sage), 0 2px 8px rgba(0,0,0,0.25); }
+
+  .ps-card--sun:hover  { box-shadow: inset 0 2px 0 var(--sun),  0 4px 16px rgba(0,0,0,0.35); }
+  .ps-card--sage:hover { box-shadow: inset 0 2px 0 var(--sage), 0 4px 16px rgba(0,0,0,0.35); }
+
+  /* ── Card header: number + accent tag ── */
+  .ps-card__header {
+    display: flex;
+    align-items: baseline;
+    gap: 0.65rem;
+    margin-bottom: 0.2rem;
+  }
+
+  /* ── Step number — mono, large ── */
+  .ps-card__num {
+    font-family: var(--font-mono);
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    font-weight: 500;
+    line-height: 1;
+    color: var(--ink-faint);
+    letter-spacing: -0.02em;
+    /* Ghost-like watermark treatment for neutral steps */
+    transition: color var(--dur-quick) var(--ease-out);
+  }
+
+  .ps-card__num--sun  { color: var(--sun);  }
+  .ps-card__num--sage { color: var(--sage); }
+
+  /* Hover lifts neutral number */
+  .ps-card:hover .ps-card__num:not(.ps-card__num--sun):not(.ps-card__num--sage) {
+    color: var(--ink-muted);
+  }
+
+  /* ── Accent tag badge ── */
+  .ps-card__tag {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    font-weight: 600;
+    padding: 0.15em 0.5em;
+    border-radius: 2px;
+    border: 1px solid;
+    align-self: center;
+  }
+  .ps-card__tag--sun {
+    color: var(--sun);
+    border-color: color-mix(in srgb, var(--sun) 40%, transparent);
+    background: color-mix(in srgb, var(--sun) 8%, transparent);
+  }
+  .ps-card__tag--sage {
+    color: var(--sage);
+    border-color: color-mix(in srgb, var(--sage) 40%, transparent);
+    background: color-mix(in srgb, var(--sage) 8%, transparent);
+  }
+
+  /* ── Chinese name ── */
+  .ps-card__zh {
+    font-size: clamp(1.1rem, 3vw, 1.35rem);
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  /* ── English label ── */
+  .ps-card__en {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+    color: var(--ink-faint);
+    margin: 0;
+  }
+
+  /* ── Description ── */
+  .ps-card__desc {
+    font-size: 0.88rem;
+    color: var(--ink-muted);
+    line-height: 1.65;
+    margin: 0.3rem 0 0;
+  }
+
+  /* ── Connector: line + arrow ── */
+  .ps-connector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink-faint);
+    /* Mobile: vertical spacer with downward arrow */
+    flex-direction: column;
+    padding: 0.5rem 0;
+    gap: 0;
+  }
+
+  .ps-connector__line {
+    display: block;
+    background: var(--border);
+  }
+
+  /* Mobile: vertical connector */
+  .ps-connector__line {
+    width: 1px;
+    height: 2rem;
+  }
+  .ps-connector__arrow {
+    transform: rotate(90deg); /* point down on mobile */
+  }
+
+  /* Desktop: horizontal connector */
+  @media (min-width: 900px) {
+    .ps-connector {
+      flex-direction: row;
+      padding: 0 0.75rem;
+      flex-shrink: 0;
+    }
+    .ps-connector__line {
+      width: clamp(1.5rem, 3vw, 3rem);
+      height: 1px;
+    }
+    .ps-connector__arrow {
+      transform: none; /* point right */
+    }
+  }
+</style>
