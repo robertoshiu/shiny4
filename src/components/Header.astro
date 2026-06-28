@@ -19,7 +19,7 @@ const { locale } = Astro.props;
     </a>
     <div class="site-header__desktop">
       <Nav locale={locale} />
-      <LanguageToggle locale={locale} path="/" />
+      <LanguageToggle locale={locale} />
       <CTAButton variant="clay" href="/contact/" label={t('cta.consult', locale)} />
     </div>
     <button
@@ -36,7 +36,7 @@ const { locale } = Astro.props;
   <div class="drawer" id="mobile-drawer" data-drawer hidden>
     <Nav locale={locale} />
     <div class="drawer__footer">
-      <LanguageToggle locale={locale} path="/" />
+      <LanguageToggle locale={locale} />
       <CTAButton variant="clay" href="/contact/" label={t('cta.consult', locale)} />
     </div>
   </div>

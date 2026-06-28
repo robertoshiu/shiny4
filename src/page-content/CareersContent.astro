@@ -1,0 +1,815 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import SubHero from '../components/SubHero.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import TeamFunctionCard from '../components/TeamFunctionCard.astro';
+import JobCard from '../components/JobCard.astro';
+import EngageCTA from '../components/EngageCTA.astro';
+import CTAButton from '../components/CTAButton.astro';
+import { getCollection } from 'astro:content';
+import { t } from '../i18n/utils';
+import type { Locale } from '../i18n/utils';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+
+const teams = (await getCollection('teams')).sort((a, b) =>
+  a.data.id.localeCompare(b.data.id)
+);
+
+const roles = (await getCollection('roles')).sort((a, b) =>
+  a.data.id.localeCompare(b.data.id)
+);
+
+// Tri-accent per team function card
+// clay = resilience/DR · sun = service/performance · sage = governance/coverage
+const teamAccents: Record<string, 'clay' | 'sun' | 'sage'> = {
+  T1: 'sage',  // Architecture & Governance → governance
+  T2: 'sun',   // MES → yield/performance
+  T3: 'sun',   // AI/MLOps → compute performance
+  T4: 'sun',   // Network Fabric → throughput performance
+  T5: 'sage',  // Security/SOC → coverage/compliance
+  T6: 'clay',  // DR Business Continuity → resilience
+  T7: 'sage',  // Enterprise Integration → coverage
+  T8: 'sage',  // CCC Central Command → governance
+};
+
+// 01 — Four technology-domain cards (WHY SHINYLOGIC)
+const techDomains = [
+  {
+    en:     t('careers.tech.T1.en', locale),
+    zh:     t('careers.tech.T1.zh', locale),
+    desc:   t('careers.tech.T1.desc', locale),
+    tag:    t('careers.tech.T1.tag', locale),
+    accent: 'sun' as const,
+  },
+  {
+    en:     t('careers.tech.T2.en', locale),
+    zh:     t('careers.tech.T2.zh', locale),
+    desc:   t('careers.tech.T2.desc', locale),
+    tag:    t('careers.tech.T2.tag', locale),
+    accent: 'sun' as const,
+  },
+  {
+    en:     t('careers.tech.T3.en', locale),
+    zh:     t('careers.tech.T3.zh', locale),
+    desc:   t('careers.tech.T3.desc', locale),
+    tag:    t('careers.tech.T3.tag', locale),
+    accent: 'sage' as const,
+  },
+  {
+    en:     t('careers.tech.T4.en', locale),
+    zh:     t('careers.tech.T4.zh', locale),
+    desc:   t('careers.tech.T4.desc', locale),
+    tag:    t('careers.tech.T4.tag', locale),
+    accent: 'clay' as const,
+  },
+];
+
+// 03 — Staffing phases (P1–P4 hiring cadence)
+const staffingPhases = [
+  {
+    code:   'P1',
+    zhName: t('careers.phase.P1.zhName', locale),
+    label:  t('careers.phase.P1.label', locale),
+    months: 'M1–M6',
+    gate:   'Gate 1–2',
+    desc:   t('careers.phase.P1.desc', locale),
+    tags:   [t('careers.phase.P1.tag0', locale), t('careers.phase.P1.tag1', locale)],
+    accent: 'sage' as const,
+  },
+  {
+    code:   'P2',
+    zhName: t('careers.phase.P2.zhName', locale),
+    label:  t('careers.phase.P2.label', locale),
+    months: 'M7–M15',
+    gate:   'Gate 3–5',
+    desc:   t('careers.phase.P2.desc', locale),
+    tags:   [t('careers.phase.P2.tag0', locale), t('careers.phase.P2.tag1', locale), t('careers.phase.P2.tag2', locale)],
+    accent: 'sun' as const,
+  },
+  {
+    code:   'P3',
+    zhName: t('careers.phase.P3.zhName', locale),
+    label:  t('careers.phase.P3.label', locale),
+    months: 'M16–M21',
+    gate:   'Gate 6–7',
+    desc:   t('careers.phase.P3.desc', locale),
+    tags:   [t('careers.phase.P3.tag0', locale), t('careers.phase.P3.tag1', locale), t('careers.phase.P3.tag2', locale)],
+    accent: 'clay' as const,
+  },
+  {
+    code:   'P4',
+    zhName: t('careers.phase.P4.zhName', locale),
+    label:  t('careers.phase.P4.label', locale),
+    months: 'M22+',
+    gate:   'Gate 8',
+    desc:   t('careers.phase.P4.desc', locale),
+    tags:   [t('careers.phase.P4.tag0', locale), t('careers.phase.P4.tag1', locale), t('careers.phase.P4.tag2', locale)],
+    accent: 'sun' as const,
+  },
+];
+
+const ACCENT_LABEL: Record<string, string> = {
+  clay: 'RESILIENCE',
+  sun:  'PERFORMANCE',
+  sage: 'GOVERNANCE',
+};
+
+// 04 — Culture principles & operating norms
+const principles = [
+  {
+    num:  '01',
+    zh:   t('careers.principle.01.zh', locale),
+    body: t('careers.principle.01.body', locale),
+  },
+  {
+    num:  '02',
+    zh:   t('careers.principle.02.zh', locale),
+    body: t('careers.principle.02.body', locale),
+  },
+  {
+    num:  '03',
+    zh:   t('careers.principle.03.zh', locale),
+    body: t('careers.principle.03.body', locale),
+  },
+];
+
+const norms = [
+  { value: t('careers.norm.0.value', locale), label: t('careers.norm.0.label', locale), sub: t('careers.norm.0.sub', locale), accent: 'sage' as const },
+  { value: t('careers.norm.1.value', locale), label: t('careers.norm.1.label', locale), sub: t('careers.norm.1.sub', locale), accent: 'sage' as const },
+  { value: t('careers.norm.2.value', locale), label: t('careers.norm.2.label', locale), sub: t('careers.norm.2.sub', locale), accent: 'clay' as const },
+  { value: t('careers.norm.3.value', locale), label: t('careers.norm.3.label', locale), sub: t('careers.norm.3.sub', locale), accent: 'clay' as const },
+  { value: t('careers.norm.4.value', locale), label: t('careers.norm.4.label', locale), sub: t('careers.norm.4.sub', locale), accent: 'sage' as const },
+];
+---
+
+<PageLayout
+  title={t('page.careers.title', locale)}
+  description={t('page.careers.description', locale)}
+  locale={locale}
+>
+  <Fragment slot="hero">
+    <SubHero
+      eyebrow={t('careers.hero.eyebrow', locale)}
+      zhTitle={t('careers.hero.zhTitle', locale)}
+      enLabel={t('careers.hero.enLabel', locale)}
+      lede={t('careers.hero.lede', locale)}
+      stats={[
+        {
+          value: t('careers.hero.stat0.value', locale),
+          label: t('careers.hero.stat0.label', locale),
+          sub:   t('careers.hero.stat0.sub', locale),
+        },
+        {
+          value:  '4',
+          label:  t('careers.hero.stat1.label', locale),
+          sub:    t('careers.hero.stat1.sub', locale),
+          accent: 'sun',
+        },
+        {
+          value:  '8',
+          label:  t('careers.hero.stat2.label', locale),
+          sub:    t('careers.hero.stat2.sub', locale),
+          accent: 'sage',
+        },
+      ]}
+      ctas={[
+        { href: 'mailto:hello@shinylogic.tech?subject=履歷投遞', label: t('careers.hero.cta.apply', locale), variant: 'clay' },
+        { href: '#open-roles', label: t('careers.hero.cta.viewRoles', locale), variant: 'ghost' },
+      ]}
+    />
+  </Fragment>
+
+  <!-- 01 前沿技術，真實場景 -->
+  <section class="section" id="why-shinylogic" aria-labelledby="heading-01">
+    <SectionHeader index="01" zh={t('careers.section01.zh', locale)} en={t('careers.section01.en', locale)} />
+    <div class="tech-domains">
+      {techDomains.map((d) => (
+        <article class={`tech-domain tech-domain--${d.accent} reveal`} aria-label={d.zh}>
+          <p class="tech-domain__en">{d.en}</p>
+          <h3 class="tech-domain__zh">{d.zh}</h3>
+          <p class="tech-domain__desc">{d.desc}</p>
+          <p class={`tech-domain__tag tech-domain__tag--${d.accent}`}>
+            <span class="tech-domain__tag-accent">
+              {d.accent === 'clay' ? 'RESILIENCE' : d.accent === 'sun' ? 'PERFORMANCE' : 'COVERAGE'}
+            </span>
+            {d.tag}
+          </p>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <!-- 02 IT智能部，八大職能 -->
+  <section class="section" id="team-functions" aria-labelledby="heading-02">
+    <SectionHeader index="02" zh={t('careers.section02.zh', locale)} en={t('careers.section02.en', locale)} />
+    <div class="team-grid">
+      {teams.map((t) => (
+        <TeamFunctionCard
+          id={t.data.id}
+          zhName={t.data.zhName}
+          enLabel={t.data.enLabel}
+          description={t.data.description}
+          tags={t.data.tags as [string, string, string]}
+          accent={teamAccents[t.data.id]}
+        />
+      ))}
+    </div>
+  </section>
+
+  <!-- 03 四階段組建，逐步到位 -->
+  <section class="section" id="hiring-rhythm" aria-labelledby="heading-03">
+    <SectionHeader index="03" zh={t('careers.section03.zh', locale)} en={t('careers.section03.en', locale)} />
+    <div class="staffing-phases" role="list" aria-label={t('careers.section03.zh', locale)}>
+      {staffingPhases.map((p) => (
+        <article
+          class={`sp sp--${p.accent}`}
+          role="listitem"
+          aria-label={`${p.code} ${p.zhName} ${p.label}`}
+        >
+          <div class="sp__header">
+            <span class="sp__code">{p.code}</span>
+            <span class="sp__months">{p.months}</span>
+            <span class="sp__gate">{p.gate}</span>
+          </div>
+          <h3 class="sp__name">{p.zhName}</h3>
+          <p class={`sp__formation sp__formation--${p.accent}`}>{p.label}</p>
+          <p class="sp__desc">{p.desc}</p>
+          <div class="sp__tags" aria-label="人力標籤">
+            {p.tags.map((tag) => (
+              <span class="sp__tag">{tag}</span>
+            ))}
+          </div>
+          <p class={`sp__accent-label sp__accent-label--${p.accent}`}>
+            {ACCENT_LABEL[p.accent]}
+          </p>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <!-- 04 拿授權，拿責任 -->
+  <section class="section" id="culture" aria-labelledby="heading-04">
+    <SectionHeader index="04" zh={t('careers.section04.zh', locale)} en={t('careers.section04.en', locale)} />
+
+    <div class="principles">
+      {principles.map((p) => (
+        <article class="principle reveal">
+          <span class="principle__num">PRINCIPLE {p.num}</span>
+          <h3 class="principle__zh">{p.zh}</h3>
+          <p class="principle__body">{p.body}</p>
+        </article>
+      ))}
+    </div>
+
+    <div class="norms" role="list" aria-label={t('careers.section04.zh', locale)}>
+      {norms.map((n) => (
+        <div class={`norm norm--${n.accent}`} role="listitem">
+          <span class="norm__value">{n.value}</span>
+          <span class="norm__label">{n.label}</span>
+          <span class="norm__sub">{n.sub}</span>
+          <span class={`norm__tag norm__tag--${n.accent}`}>
+            {n.accent === 'clay' ? 'RESILIENCE' : 'COVERAGE'}
+          </span>
+        </div>
+      ))}
+    </div>
+
+    <p class="compliance-line">
+      <span class="compliance-line__label">{t('careers.compliance.label', locale)}</span>
+      {t('careers.compliance.body', locale)}
+    </p>
+  </section>
+
+  <!-- 05 代表性職缺 -->
+  <section class="section" id="open-roles" aria-labelledby="heading-05">
+    <SectionHeader index="05" zh={t('careers.section05.zh', locale)} en={t('careers.section05.en', locale)} />
+    <div class="roles-grid">
+      {roles.map((r) => (
+        <JobCard role={r} />
+      ))}
+    </div>
+    <p class="roles-note">
+      {t('careers.roles.note', locale)}
+    </p>
+  </section>
+
+  <!-- APPLY -->
+  <section class="section apply" id="apply" aria-labelledby="apply-heading">
+    <p class="apply__en" aria-hidden="true">{t('careers.apply.en', locale)}</p>
+    <h2 id="apply-heading" class="apply__title">{t('careers.apply.title', locale)}</h2>
+    <p class="apply__body">
+      {t('careers.apply.bodyPre', locale)}
+      <a class="apply__email" href="mailto:hello@shinylogic.tech">hello@shinylogic.tech</a>
+      {t('careers.apply.bodyPost', locale)}
+    </p>
+    <div class="apply__actions">
+      <CTAButton
+        variant="clay"
+        href="mailto:hello@shinylogic.tech?subject=履歷投遞"
+        label={t('careers.apply.cta.apply', locale)}
+      />
+      <a class="apply__contact" href="/contact/">{t('careers.apply.contact.label', locale)}</a>
+    </div>
+  </section>
+
+  <EngageCTA locale={locale} />
+</PageLayout>
+
+<script>
+  import { revealOnEnter } from '../scripts/theme-motion';
+  revealOnEnter('.reveal');
+</script>
+
+<style>
+  /* ── 01 Tech Domain cards ── */
+  .tech-domains {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  @media (min-width: 640px) {
+    .tech-domains {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .tech-domains {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .tech-domain {
+    background: var(--surface);
+    padding: clamp(1.5rem, 4vw, 2rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    position: relative;
+  }
+
+  /* Inset top accent stripe */
+  .tech-domain--clay { box-shadow: inset 0 3px 0 var(--clay); }
+  .tech-domain--sun  { box-shadow: inset 0 3px 0 var(--sun);  }
+  .tech-domain--sage { box-shadow: inset 0 3px 0 var(--sage); }
+
+  .tech-domain__en {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    color: var(--ink-muted);
+    margin: 0;
+  }
+
+  .tech-domain__zh {
+    font-size: clamp(1.1rem, 3vw, 1.35rem);
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  .tech-domain__desc {
+    font-size: 0.88rem;
+    line-height: 1.65;
+    color: var(--ink-muted);
+    margin: 0.25rem 0 0;
+    flex: 1;
+  }
+
+  .tech-domain__tag {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    margin: 0.5rem 0 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .tech-domain__tag-accent {
+    font-size: 0.60rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    padding: 0.12em 0.45em;
+    border-radius: 2px;
+    border: 1px solid;
+  }
+
+  .tech-domain--clay .tech-domain__tag,
+  .tech-domain--clay .tech-domain__tag-accent { color: var(--clay); }
+  .tech-domain--clay .tech-domain__tag-accent {
+    border-color: color-mix(in srgb, var(--clay) 40%, transparent);
+    background: color-mix(in srgb, var(--clay) 8%, transparent);
+  }
+
+  .tech-domain--sun .tech-domain__tag,
+  .tech-domain--sun .tech-domain__tag-accent { color: var(--sun); }
+  .tech-domain--sun .tech-domain__tag-accent {
+    border-color: color-mix(in srgb, var(--sun) 40%, transparent);
+    background: color-mix(in srgb, var(--sun) 8%, transparent);
+  }
+
+  .tech-domain--sage .tech-domain__tag,
+  .tech-domain--sage .tech-domain__tag-accent { color: var(--sage); }
+  .tech-domain--sage .tech-domain__tag-accent {
+    border-color: color-mix(in srgb, var(--sage) 40%, transparent);
+    background: color-mix(in srgb, var(--sage) 8%, transparent);
+  }
+
+  /* ── 02 Team grid — 4-col at wide ── */
+  .team-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(0.75rem, 2vw, 1rem);
+  }
+
+  @media (min-width: 600px) {
+    .team-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 900px) {
+    .team-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  /* ── 03 Staffing phases ── */
+  .staffing-phases {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  @media (min-width: 600px) {
+    .staffing-phases {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .staffing-phases {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  /* sp = staffing phase card */
+  .sp {
+    background: var(--surface);
+    padding: clamp(1.25rem, 3vw, 1.75rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    position: relative;
+  }
+
+  /* Left accent bar */
+  .sp::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 2px;
+    height: 100%;
+  }
+  .sp--sage::before { background: var(--sage); }
+  .sp--sun::before  { background: var(--sun);  }
+  .sp--clay::before { background: var(--clay); }
+
+  .sp__header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .sp__code {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    font-weight: 600;
+  }
+  .sp--sage .sp__code { color: var(--sage); }
+  .sp--sun  .sp__code { color: var(--sun);  }
+  .sp--clay .sp__code { color: var(--clay); }
+
+  .sp__months,
+  .sp__gate {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+    padding: 0.12em 0.45em;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+  }
+
+  .sp__name {
+    font-size: clamp(1.05rem, 2.5vw, 1.2rem);
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.25;
+    margin: 0;
+  }
+
+  .sp__formation {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    font-weight: 600;
+    margin: 0;
+  }
+  .sp__formation--sage { color: var(--sage); }
+  .sp__formation--sun  { color: var(--sun);  }
+  .sp__formation--clay { color: var(--clay); }
+
+  .sp__desc {
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--ink-muted);
+    margin: 0.2rem 0 0;
+    flex: 1;
+  }
+
+  .sp__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+  }
+
+  .sp__tag {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    color: var(--ink-faint);
+    padding: 0.2em 0.55em;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: var(--bg-deep);
+  }
+
+  .sp__accent-label {
+    font-family: var(--font-mono);
+    font-size: 0.60rem;
+    letter-spacing: 0.2em;
+    font-weight: 600;
+    margin: 0.25rem 0 0;
+  }
+  .sp__accent-label--sage { color: var(--sage); }
+  .sp__accent-label--sun  { color: var(--sun);  }
+  .sp__accent-label--clay { color: var(--clay); }
+
+  /* ── 04 Principles ── */
+  .principles {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(1.5rem, 4vw, 2.5rem);
+    margin-bottom: clamp(3rem, 7vw, 5rem);
+  }
+
+  @media (min-width: 768px) {
+    .principles {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .principle {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-left: 1.25rem;
+    border-left: 2px solid var(--sun);
+  }
+
+  .principle__num {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    color: var(--sun);
+  }
+
+  .principle__zh {
+    font-size: clamp(1.15rem, 3vw, 1.45rem);
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  .principle__body {
+    font-size: 0.9rem;
+    line-height: 1.65;
+    color: var(--ink-muted);
+    margin: 0;
+  }
+
+  /* ── 04 Operating norms strip ── */
+  .norms {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    margin-bottom: 2.5rem;
+  }
+
+  .norm {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: clamp(1rem, 3vw, 1.5rem) clamp(1rem, 3vw, 1.75rem);
+    flex: 1 1 auto;
+    border-right: 1px solid var(--border);
+    position: relative;
+  }
+  .norm:last-child {
+    border-right: none;
+  }
+
+  .norm--clay { box-shadow: inset 0 2px 0 var(--clay); }
+  .norm--sage { box-shadow: inset 0 2px 0 var(--sage); }
+
+  .norm__value {
+    font-family: var(--font-mono);
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 500;
+    line-height: 1;
+  }
+  .norm--clay .norm__value { color: var(--clay); }
+  .norm--sage .norm__value { color: var(--sage); }
+
+  .norm__label {
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+
+  .norm__sub {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--ink-muted);
+    line-height: 1.4;
+    letter-spacing: 0.05em;
+  }
+
+  .norm__tag {
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.14em;
+    font-weight: 600;
+    padding: 0.12em 0.45em;
+    border-radius: 2px;
+    border: 1px solid;
+    align-self: flex-start;
+    margin-top: 0.1em;
+  }
+  .norm__tag--clay {
+    color: var(--clay);
+    border-color: color-mix(in srgb, var(--clay) 40%, transparent);
+    background: color-mix(in srgb, var(--clay) 8%, transparent);
+  }
+  .norm__tag--sage {
+    color: var(--sage);
+    border-color: color-mix(in srgb, var(--sage) 40%, transparent);
+    background: color-mix(in srgb, var(--sage) 8%, transparent);
+  }
+
+  @media (max-width: 600px) {
+    .norms {
+      flex-direction: column;
+    }
+    .norm {
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+    }
+    .norm:last-child {
+      border-bottom: none;
+    }
+  }
+
+  /* ── Compliance line ── */
+  .compliance-line {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    letter-spacing: 0.06em;
+    color: var(--ink-muted);
+    line-height: 1.65;
+    margin: 0;
+    border-left: 2px solid var(--sage);
+    padding-left: 1rem;
+  }
+
+  .compliance-line__label {
+    color: var(--sage);
+    font-weight: 600;
+    margin-right: 0.5rem;
+  }
+
+  /* ── 05 Roles grid ── */
+  .roles-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(0.75rem, 2vw, 1.25rem);
+  }
+
+  @media (min-width: 600px) {
+    .roles-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .roles-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .roles-note {
+    margin-top: clamp(2rem, 5vw, 3rem);
+    font-size: 0.95rem;
+    color: var(--ink-muted);
+    border-left: 2px solid var(--sun);
+    padding-left: 1rem;
+    max-width: 62ch;
+  }
+
+  /* ── APPLY section ── */
+  .apply {
+    text-align: center;
+  }
+
+  .apply__en {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.22em;
+    color: var(--sun);
+    margin: 0 0 1rem;
+  }
+
+  .apply__title {
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    margin: 0 0 1.25rem;
+  }
+
+  .apply__body {
+    font-size: 1.05rem;
+    color: var(--ink-muted);
+    max-width: 52ch;
+    margin: 0 auto 2.5rem;
+    line-height: 1.65;
+  }
+
+  .apply__email {
+    color: var(--sun);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-family: var(--font-mono);
+  }
+
+  .apply__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .apply__contact {
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+    letter-spacing: 0.1em;
+    color: var(--ink-muted);
+    text-decoration: none;
+    border-bottom: 1px solid var(--sun);
+    padding-bottom: 0.2rem;
+    transition: color var(--dur-quick) var(--ease-out);
+  }
+
+  .apply__contact:hover {
+    color: var(--sun);
+  }
+
+  /* ── Reduced motion ── */
+  @media (prefers-reduced-motion: reduce) {
+    .tech-domain,
+    .sp,
+    .principle,
+    .norm {
+      transition: none;
+    }
+  }
+</style>

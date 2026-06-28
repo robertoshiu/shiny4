@@ -1,0 +1,1010 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import SubHero from '../components/SubHero.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import HardwareTable from '../components/HardwareTable.astro';
+import SecurityZoneDiagram from '../components/SecurityZoneDiagram.astro';
+import ComplianceMatrix from '../components/ComplianceMatrix.astro';
+import EngageCTA from '../components/EngageCTA.astro';
+import { getCollection } from 'astro:content';
+import { t, localized } from '../i18n/utils';
+import type { Locale } from '../i18n/utils';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+
+/* ── Data fetching ─────────────────────────────────────────────────────────── */
+const allTech = await getCollection('techComponents');
+
+const NET_ORDER: Record<string, number> = {
+  'Quantum-X800': 0,
+  'Spectrum-X-SN5600': 1,
+  'ConnectX-8': 2,
+};
+const networkComps = allTech
+  .filter((c) => c.data.domain === 'network')
+  .sort((a, b) => (NET_ORDER[a.data.id] ?? 9) - (NET_ORDER[b.data.id] ?? 9));
+
+const mesComp = allTech.find((c) => c.data.id === 'FAB300')!;
+
+const DAI_ORDER: Record<string, number> = {
+  Historian: 0,
+  'Lakehouse-EDA': 1,
+  'Digital-Twin': 2,
+  'Agentic-RAG': 3,
+};
+const dataAIComps = allTech
+  .filter((c) => c.data.domain === 'data-AI')
+  .sort((a, b) => (DAI_ORDER[a.data.id] ?? 9) - (DAI_ORDER[b.data.id] ?? 9));
+
+const DR_ORDER: Record<string, number> = {
+  'DR-WarmStandby': 0,
+  'DR-AsyncReplication': 1,
+  'DR-SDWAN': 2,
+  'DR-HGX-B300': 3,
+};
+const drComps = allTech
+  .filter((c) => c.data.domain === 'DR')
+  .sort((a, b) => (DR_ORDER[a.data.id] ?? 9) - (DR_ORDER[b.data.id] ?? 9));
+
+/* ── Static reference data ─────────────────────────────────────────────────── */
+const ACCENT_LABEL: Record<string, string> = {
+  clay: 'RESILIENCE',
+  sun: 'PERFORMANCE',
+  sage: 'COVERAGE',
+};
+
+const NET_ACCENT: Record<string, 'clay' | 'sun' | 'sage'> = {
+  'Quantum-X800': 'sage',
+  'Spectrum-X-SN5600': 'sage',
+  'ConnectX-8': 'sun',
+};
+
+const DAI_ACCENT: Record<string, 'clay' | 'sun' | 'sage'> = {
+  Historian: 'sage',
+  'Lakehouse-EDA': 'sage',
+  'Digital-Twin': 'sun',
+  'Agentic-RAG': 'sun',
+};
+
+/* FAB300 seven modules — zh labels via t() for i18n */
+const mesModules = [
+  { idx: '01', en: 'Dispatching',       zh: t('technology.mes.module01.zh', locale) },
+  { idx: '02', en: 'Genealogy',         zh: t('technology.mes.module02.zh', locale) },
+  { idx: '03', en: 'APC · R2R + FDC',  zh: t('technology.mes.module03.zh', locale) },
+  { idx: '04', en: 'Recipe / RMS',      zh: t('technology.mes.module04.zh', locale) },
+  { idx: '05', en: 'Scheduling / APS',  zh: t('technology.mes.module05.zh', locale) },
+  { idx: '06', en: 'SPC / YMS',         zh: t('technology.mes.module06.zh', locale) },
+  { idx: '07', en: 'EAP / SECS-GEM',   zh: t('technology.mes.module07.zh', locale) },
+];
+
+/* Layer nav */
+const layerNav = [
+  { layer: 'L3', zh: t('technology.layerNav.compute',  locale), href: '#compute'  },
+  { layer: 'L3', zh: t('technology.layerNav.network',  locale), href: '#network'  },
+  { layer: 'L4', zh: t('technology.layerNav.mes',      locale), href: '#mes'      },
+  { layer: 'L2', zh: t('technology.layerNav.dataAI',   locale), href: '#data-ai'  },
+  { layer: 'L5', zh: t('technology.layerNav.security', locale), href: '#security' },
+  { layer: 'L6', zh: t('technology.layerNav.dr',       locale), href: '#dr'       },
+];
+
+/* Hero stats */
+const heroStats = [
+  { value: 'GB300 ×3', label: t('technology.hero.stat1.label', locale), sub: t('technology.hero.stat1.sub', locale), accent: 'sun'  as const },
+  { value: '4PB',      label: t('technology.hero.stat2.label', locale), sub: t('technology.hero.stat2.sub', locale), accent: 'sun'  as const },
+  { value: '≤ 4hr',   label: t('technology.hero.stat3.label', locale), sub: t('technology.hero.stat3.sub', locale), accent: 'clay' as const },
+  { value: '7',        label: t('technology.hero.stat4.label', locale), sub: t('technology.hero.stat4.sub', locale), accent: 'sage' as const },
+];
+---
+
+<PageLayout
+  title={t('page.technology.title', locale)}
+  description={t('page.technology.description', locale)}
+  locale={locale}
+>
+  <!-- Hero slot: SubHero only (overflow:hidden on page-hero is safe here) -->
+  <Fragment slot="hero">
+    <SubHero
+      eyebrow={t('technology.hero.eyebrow', locale)}
+      zhTitle={t('technology.hero.zhTitle', locale)}
+      enLabel={t('technology.hero.enLabel', locale)}
+      lede={t('technology.hero.lede', locale)}
+      stats={heroStats}
+      ctas={[{ href: '/contact/', label: t('cta.consult', locale), variant: 'clay' }]}
+    />
+  </Fragment>
+
+  <!-- Sticky L1-L6 layer-nav strip (in main, outside overflow:hidden hero) -->
+  <nav class="layer-nav" aria-label={t('technology.layerNav.ariaLabel', locale)}>
+    <div class="layer-nav__inner">
+      {layerNav.map((item) => (
+        <a class="layer-nav__item" href={item.href}>
+          <span class="layer-nav__layer" aria-hidden="true">{item.layer}</span>
+          <span class="layer-nav__zh">{item.zh}</span>
+        </a>
+      ))}
+    </div>
+  </nav>
+
+  <!-- ── 01 Blackwell Ultra 算力底座 ──────────────────────────────────────── -->
+  <section class="section" id="compute" aria-labelledby="heading-01">
+    <SectionHeader index="01" zh={t('technology.section01.zh', locale)} en={t('technology.section01.en', locale)} />
+    <p class="section-lede reveal">
+      {t('technology.section01.lede', locale)}
+    </p>
+    <HardwareTable />
+  </section>
+
+  <!-- ── 02 高速網絡 Fabric ─────────────────────────────────────────────── -->
+  <section class="section" id="network" aria-labelledby="heading-02">
+    <SectionHeader index="02" zh={t('technology.section02.zh', locale)} en={t('technology.section02.en', locale)} />
+    <div class="net-grid reveal">
+      {networkComps.map((comp) => {
+        const accent = NET_ACCENT[comp.data.id] ?? 'sage';
+        return (
+          <article class={`net-card net-card--${accent}`}>
+            <header class="net-card__hd">
+              <span
+                class={`net-card__tag net-card__tag--${accent}`}
+                aria-label={`${ACCENT_LABEL[accent]}`}
+              >
+                {ACCENT_LABEL[accent]}
+              </span>
+              <h3 class="net-card__name">{localized(comp.data, 'zhName', locale) as string}</h3>
+            </header>
+            <p class="net-card__spec">{localized(comp.data, 'spec', locale) as string}</p>
+            {comp.data.note && <p class="net-card__note">{localized(comp.data, 'note', locale) as string}</p>}
+          </article>
+        );
+      })}
+    </div>
+    <!-- Three summary stats from content-inventory §02 -->
+    <div class="net-stats" role="list" aria-label={t('technology.section02.stats.ariaLabel', locale)}>
+      <div class="net-stat net-stat--sage" role="listitem">
+        <span class="net-stat__value">800Gb/s</span>
+        <span class="net-stat__label">{t('technology.section02.stat1.label', locale)}</span>
+        <span class="net-stat__badge">COVERAGE</span>
+      </div>
+      <div class="net-stat net-stat--sage" role="listitem">
+        <span class="net-stat__value">144</span>
+        <span class="net-stat__label">{t('technology.section02.stat2.label', locale)}</span>
+        <span class="net-stat__badge">COVERAGE</span>
+      </div>
+      <div class="net-stat net-stat--sun" role="listitem">
+        <span class="net-stat__value">ConnectX-8</span>
+        <span class="net-stat__label">{t('technology.section02.stat3.label', locale)}</span>
+        <span class="net-stat__badge">PERFORMANCE</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 03 高量產 MES 平台（FAB300）──────────────────────────────────────── -->
+  <section class="section" id="mes" aria-labelledby="heading-03">
+    <SectionHeader index="03" zh={t('technology.section03.zh', locale)} en={t('technology.section03.en', locale)} />
+    <div class="mes-layout">
+      <!-- 7-module map -->
+      <div class="mes-modules reveal" role="list" aria-label={t('technology.section03.modules.ariaLabel', locale)}>
+        {mesModules.map((mod) => (
+          <div class="mes-module" role="listitem">
+            <span class="mes-module__idx" aria-hidden="true">{mod.idx}</span>
+            <div class="mes-module__body">
+              <span class="mes-module__en">{mod.en}</span>
+              <span class="mes-module__zh">{mod.zh}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <!-- Key facts sidebar -->
+      <aside class="mes-facts reveal" aria-label={t('technology.mes.facts.ariaLabel', locale)}>
+        <p class="mes-facts__hud" aria-hidden="true">X:0610 Y:MES · FAB300</p>
+        <h3 class="mes-facts__title">{localized(mesComp.data, 'zhName', locale) as string}</h3>
+        <p class="mes-facts__spec">{localized(mesComp.data, 'spec', locale) as string}</p>
+        <dl class="mes-dl">
+          <div class="mes-dl__row">
+            <dt class="mes-dl__dt">{t('technology.mes.facts.row1.dt', locale)}</dt>
+            <dd class="mes-dl__dd">{t('technology.mes.facts.row1.dd', locale)}</dd>
+          </div>
+          <div class="mes-dl__row">
+            <dt class="mes-dl__dt">{t('technology.mes.facts.row2.dt', locale)}</dt>
+            <dd class="mes-dl__dd">{t('technology.mes.facts.row2.dd', locale)}</dd>
+          </div>
+          <div class="mes-dl__row">
+            <dt class="mes-dl__dt">{t('technology.mes.facts.row3.dt', locale)}</dt>
+            <dd class="mes-dl__dd">{t('technology.mes.facts.row3.dd', locale)}</dd>
+          </div>
+          <div class="mes-dl__row">
+            <dt class="mes-dl__dt">{t('technology.mes.facts.row4.dt', locale)}</dt>
+            <dd class="mes-dl__dd">{t('technology.mes.facts.row4.dd', locale)}</dd>
+          </div>
+          <div class="mes-dl__row">
+            <dt class="mes-dl__dt">{t('technology.mes.facts.row5.dt', locale)}</dt>
+            <dd class="mes-dl__dd">{t('technology.mes.facts.row5.dd', locale)}</dd>
+          </div>
+        </dl>
+        {mesComp.data.note && (
+          <aside class="mes-facts__note" aria-label="MODULE NOTE">
+            <span class="mes-facts__note-badge">MODULE NOTE</span>
+            <span class="mes-facts__note-text">{localized(mesComp.data, 'note', locale) as string}</span>
+          </aside>
+        )}
+      </aside>
+    </div>
+  </section>
+
+  <!-- ── 04 數據與 AI 平台 ──────────────────────────────────────────────── -->
+  <section class="section" id="data-ai" aria-labelledby="heading-04">
+    <SectionHeader index="04" zh={t('technology.section04.zh', locale)} en={t('technology.section04.en', locale)} />
+    <div class="dai-grid">
+      {dataAIComps.map((comp) => {
+        const accent = DAI_ACCENT[comp.data.id] ?? 'sun';
+        return (
+          <article class={`dai-card dai-card--${accent} reveal`}>
+            <header class="dai-card__hd">
+              <span class={`dai-card__tag dai-card__tag--${accent}`}>
+                {ACCENT_LABEL[accent]}
+              </span>
+              <h3 class="dai-card__name">{localized(comp.data, 'zhName', locale) as string}</h3>
+            </header>
+            <p class="dai-card__spec">{localized(comp.data, 'spec', locale) as string}</p>
+            {comp.data.note && <p class="dai-card__note">{localized(comp.data, 'note', locale) as string}</p>}
+          </article>
+        );
+      })}
+    </div>
+  </section>
+
+  <!-- ── 05 資訊安全 OT/IT ──────────────────────────────────────────────── -->
+  <section class="section" id="security" aria-labelledby="heading-05">
+    <SectionHeader index="05" zh={t('technology.section05.zh', locale)} en={t('technology.section05.en', locale)} />
+    <SecurityZoneDiagram />
+  </section>
+
+  <!-- ── 06 韌性與異地備援 ──────────────────────────────────────────────── -->
+  <section class="section" id="dr" aria-labelledby="heading-06">
+    <SectionHeader index="06" zh={t('technology.section06.zh', locale)} en={t('technology.section06.en', locale)} />
+
+    <!-- Two KPI stat blocks — clay accent (resilience) per tri-accent system -->
+    <div class="dr-kpi reveal" aria-label={t('technology.dr.kpi.ariaLabel', locale)}>
+      <div class="dr-kpi__stat">
+        <span class="dr-kpi__value">≤ 4hr</span>
+        <span class="dr-kpi__label">{t('technology.dr.kpi1.label', locale)}</span>
+        <span class="dr-kpi__sub">{t('technology.dr.kpi1.sub', locale)}</span>
+        <span class="dr-kpi__badge">RESILIENCE</span>
+      </div>
+      <div class="dr-kpi__stat">
+        <span class="dr-kpi__value">≤ 15min</span>
+        <span class="dr-kpi__label">{t('technology.dr.kpi2.label', locale)}</span>
+        <span class="dr-kpi__sub">{t('technology.dr.kpi2.sub', locale)}</span>
+        <span class="dr-kpi__badge">RESILIENCE</span>
+      </div>
+    </div>
+
+    <!-- DR architecture table — 4 components from collection -->
+    <div
+      class="dr-scroll"
+      role="region"
+      aria-label={t('technology.dr.table.ariaLabel', locale)}
+    >
+      <table class="dr-table" aria-label={t('technology.dr.table.caption', locale)}>
+        <thead>
+          <tr>
+            <th class="dr-th dr-th--name" scope="col">
+              <span class="dr-th__zh">{t('technology.dr.table.col1.zh', locale)}</span>
+              <span class="dr-th__en">COMPONENT</span>
+            </th>
+            <th class="dr-th dr-th--spec" scope="col">
+              <span class="dr-th__zh">{t('technology.dr.table.col2.zh', locale)}</span>
+              <span class="dr-th__en">SPEC</span>
+            </th>
+            <th class="dr-th dr-th--note" scope="col">
+              <span class="dr-th__zh">{t('technology.dr.table.col3.zh', locale)}</span>
+              <span class="dr-th__en">NOTE</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {drComps.map((comp) => (
+            <tr class="dr-tr">
+              <td class="dr-td dr-td--name">
+                <span class="dr-name">{localized(comp.data, 'zhName', locale) as string}</span>
+              </td>
+              <td class="dr-td dr-td--spec">
+                <span class="dr-spec">{localized(comp.data, 'spec', locale) as string}</span>
+              </td>
+              <td class="dr-td dr-td--note">
+                {comp.data.note
+                  ? <span class="dr-note">{localized(comp.data, 'note', locale) as string}</span>
+                  : <span class="dr-note-empty" aria-hidden="true">—</span>
+                }
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── 07 合規基準 ────────────────────────────────────────────────────── -->
+  <section class="section" id="compliance" aria-labelledby="heading-07">
+    <SectionHeader index="07" zh={t('technology.section07.zh', locale)} en={t('technology.section07.en', locale)} />
+    <ComplianceMatrix />
+  </section>
+
+  <EngageCTA locale={locale} />
+</PageLayout>
+
+<script>
+  import { revealOnEnter } from '../scripts/theme-motion';
+  revealOnEnter('.reveal');
+
+  // Scroll-spy: highlight active layer-nav item as sections enter viewport
+  const navItems = Array.from(
+    document.querySelectorAll<HTMLAnchorElement>('.layer-nav__item'),
+  );
+  const sectionIds = ['compute', 'network', 'mes', 'data-ai', 'security', 'dr'];
+  const sections = sectionIds.map((id) => document.getElementById(id));
+
+  if (navItems.length && sections.some(Boolean)) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const id = entry.target.id;
+            navItems.forEach((a) => {
+              a.classList.toggle('is-active', a.getAttribute('href') === `#${id}`);
+            });
+          }
+        });
+      },
+      { threshold: 0.2, rootMargin: '-10% 0px -60% 0px' },
+    );
+    sections.forEach((s) => s && observer.observe(s));
+  }
+</script>
+
+<style>
+  /* ── Section layout ──────────────────────────────────────────────────────── */
+  /* scroll-margin-top: sticky layer-nav (44px) + fixed header (68px) */
+  #compute, #network, #mes, #data-ai, #security, #dr, #compliance {
+    scroll-margin-top: calc(68px + 44px);
+  }
+
+  .section-lede {
+    max-width: 62ch;
+    color: var(--ink-muted);
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+  }
+
+  /* ── Sticky L1–L6 layer nav ─────────────────────────────────────────────── */
+  .layer-nav {
+    position: sticky;
+    top: 68px; /* sits below fixed site-header (~68px tall) */
+    z-index: 20;
+    background: color-mix(in srgb, var(--bg-deep) 94%, transparent);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border-strong);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .layer-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .layer-nav__inner {
+    display: flex;
+    align-items: stretch;
+    max-width: var(--maxw);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  .layer-nav__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.18rem;
+    padding: 0.65rem 1.1rem;
+    text-decoration: none;
+    border-right: 1px solid var(--border);
+    color: var(--ink-muted);
+    white-space: nowrap;
+    transition:
+      color var(--dur-instant) var(--ease-out),
+      background var(--dur-instant) var(--ease-out);
+  }
+  .layer-nav__item:last-child {
+    border-right: none;
+  }
+  .layer-nav__item:hover {
+    color: var(--ink);
+    background: color-mix(in srgb, var(--sun) 5%, transparent);
+  }
+  .layer-nav__item.is-active {
+    color: var(--ink);
+    background: color-mix(in srgb, var(--sun) 7%, transparent);
+    box-shadow: inset 0 -2px 0 var(--sun);
+  }
+
+  .layer-nav__layer {
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.15em;
+    color: var(--sun);
+    font-weight: 600;
+  }
+  .layer-nav__item.is-active .layer-nav__layer {
+    color: var(--sun);
+  }
+
+  .layer-nav__zh {
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  /* ── 02 Network cards ───────────────────────────────────────────────────── */
+  .net-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border-strong);
+    border: 1px solid var(--border-strong);
+    margin-bottom: 0; /* flush with stats strip */
+  }
+  @media (max-width: 768px) {
+    .net-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .net-card {
+    background: var(--surface);
+    padding: clamp(1.5rem, 3vw, 2.25rem);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .net-card--sage { box-shadow: inset 0 3px 0 var(--sage); }
+  .net-card--sun  { box-shadow: inset 0 3px 0 var(--sun);  }
+  .net-card--clay { box-shadow: inset 0 3px 0 var(--clay); }
+
+  .net-card__hd {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .net-card__tag {
+    font-family: var(--font-mono);
+    font-size: 0.60rem;
+    letter-spacing: 0.16em;
+    font-weight: 600;
+    padding: 0.15em 0.5em;
+    border-radius: 2px;
+    border: 1px solid;
+    align-self: flex-start;
+  }
+  .net-card__tag--sage {
+    color: var(--sage);
+    border-color: color-mix(in srgb, var(--sage) 40%, transparent);
+    background: color-mix(in srgb, var(--sage) 8%, transparent);
+  }
+  .net-card__tag--sun {
+    color: var(--sun);
+    border-color: color-mix(in srgb, var(--sun) 40%, transparent);
+    background: color-mix(in srgb, var(--sun) 8%, transparent);
+  }
+
+  .net-card__name {
+    font-family: var(--font-mono);
+    font-size: clamp(1rem, 2.2vw, 1.2rem);
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  .net-card__spec {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--ink-muted);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .net-card__note {
+    font-size: 0.82rem;
+    color: var(--ink-muted);
+    line-height: 1.55;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+    margin: auto 0 0; /* push to bottom of card */
+  }
+
+  /* Three summary stats — flush below the card grid */
+  .net-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    border: 1px solid var(--border-strong);
+    border-top: none;
+    background: var(--bg-deep);
+    margin-top: 0;
+  }
+  @media (max-width: 600px) {
+    .net-stats {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .net-stat {
+    padding: 1.1rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    border-right: 1px solid var(--border);
+  }
+  .net-stat:last-child {
+    border-right: none;
+  }
+  .net-stat--sage { box-shadow: inset 0 2px 0 var(--sage); }
+  .net-stat--sun  { box-shadow: inset 0 2px 0 var(--sun);  }
+
+  .net-stat__value {
+    font-family: var(--font-mono);
+    font-size: clamp(1.05rem, 2.5vw, 1.5rem);
+    font-weight: 500;
+    line-height: 1;
+  }
+  .net-stat--sage .net-stat__value { color: var(--sage); }
+  .net-stat--sun  .net-stat__value { color: var(--sun);  }
+
+  .net-stat__label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+
+  .net-stat__badge {
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.15em;
+    font-weight: 600;
+    margin-top: 0.15rem;
+  }
+  .net-stat--sage .net-stat__badge { color: var(--sage); opacity: 0.7; }
+  .net-stat--sun  .net-stat__badge { color: var(--sun);  opacity: 0.7; }
+
+  /* ── 03 MES Layout ──────────────────────────────────────────────────────── */
+  .mes-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+  @media (max-width: 768px) {
+    .mes-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Module list */
+  .mes-modules {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid var(--border-strong);
+  }
+
+  .mes-module {
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+    padding: 0.9rem 1.1rem;
+    border-bottom: 1px solid var(--border);
+    transition: background var(--dur-instant) var(--ease-out);
+  }
+  .mes-module:last-child {
+    border-bottom: none;
+  }
+  .mes-module:hover {
+    background: var(--surface-raised);
+  }
+  /* Sun top stripe per module item — performance accent */
+  .mes-module:first-child {
+    box-shadow: inset 0 3px 0 var(--sun);
+  }
+
+  .mes-module__idx {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--sun);
+    letter-spacing: 0.12em;
+    font-weight: 600;
+    width: 1.75rem;
+    flex-shrink: 0;
+  }
+
+  .mes-module__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .mes-module__en {
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+
+  .mes-module__zh {
+    font-size: 0.78rem;
+    color: var(--ink-muted);
+    line-height: 1.3;
+  }
+
+  /* Facts sidebar */
+  .mes-facts {
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    padding: clamp(1.5rem, 3vw, 2rem);
+    box-shadow: inset 0 3px 0 var(--sun); /* sun = performance */
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .mes-facts__hud {
+    font-family: var(--font-mono);
+    font-size: 0.60rem;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+    margin: 0 0 1rem;
+    opacity: 0.55;
+  }
+
+  .mes-facts__title {
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.3;
+    margin: 0 0 0.4rem;
+  }
+
+  .mes-facts__spec {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--sun);
+    line-height: 1.5;
+    margin: 0 0 1.25rem;
+  }
+
+  .mes-dl {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid var(--border);
+    margin: 0 0 1.25rem;
+  }
+
+  .mes-dl__row {
+    display: grid;
+    grid-template-columns: 7.5rem 1fr;
+    gap: 0.75rem;
+    padding: 0.7rem 0.9rem;
+    border-bottom: 1px solid var(--border);
+    align-items: baseline;
+  }
+  .mes-dl__row:last-child {
+    border-bottom: none;
+  }
+
+  .mes-dl__dt {
+    font-family: var(--font-mono);
+    font-size: 0.70rem;
+    font-weight: 600;
+    color: var(--ink-muted);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  .mes-dl__dd {
+    font-size: 0.82rem;
+    color: var(--ink);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .mes-facts__note {
+    display: flex;
+    gap: 0.65rem;
+    background: color-mix(in srgb, var(--sun) 5%, var(--bg-deep));
+    border: 1px solid color-mix(in srgb, var(--sun) 20%, transparent);
+    padding: 0.75rem 0.9rem;
+    margin: 0;
+  }
+
+  .mes-facts__note-badge {
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.15em;
+    font-weight: 700;
+    color: var(--sun);
+    flex-shrink: 0;
+    align-self: flex-start;
+    padding-top: 0.1em;
+    white-space: nowrap;
+  }
+
+  .mes-facts__note-text {
+    font-size: 0.78rem;
+    color: var(--ink-muted);
+    line-height: 1.55;
+  }
+
+  /* ── 04 Data & AI platform cards ─────────────────────────────────────────── */
+  .dai-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--border-strong);
+    border: 1px solid var(--border-strong);
+  }
+  @media (max-width: 640px) {
+    .dai-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .dai-card {
+    background: var(--surface);
+    padding: clamp(1.5rem, 3vw, 2.25rem);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .dai-card--sage { box-shadow: inset 0 3px 0 var(--sage); }
+  .dai-card--sun  { box-shadow: inset 0 3px 0 var(--sun);  }
+  .dai-card--clay { box-shadow: inset 0 3px 0 var(--clay); }
+
+  .dai-card__hd {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .dai-card__tag {
+    font-family: var(--font-mono);
+    font-size: 0.60rem;
+    letter-spacing: 0.16em;
+    font-weight: 600;
+    padding: 0.15em 0.5em;
+    border-radius: 2px;
+    border: 1px solid;
+    align-self: flex-start;
+  }
+  .dai-card__tag--sage {
+    color: var(--sage);
+    border-color: color-mix(in srgb, var(--sage) 40%, transparent);
+    background: color-mix(in srgb, var(--sage) 8%, transparent);
+  }
+  .dai-card__tag--sun {
+    color: var(--sun);
+    border-color: color-mix(in srgb, var(--sun) 40%, transparent);
+    background: color-mix(in srgb, var(--sun) 8%, transparent);
+  }
+
+  .dai-card__name {
+    font-size: clamp(1rem, 2.5vw, 1.25rem);
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  .dai-card__spec {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--ink-muted);
+    line-height: 1.62;
+    margin: 0;
+    flex: 1;
+  }
+
+  .dai-card__note {
+    font-size: 0.82rem;
+    color: var(--ink-muted);
+    line-height: 1.55;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+    margin: 0;
+  }
+
+  /* ── 06 DR KPI stats ─────────────────────────────────────────────────────── */
+  .dr-kpi {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0;
+    border: 1px solid color-mix(in srgb, var(--clay) 32%, var(--border-strong));
+    background: color-mix(in srgb, var(--clay) 4%, var(--surface));
+    margin-bottom: 1.5rem;
+  }
+  @media (max-width: 480px) {
+    .dr-kpi {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .dr-kpi__stat {
+    padding: clamp(1.5rem, 4vw, 2.25rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    box-shadow: inset 0 3px 0 var(--clay); /* clay = resilience/DR */
+    border-right: 1px solid var(--border);
+  }
+  .dr-kpi__stat:last-child {
+    border-right: none;
+  }
+
+  .dr-kpi__value {
+    font-family: var(--font-mono);
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    font-weight: 500;
+    line-height: 1;
+    color: var(--clay);
+  }
+
+  .dr-kpi__label {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--ink);
+  }
+
+  .dr-kpi__sub {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--ink-muted);
+    line-height: 1.4;
+  }
+
+  .dr-kpi__badge {
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.16em;
+    font-weight: 600;
+    color: var(--clay);
+    padding: 0.15em 0.5em;
+    border-radius: 2px;
+    border: 1px solid color-mix(in srgb, var(--clay) 40%, transparent);
+    background: color-mix(in srgb, var(--clay) 8%, transparent);
+    align-self: flex-start;
+    margin-top: 0.2rem;
+  }
+
+  /* ── 06 DR architecture table ───────────────────────────────────────────── */
+  .dr-scroll {
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
+  }
+  .dr-scroll::-webkit-scrollbar {
+    height: 4px;
+  }
+  .dr-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .dr-scroll::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 2px;
+  }
+
+  .dr-table {
+    width: 100%;
+    min-width: 560px;
+    border-collapse: collapse;
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    box-shadow:
+      0 2px 8px rgba(0, 0, 0, 0.28),
+      0 8px 32px rgba(0, 0, 0, 0.22);
+  }
+
+  .dr-th {
+    padding: 0.7rem 1.1rem;
+    text-align: left;
+    vertical-align: bottom;
+    border-bottom: 1px solid var(--border-strong);
+    background: var(--bg-deep);
+    white-space: nowrap;
+  }
+  .dr-th__zh {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+  .dr-th__en {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.63rem;
+    letter-spacing: 0.14em;
+    color: var(--ink-faint);
+    margin-top: 0.15rem;
+  }
+  .dr-th--name { width: 22%; }
+  .dr-th--spec { width: 42%; }
+  .dr-th--note { /* remaining */ }
+
+  .dr-tr {
+    border-bottom: 1px solid var(--border);
+    transition: background var(--dur-instant) var(--ease-out);
+  }
+  .dr-tr:last-child {
+    border-bottom: none;
+  }
+  .dr-tr:hover {
+    background: var(--surface-raised);
+  }
+  /* Clay left stripe — resilience semantic */
+  .dr-tr .dr-td--name {
+    box-shadow: inset 3px 0 0 var(--clay);
+  }
+
+  .dr-td {
+    padding: 0.9rem 1.1rem;
+    vertical-align: top;
+  }
+
+  .dr-name {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+
+  .dr-spec {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.80rem;
+    color: var(--ink-muted);
+    line-height: 1.55;
+  }
+
+  .dr-note {
+    display: block;
+    font-size: 0.80rem;
+    color: var(--ink-muted);
+    line-height: 1.5;
+  }
+
+  .dr-note-empty {
+    font-family: var(--font-mono);
+    color: var(--ink-faint);
+    font-size: 0.82rem;
+  }
+
+  /* ── Reduced-motion: strip transitions ───────────────────────────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    .mes-module,
+    .dr-tr,
+    .layer-nav__item {
+      transition: none;
+    }
+  }
+</style>

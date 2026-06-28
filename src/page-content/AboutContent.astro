@@ -1,0 +1,441 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import SubHero from '../components/SubHero.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import LayerStack from '../components/LayerStack.astro';
+import ComplianceBadges from '../components/ComplianceBadges.astro';
+import PhaseTimeline from '../components/PhaseTimeline.astro';
+import EngageCTA from '../components/EngageCTA.astro';
+import { t } from '../i18n/utils';
+import type { Locale } from '../i18n/utils';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+---
+
+<PageLayout
+  title={t('page.about.title', locale)}
+  description={t('page.about.description', locale)}
+  heroVariant="sub"
+  locale={locale}
+>
+  <Fragment slot="hero">
+    <SubHero
+      eyebrow="WHO WE ARE // SYSTEMS INTEGRATOR"
+      zhTitle={t('about.hero.zhTitle', locale)}
+      enLabel="ABOUT SHINYLOGIC · INTELLIGENT WAFER FAB SYSTEMS"
+      lede={t('about.hero.lede', locale)}
+      stats={[
+        { value: '≤4hr', label: t('about.hero.stat0.label', locale), sub: t('about.hero.stat0.sub', locale), accent: 'clay' },
+        { value: '≥95%', label: t('about.hero.stat1.label', locale), sub: t('about.hero.stat1.sub', locale), accent: 'sun' },
+        { value: '100%', label: t('about.hero.stat2.label', locale), sub: t('about.hero.stat2.sub', locale), accent: 'sage' },
+        { value: '8', label: t('about.hero.stat3.label', locale), sub: t('about.hero.stat3.sub', locale), accent: 'sage' },
+      ]}
+      ctas={[
+        { href: '/contact/', label: t('cta.consult', locale), variant: 'clay' },
+        { href: '/solutions/', label: t('about.hero.cta2', locale), variant: 'ghost' },
+      ]}
+    />
+  </Fragment>
+
+  <!-- 01 使命與定位 -->
+  <section class="section" id="mission" aria-labelledby="heading-01">
+    <SectionHeader index="01" zh={t('about.section01.zh', locale)} en={t('about.section01.en', locale)} />
+    <div class="prose reveal">
+      <p>{t('about.section01.prose1', locale)}</p>
+      <p>{t('about.section01.prose2', locale)}</p>
+      <p class="trust-line">{t('about.section01.trustLine', locale)}</p>
+    </div>
+  </section>
+
+  <!-- 02 我們交付什麼 -->
+  <section class="section" id="what-we-deliver" aria-labelledby="heading-02">
+    <SectionHeader index="02" zh={t('about.section02.zh', locale)} en={t('about.section02.en', locale)} />
+    <LayerStack />
+    <div class="compliance-row reveal">
+      <p class="compliance-label">{t('about.section02.complianceLabel', locale)}</p>
+      <ComplianceBadges />
+    </div>
+  </section>
+
+  <!-- 03 治理與責任 -->
+  <section class="section" id="governance" aria-labelledby="heading-03">
+    <SectionHeader index="03" zh={t('about.section03.zh', locale)} en={t('about.section03.en', locale)} />
+    <div class="governance-grid reveal">
+
+      <article class="gov-pillar gov-pillar--sage">
+        <span class="gov-pillar__tag gov-pillar__tag--sage">{t('about.gov.raci.tag', locale)}</span>
+        <h3 class="gov-pillar__title">{t('about.gov.raci.title', locale)}</h3>
+        <p class="gov-pillar__body">{t('about.gov.raci.body', locale)}</p>
+      </article>
+
+      <article class="gov-pillar gov-pillar--sage">
+        <span class="gov-pillar__tag gov-pillar__tag--sage">{t('about.gov.gate.tag', locale)}</span>
+        <h3 class="gov-pillar__title">{t('about.gov.gate.title', locale)}</h3>
+        <p class="gov-pillar__body">{t('about.gov.gate.body', locale)}</p>
+      </article>
+
+      <article class="gov-pillar gov-pillar--sun">
+        <span class="gov-pillar__tag gov-pillar__tag--sun">{t('about.gov.risk.tag', locale)}</span>
+        <h3 class="gov-pillar__title">{t('about.gov.risk.title', locale)}</h3>
+        <p class="gov-pillar__body">{t('about.gov.risk.body', locale)}</p>
+      </article>
+
+      <article class="gov-pillar gov-pillar--clay">
+        <span class="gov-pillar__tag gov-pillar__tag--clay">{t('about.gov.dr.tag', locale)}</span>
+        <h3 class="gov-pillar__title">{t('about.gov.dr.title', locale)}</h3>
+        <p class="gov-pillar__body">{t('about.gov.dr.body', locale)}</p>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- 04 交付節奏 -->
+  <section class="section" id="delivery-rhythm" aria-labelledby="heading-04">
+    <SectionHeader index="04" zh={t('about.section04.zh', locale)} en={t('about.section04.en', locale)} />
+    <PhaseTimeline />
+  </section>
+
+  <!-- 05 為何信任我們 -->
+  <section class="section" id="why-trust" aria-labelledby="heading-05">
+    <SectionHeader index="05" zh={t('about.section05.zh', locale)} en={t('about.section05.en', locale)} />
+    <div class="trust-grid reveal">
+
+      <div class="trust-card">
+        <p class="trust-card__en">{t('about.trust.methodology.en', locale)}</p>
+        <h3 class="trust-card__title">{t('about.trust.methodology.title', locale)}</h3>
+        <p class="trust-card__body">{t('about.trust.methodology.body', locale)}</p>
+      </div>
+
+      <div class="trust-card">
+        <p class="trust-card__en">{t('about.trust.nolockIn.en', locale)}</p>
+        <h3 class="trust-card__title">{t('about.trust.nolockIn.title', locale)}</h3>
+        <p class="trust-card__body">{t('about.trust.nolockIn.body', locale)}</p>
+      </div>
+
+      <div class="trust-card">
+        <p class="trust-card__en">{t('about.trust.baseline.en', locale)}</p>
+        <h3 class="trust-card__title">{t('about.trust.baseline.title', locale)}</h3>
+        <p class="trust-card__body">{t('about.trust.baseline.body', locale)}</p>
+      </div>
+
+      <div class="trust-card">
+        <p class="trust-card__en">{t('about.trust.ecosystem.en', locale)}</p>
+        <h3 class="trust-card__title">{t('about.trust.ecosystem.title', locale)}</h3>
+        <p class="trust-card__body">{t('about.trust.ecosystem.body', locale)}</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 06 關鍵數字 -->
+  <section class="section" id="key-figures" aria-labelledby="heading-06">
+    <SectionHeader index="06" zh={t('about.section06.zh', locale)} en={t('about.section06.en', locale)} />
+    <div class="stat-grid reveal">
+
+      <article class="stat-block stat-block--sun">
+        <span class="stat-block__rule" aria-hidden="true"></span>
+        <p class="stat-block__value">GB300</p>
+        <p class="stat-block__label">{t('about.stat.gb300.label', locale)}</p>
+        <p class="stat-block__sub">{t('about.stat.gb300.sub', locale)}</p>
+        <span class="stat-block__accent-tag stat-block__accent-tag--sun">{t('about.gov.risk.tag', locale)}</span>
+      </article>
+
+      <article class="stat-block stat-block--sage">
+        <span class="stat-block__rule" aria-hidden="true"></span>
+        <p class="stat-block__value">4</p>
+        <p class="stat-block__label">{t('about.stat.phases.label', locale)}</p>
+        <p class="stat-block__sub">{t('about.stat.phases.sub', locale)}</p>
+        <span class="stat-block__accent-tag stat-block__accent-tag--sage">{t('about.gov.raci.tag', locale)}</span>
+      </article>
+
+      <article class="stat-block stat-block--clay">
+        <span class="stat-block__rule" aria-hidden="true"></span>
+        <p class="stat-block__value">≤4hr</p>
+        <p class="stat-block__label">{t('about.stat.dr.label', locale)}</p>
+        <p class="stat-block__sub">{t('about.stat.dr.sub', locale)}</p>
+        <span class="stat-block__accent-tag stat-block__accent-tag--clay">{t('about.gov.dr.tag', locale)}</span>
+      </article>
+
+      <article class="stat-block stat-block--sage">
+        <span class="stat-block__rule" aria-hidden="true"></span>
+        <p class="stat-block__value">100%</p>
+        <p class="stat-block__label">{t('about.stat.knowledge.label', locale)}</p>
+        <p class="stat-block__sub">{t('about.stat.knowledge.sub', locale)}</p>
+        <span class="stat-block__accent-tag stat-block__accent-tag--sage">{t('about.gov.raci.tag', locale)}</span>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- 07 ENGAGE -->
+  <EngageCTA locale={locale} />
+</PageLayout>
+
+<script>
+  import { revealOnEnter } from '../scripts/theme-motion';
+  revealOnEnter('.reveal');
+</script>
+
+<style>
+  /* ── Prose block (mission section) ── */
+  .prose {
+    max-width: 64ch;
+    font-size: 1.1rem;
+    line-height: 1.75;
+  }
+  .prose p {
+    margin-bottom: 1.25rem;
+  }
+  .prose p:last-child {
+    margin-bottom: 0;
+  }
+  .trust-line {
+    font-family: var(--font-serif-tc);
+    font-size: clamp(1.15rem, 2.5vw, 1.5rem);
+    color: var(--sun);
+    line-height: 1.55;
+    border-left: 2px solid var(--sun);
+    padding-left: 1.25rem;
+    margin-top: 1.5rem;
+  }
+
+  /* ── Compliance row (below LayerStack) ── */
+  .compliance-row {
+    margin-top: clamp(2rem, 5vw, 3rem);
+  }
+  .compliance-label {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    color: var(--ink-muted);
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+  }
+
+  /* ── Governance grid: 2×2 on desktop ── */
+  .governance-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+  @media (min-width: 768px) {
+    .governance-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .gov-pillar {
+    background: var(--surface);
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    position: relative;
+  }
+  /* Top-inset accent hairline per tri-accent color */
+  .gov-pillar--sage { box-shadow: inset 0 3px 0 var(--sage); }
+  .gov-pillar--sun  { box-shadow: inset 0 3px 0 var(--sun);  }
+  .gov-pillar--clay { box-shadow: inset 0 3px 0 var(--clay); }
+
+  .gov-pillar__tag {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    font-weight: 600;
+    padding: 0.15em 0.55em;
+    border-radius: 2px;
+    border: 1px solid;
+    align-self: flex-start;
+  }
+  .gov-pillar__tag--sage {
+    color: var(--sage);
+    border-color: color-mix(in srgb, var(--sage) 40%, transparent);
+    background: color-mix(in srgb, var(--sage) 8%, transparent);
+  }
+  .gov-pillar__tag--sun {
+    color: var(--sun);
+    border-color: color-mix(in srgb, var(--sun) 40%, transparent);
+    background: color-mix(in srgb, var(--sun) 8%, transparent);
+  }
+  .gov-pillar__tag--clay {
+    color: var(--clay);
+    border-color: color-mix(in srgb, var(--clay) 40%, transparent);
+    background: color-mix(in srgb, var(--clay) 8%, transparent);
+  }
+
+  .gov-pillar__title {
+    font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0;
+  }
+  .gov-pillar__body {
+    font-size: 0.9rem;
+    color: var(--ink-muted);
+    line-height: 1.65;
+    margin: 0;
+    max-width: 52ch;
+  }
+
+  /* ── Trust grid: 2×2 ── */
+  .trust-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(1.5rem, 4vw, 2rem);
+  }
+  @media (min-width: 768px) {
+    .trust-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .trust-card {
+    border: 1px solid var(--border);
+    padding: clamp(1.5rem, 4vw, 2rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    background: var(--surface);
+    position: relative;
+  }
+  /* Thin gold top-border on all trust cards */
+  .trust-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--sun);
+    opacity: 0.35;
+  }
+
+  .trust-card__en {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    color: var(--sun);
+    margin: 0;
+    text-transform: uppercase;
+  }
+  .trust-card__title {
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0;
+  }
+  .trust-card__body {
+    font-size: 0.9rem;
+    color: var(--ink-muted);
+    line-height: 1.65;
+    margin: 0;
+  }
+
+  /* ── Stat grid: 4 columns (or 2×2 on tablet) ── */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+  @media (min-width: 640px) {
+    .stat-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 1024px) {
+    .stat-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .stat-block {
+    background: var(--surface);
+    padding: clamp(2rem, 5vw, 3rem) clamp(1.5rem, 4vw, 2.5rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .stat-block__rule {
+    display: block;
+    width: 100%;
+    height: 3px;
+    margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+  }
+  .stat-block--clay .stat-block__rule { background: var(--clay); }
+  .stat-block--sun  .stat-block__rule { background: var(--sun);  }
+  .stat-block--sage .stat-block__rule { background: var(--sage); }
+
+  .stat-block__value {
+    font-family: var(--font-display);
+    font-size: clamp(2.8rem, 8vw, 5rem);
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    margin: 0 0 0.5rem;
+  }
+  .stat-block--clay .stat-block__value { color: var(--clay); }
+  .stat-block--sun  .stat-block__value { color: var(--sun);  }
+  .stat-block--sage .stat-block__value { color: var(--sage); }
+
+  .stat-block__label {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink);
+    font-weight: 700;
+    margin: 0 0 0.35rem;
+  }
+  .stat-block__sub {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--ink-muted);
+    line-height: 1.55;
+    margin: 0 0 0.75rem;
+  }
+
+  /* Accent semantic tag — text accompanies every color (DESIGN.md) */
+  .stat-block__accent-tag {
+    font-family: var(--font-mono);
+    font-size: 0.60rem;
+    letter-spacing: 0.14em;
+    font-weight: 600;
+    padding: 0.12em 0.45em;
+    border-radius: 2px;
+    border: 1px solid;
+    align-self: flex-start;
+    margin-top: auto;
+  }
+  .stat-block__accent-tag--clay {
+    color: var(--clay);
+    border-color: color-mix(in srgb, var(--clay) 40%, transparent);
+    background: color-mix(in srgb, var(--clay) 8%, transparent);
+  }
+  .stat-block__accent-tag--sun {
+    color: var(--sun);
+    border-color: color-mix(in srgb, var(--sun) 40%, transparent);
+    background: color-mix(in srgb, var(--sun) 8%, transparent);
+  }
+  .stat-block__accent-tag--sage {
+    color: var(--sage);
+    border-color: color-mix(in srgb, var(--sage) 40%, transparent);
+    background: color-mix(in srgb, var(--sage) 8%, transparent);
+  }
+
+  /* ── Reduced motion ── */
+  @media (prefers-reduced-motion: reduce) {
+    .trust-card,
+    .gov-pillar,
+    .stat-block {
+      transition: none;
+    }
+  }
+</style>

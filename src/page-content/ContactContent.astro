@@ -1,0 +1,496 @@
+---
+/**
+ * Contact 預約諮詢 — page-content component.
+ * Rendered by src/pages/contact.astro (zh-Hant),
+ *             src/pages/en/contact.astro (en),
+ *             src/pages/zh-hans/contact.astro (zh-Hans).
+ */
+
+import PageLayout from '../layouts/PageLayout.astro';
+import SubHero from '../components/SubHero.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import ProcessSteps from '../components/ProcessSteps.astro';
+import ContactForm from '../components/ContactForm.astro';
+import InquiryTypeCard from '../components/InquiryTypeCard.astro';
+import CTAButton from '../components/CTAButton.astro';
+import HudCoordinate from '../components/HudCoordinate.astro';
+import { getCollection } from 'astro:content';
+import { t, localized } from '../i18n/utils';
+import type { Locale } from '../i18n/utils';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+
+const inquiryTypes = (await getCollection('inquiryTypes')).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+---
+
+<PageLayout
+  title={t('page.contact.title', locale)}
+  description={t('page.contact.description', locale)}
+  locale={locale}
+>
+  <!-- ── Hero ─────────────────────────────────────────────────────── -->
+  <Fragment slot="hero">
+    <SubHero
+      eyebrow="09 · ENGAGE"
+      zhTitle={t('contact.hero.zhTitle', locale)}
+      enLabel="CONTACT // PLAN YOUR INTELLIGENT WAFER FAB"
+      lede={t('contact.hero.lede', locale)}
+      ctas={[
+        { href: '#form',   label: t('contact.hero.cta.form', locale),   variant: 'clay'  },
+        { href: '#direct', label: t('contact.hero.cta.direct', locale), variant: 'ghost' },
+      ]}
+    />
+  </Fragment>
+
+  <!-- ── ENGAGE.00 四步交付流程 ─────────────────────────────────── -->
+  <section class="section" id="process" aria-labelledby="heading-00">
+    <SectionHeader index="00" zh={t('contact.section00.zh', locale)} en={t('contact.section00.en', locale)} />
+    <ProcessSteps />
+    <p class="process-note reveal">
+      {t('contact.section00.processNote', locale)}
+    </p>
+  </section>
+
+  <!-- ── FORM.01 諮詢表單 ────────────────────────────────────────── -->
+  <section class="section" id="form" aria-labelledby="heading-01">
+    <SectionHeader index="01" zh={t('contact.section01.zh', locale)} en={t('contact.section01.en', locale)} />
+    <ContactForm />
+  </section>
+
+  <!-- ── DIRECT.02 直接聯絡 ─────────────────────────────────────── -->
+  <section class="section" id="direct" aria-labelledby="heading-02">
+    <SectionHeader index="02" zh={t('contact.section02.zh', locale)} en={t('contact.section02.en', locale)} />
+    <div class="direct-grid reveal" role="list" aria-label={t('contact.direct.ariaLabel', locale)}>
+
+      <!-- Email (primary) -->
+      <div class="direct-card" role="listitem">
+        <p class="direct-card__kicker">{t('contact.direct.email.kicker', locale)}</p>
+        <a class="direct-card__value direct-card__email" href="mailto:hello@shinylogic.tech">
+          hello@shinylogic.tech
+        </a>
+        <p class="direct-card__sub">{t('contact.direct.email.sub', locale)}</p>
+      </div>
+
+      <!-- Response time — sun (service-level / performance) -->
+      <div class="direct-card direct-card--sun" role="listitem">
+        <p class="direct-card__kicker">{t('contact.direct.response.kicker', locale)}</p>
+        <p class="direct-card__value">{t('contact.direct.response.value', locale)}</p>
+        <p class="direct-card__sub">{t('contact.direct.response.sub', locale)}</p>
+        <span class="accent-tag accent-tag--sun" aria-label={t('contact.direct.response.ariaLabel', locale)}>PERFORMANCE</span>
+      </div>
+
+      <!-- Languages — sage (coverage / governance) -->
+      <div class="direct-card direct-card--sage" role="listitem">
+        <p class="direct-card__kicker">{t('contact.direct.langs.kicker', locale)}</p>
+        <p class="direct-card__value">{t('contact.direct.langs.value', locale)}</p>
+        <p class="direct-card__sub">{t('contact.direct.langs.sub', locale)}</p>
+        <span class="accent-tag accent-tag--sage" aria-label={t('contact.direct.langs.ariaLabel', locale)}>COVERAGE</span>
+      </div>
+
+      <!-- Coordinates / location -->
+      <div class="direct-card direct-card--coord" role="listitem">
+        <p class="direct-card__kicker">{t('contact.direct.coords.kicker', locale)}</p>
+        <p class="direct-card__value direct-card__coords">N 24°08′ E 120°41′</p>
+        <p class="direct-card__sub">TAIWAN · HSINCHU SCIENCE PARK</p>
+        <span class="active-badge">[ ACTIVE ]</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── INFO.03 諮詢類型說明 ───────────────────────────────────── -->
+  <section class="section" id="inquiry-types" aria-labelledby="heading-03">
+    <SectionHeader index="03" zh={t('contact.section03.zh', locale)} en={t('contact.section03.en', locale)} />
+    <p class="types-intro reveal">
+      {t('contact.section03.intro', locale)}
+    </p>
+    <div class="inq-grid reveal" role="list" aria-label={t('contact.section03.ariaLabel', locale)}>
+      {inquiryTypes.map((type) => (
+        <div role="listitem">
+          <InquiryTypeCard
+            order={type.data.order}
+            zhName={type.data.zhName}
+            enLabel={type.data.enLabel}
+            description={String(localized(type.data, 'description', locale))}
+            target={String(localized(type.data, 'target', locale))}
+          />
+        </div>
+      ))}
+    </div>
+    <p class="section-hud" aria-hidden="true">
+      <HudCoordinate text="X:0903 Y:TYPE · 5 INQUIRY TYPES DEFINED" />
+    </p>
+  </section>
+
+  <!-- ── CTA 規劃您的智能晶圓廠 ─────────────────────────────────── -->
+  <div class="cta-bleed">
+    <section class="cta-inner reveal" aria-label={t('contact.cta.ariaLabel', locale)}>
+      <p class="cta-eyebrow" aria-hidden="true">ENGAGE</p>
+      <h2 class="cta-title">{t('contact.cta.title', locale)}</h2>
+
+      <!-- 3 stat badges — all tri-accents present with labels -->
+      <div class="cta-stats" role="list" aria-label={t('contact.cta.statsAriaLabel', locale)}>
+
+        <div class="cta-stat cta-stat--sage" role="listitem">
+          <span class="cta-stat__value">{t('contact.cta.sage.value', locale)}</span>
+          <span class="cta-stat__label">{t('contact.cta.sage.label', locale)}</span>
+          <span class="cta-stat__tag cta-stat__tag--sage" aria-label={t('contact.cta.sage.ariaLabel', locale)}>COVERAGE</span>
+        </div>
+
+        <div class="cta-stat cta-stat--clay" role="listitem">
+          <span class="cta-stat__value">RTO ≤ 4hr</span>
+          <span class="cta-stat__label">{t('contact.cta.clay.label', locale)}</span>
+          <span class="cta-stat__tag cta-stat__tag--clay" aria-label={t('contact.cta.clay.ariaLabel', locale)}>RESILIENCE</span>
+        </div>
+
+        <div class="cta-stat cta-stat--sun" role="listitem">
+          <span class="cta-stat__value">SLO ≥ 95%</span>
+          <span class="cta-stat__label">{t('contact.cta.sun.label', locale)}</span>
+          <span class="cta-stat__tag cta-stat__tag--sun" aria-label={t('contact.cta.sun.ariaLabel', locale)}>PERFORMANCE</span>
+        </div>
+
+      </div>
+
+      <div class="cta-actions">
+        <CTAButton variant="clay" href="#form" label={t('contact.cta.submit', locale)} />
+        <a class="cta-secondary" href="#process">{t('contact.cta.process', locale)}</a>
+      </div>
+
+      <p class="cta-coord" aria-hidden="true">
+        <HudCoordinate text="N 24°08′ E 120°41′ · TAIWAN · HSINCHU" />
+      </p>
+    </section>
+  </div>
+
+</PageLayout>
+
+<script>
+  import { revealOnEnter } from '../scripts/theme-motion';
+  revealOnEnter('.reveal');
+</script>
+
+<style>
+  /* ─────────────────────────────────────────────────────────────────
+     ENGAGE.00 — Process note
+  ───────────────────────────────────────────────────────────────── */
+  .process-note {
+    margin-top: clamp(1.5rem, 4vw, 2.5rem);
+    max-width: 64ch;
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+    color: var(--ink-faint);
+    line-height: 1.65;
+    border-left: 2px solid var(--border-strong);
+    padding-left: 1.1rem;
+  }
+
+  /* ─────────────────────────────────────────────────────────────────
+     DIRECT.02 — Contact grid
+  ───────────────────────────────────────────────────────────────── */
+
+  /* Gap-as-border: 1px gaps on dark bg create hairline dividers */
+  .direct-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  @media (min-width: 640px) {
+    .direct-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  /* ── Card shell ── */
+  .direct-card {
+    background: var(--surface);
+    padding: clamp(1.25rem, 4vw, 2rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+
+  /* Accent top-hairline stripes */
+  .direct-card--sun  { box-shadow: inset 0 2px 0 var(--sun);  }
+  .direct-card--sage { box-shadow: inset 0 2px 0 var(--sage); }
+
+  /* ── Kicker (label row above value) ── */
+  .direct-card__kicker {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+    color: var(--ink-faint);
+    margin: 0;
+  }
+
+  /* ── Primary value ── */
+  .direct-card__value {
+    font-size: clamp(1rem, 2.5vw, 1.3rem);
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  /* Email link styling */
+  .direct-card__email {
+    color: var(--sun);
+    text-decoration: none;
+    border-bottom: 1px solid color-mix(in srgb, var(--sun) 40%, transparent);
+    padding-bottom: 0.15rem;
+    word-break: break-all;
+    transition:
+      color var(--dur-quick) var(--ease-out),
+      border-color var(--dur-quick) var(--ease-out);
+  }
+  .direct-card__email:hover {
+    color: var(--ink);
+    border-color: var(--ink-muted);
+  }
+  .direct-card__email:focus-visible {
+    outline: 2px solid var(--sun);
+    outline-offset: 3px;
+  }
+
+  /* Monospaced geo-coordinate value */
+  .direct-card__coords {
+    font-family: var(--font-mono);
+    font-size: clamp(1.1rem, 3.5vw, 1.5rem);
+    letter-spacing: 0.05em;
+  }
+
+  /* ── Sub / secondary text ── */
+  .direct-card__sub {
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  /* ── Shared accent tag (sun / sage) ── */
+  .accent-tag {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    font-weight: 600;
+    padding: 0.14em 0.48em;
+    border-radius: 2px;
+    border: 1px solid;
+    align-self: flex-start;
+    margin-top: auto;
+  }
+  .accent-tag--sun {
+    color: var(--sun);
+    border-color: color-mix(in srgb, var(--sun) 40%, transparent);
+    background: color-mix(in srgb, var(--sun) 8%, transparent);
+  }
+  .accent-tag--sage {
+    color: var(--sage);
+    border-color: color-mix(in srgb, var(--sage) 40%, transparent);
+    background: color-mix(in srgb, var(--sage) 8%, transparent);
+  }
+
+  /* ── [ ACTIVE ] badge on coordinates card ── */
+  .active-badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--sage);
+    border: 1px solid color-mix(in srgb, var(--sage) 40%, transparent);
+    background: color-mix(in srgb, var(--sage) 8%, transparent);
+    padding: 0.15em 0.45em;
+    border-radius: 2px;
+    align-self: flex-start;
+    margin-top: auto;
+  }
+
+  /* ─────────────────────────────────────────────────────────────────
+     INFO.03 — Inquiry types grid
+  ───────────────────────────────────────────────────────────────── */
+
+  .types-intro {
+    max-width: 58ch;
+    font-size: 0.95rem;
+    color: var(--ink-muted);
+    line-height: 1.65;
+    margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+  }
+
+  /* Auto-fit: fills all 5 cards without orphan issues at mid widths */
+  .inq-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(0.65rem, 1.5vw, 1rem);
+  }
+  @media (min-width: 560px) {
+    .inq-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 1024px) {
+    .inq-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    /* Cards 4 & 5 (0-indexed: 3 & 4) — centre the bottom row of 2 */
+    .inq-grid > :nth-child(4) { grid-column: 1 / 2; }
+    .inq-grid > :nth-child(5) { grid-column: 2 / 3; }
+  }
+
+  .section-hud {
+    margin-top: 2rem;
+    text-align: right;
+  }
+
+  /* ─────────────────────────────────────────────────────────────────
+     CTA — Closing conversion section
+  ───────────────────────────────────────────────────────────────── */
+
+  /* Full-bleed background wrapper */
+  .cta-bleed {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+  }
+
+  /* Constrained inner — mirrors .section but text-centered */
+  .cta-inner {
+    max-width: var(--maxw);
+    margin-inline: auto;
+    padding: clamp(4rem, 10vw, 8rem) var(--gutter);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  .cta-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.22em;
+    color: var(--sun);
+    margin: 0 0 1rem;
+  }
+
+  .cta-title {
+    font-size: clamp(1.8rem, 5vw, 3.2rem);
+    font-weight: 600;
+    margin: 0 0 2.5rem;
+    text-wrap: balance;
+  }
+
+  /* ── Stat badges (3-up, gap-as-border) ── */
+  .cta-stats {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-bottom: 2.5rem;
+    width: 100%;
+    max-width: 720px;
+  }
+
+  .cta-stat {
+    flex: 1;
+    min-width: 160px;
+    background: var(--bg);
+    padding: clamp(1rem, 3vw, 1.5rem) clamp(1.25rem, 3vw, 1.75rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  /* Accent top hairlines */
+  .cta-stat--clay { box-shadow: inset 0 2px 0 var(--clay); }
+  .cta-stat--sun  { box-shadow: inset 0 2px 0 var(--sun); }
+  .cta-stat--sage { box-shadow: inset 0 2px 0 var(--sage); }
+
+  .cta-stat__value {
+    font-family: var(--font-mono);
+    font-size: clamp(1.1rem, 3vw, 1.5rem);
+    font-weight: 500;
+    line-height: 1;
+  }
+  .cta-stat--clay .cta-stat__value { color: var(--clay); }
+  .cta-stat--sun  .cta-stat__value { color: var(--sun);  }
+  .cta-stat--sage .cta-stat__value { color: var(--sage); }
+
+  .cta-stat__label {
+    font-size: 0.78rem;
+    color: var(--ink-muted);
+    line-height: 1.3;
+    text-align: center;
+  }
+
+  .cta-stat__tag {
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.14em;
+    font-weight: 600;
+    padding: 0.13em 0.45em;
+    border-radius: 2px;
+    border: 1px solid;
+    margin-top: 0.2rem;
+  }
+  .cta-stat__tag--clay {
+    color: var(--clay);
+    border-color: color-mix(in srgb, var(--clay) 40%, transparent);
+    background: color-mix(in srgb, var(--clay) 8%, transparent);
+  }
+  .cta-stat__tag--sun {
+    color: var(--sun);
+    border-color: color-mix(in srgb, var(--sun) 40%, transparent);
+    background: color-mix(in srgb, var(--sun) 8%, transparent);
+  }
+  .cta-stat__tag--sage {
+    color: var(--sage);
+    border-color: color-mix(in srgb, var(--sage) 40%, transparent);
+    background: color-mix(in srgb, var(--sage) 8%, transparent);
+  }
+
+  /* ── CTA buttons row ── */
+  .cta-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+
+  .cta-secondary {
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+    color: var(--ink-muted);
+    text-decoration: none;
+    border-bottom: 1px solid var(--border-strong);
+    padding-bottom: 0.2rem;
+    transition:
+      color var(--dur-quick) var(--ease-out),
+      border-color var(--dur-quick) var(--ease-out);
+  }
+  .cta-secondary:hover {
+    color: var(--ink);
+    border-color: var(--sun);
+  }
+  .cta-secondary:focus-visible {
+    outline: 2px solid var(--sun);
+    outline-offset: 3px;
+  }
+
+  .cta-coord {
+    margin: 0;
+    opacity: 0.6;
+  }
+</style>

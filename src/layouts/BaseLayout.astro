@@ -6,6 +6,7 @@ import SkipLink from '../components/SkipLink.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import type { Locale } from '../i18n/utils';
+import { siblingUrl } from '../i18n/utils';
 
 interface Props {
   title: string;
@@ -14,8 +15,14 @@ interface Props {
 }
 const { title, description, locale = 'zh-Hant' } = Astro.props;
 const htmlLang = locale === 'zh-Hans' ? 'zh-Hans' : locale === 'en' ? 'en' : 'zh-Hant';
-const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const pathname = Astro.url.pathname;
+const canonical = new URL(pathname, Astro.site).href;
 const ogImage = new URL('/og-image.png', Astro.site).href;
+
+// Compute per-page hreflang siblings
+const hrefZhHant = new URL(siblingUrl(pathname, 'zh-Hant'), Astro.site).href;
+const hrefEn = new URL(siblingUrl(pathname, 'en'), Astro.site).href;
+const hrefZhHans = new URL(siblingUrl(pathname, 'zh-Hans'), Astro.site).href;
 ---
 
 <!doctype html>
@@ -31,22 +38,58 @@ const ogImage = new URL('/og-image.png', Astro.site).href;
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImage} />
-    <link rel="alternate" hreflang="zh-Hant" href={new URL('/', Astro.site).href} />
-    <link rel="alternate" hreflang="en" href={new URL('/en/', Astro.site).href} />
-    <link rel="alternate" hreflang="zh-Hans" href={new URL('/zh-hans/', Astro.site).href} />
-    <link rel="alternate" hreflang="x-default" href={new URL('/', Astro.site).href} />
+    <link rel="alternate" hreflang="zh-Hant" href={hrefZhHant} />
+    <link rel="alternate" hreflang="en" href={hrefEn} />
+    <link rel="alternate" hreflang="zh-Hans" href={hrefZhHans} />
+    <link rel="alternate" hreflang="x-default" href={hrefZhHant} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&family=Nunito+Sans:wght@400;600;700&family=Spline+Sans+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
+    <!-- Pre-paint: reduced-motion + lang-persist redirect (root only). -->
     <script is:inline>
-      try {
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-          document.documentElement.classList.add('reduced-motion');
-        }
-      } catch (e) {}
+      (function () {
+        // Reduced-motion
+        try {
+          if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            document.documentElement.classList.add('reduced-motion');
+          }
+        } catch (e) {}
+
+        // Lang-persist: on bare root '/' redirect to stored locale pref.
+        try {
+          var path = location.pathname;
+          if (path !== '/') return; // only redirect on the unprefixed root
+
+          function readPref() {
+            var m = document.cookie.match(/(?:^|;\s*)pref_lang=([^;]+)/);
+            if (m) return m[1];
+            try { return localStorage.getItem('pref_lang'); } catch (e) { return null; }
+          }
+
+          // Honor ?lang= override: write pref and redirect.
+          var params = new URLSearchParams(location.search);
+          var langParam = params.get('lang');
+          if (langParam) {
+            var target = null;
+            var exp = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString();
+            if (langParam === 'en') {
+              document.cookie = 'pref_lang=en; expires=' + exp + '; path=/; SameSite=Lax';
+              target = '/en/';
+            } else if (langParam === 'zh-hans' || langParam === 'zh-Hans') {
+              document.cookie = 'pref_lang=zh-Hans; expires=' + exp + '; path=/; SameSite=Lax';
+              target = '/zh-hans/';
+            }
+            if (target) { location.replace(target); return; }
+          }
+
+          var pref = readPref();
+          if (pref === 'en') { location.replace('/en/'); return; }
+          if (pref === 'zh-Hans') { location.replace('/zh-hans/'); return; }
+        } catch (e) {}
+      })();
     </script>
   </head>
   <body>
@@ -54,5 +97,8 @@ const ogImage = new URL('/og-image.png', Astro.site).href;
     <Header locale={locale} />
     <slot />
     <Footer locale={locale} />
+    <script>
+      import '../scripts/lang-persist';
+    </script>
   </body>
 </html>

@@ -1,0 +1,233 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import HeroPoster from '../components/hero/HeroPoster.astro';
+import HeroCanvas from '../components/hero/HeroCanvas.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import CTAButton from '../components/CTAButton.astro';
+import SlaStrip from '../components/SlaStrip.astro';
+import ComplianceBadges from '../components/ComplianceBadges.astro';
+import EngageCTA from '../components/EngageCTA.astro';
+import LayerStack from '../components/LayerStack.astro';
+import PhaseTimeline from '../components/PhaseTimeline.astro';
+import ByTheNumbers from '../components/ByTheNumbers.astro';
+import BuildVsBuy from '../components/BuildVsBuy.astro';
+import { t } from '../i18n/utils';
+import type { Locale } from '../i18n/utils';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+
+const chips = [
+  { label: '≤4hr', accent: 'clay' },
+  { label: t('home.hero.chip2', locale), accent: 'sage' },
+  { label: '≥95%', accent: 'gold' },
+  { label: '100%', accent: 'sage' },
+];
+---
+
+<PageLayout
+  title={t('page.home.title', locale)}
+  description={t('page.home.description', locale)}
+  locale={locale}
+  heroVariant="home"
+>
+  <Fragment slot="hero">
+    <HeroPoster />
+    <HeroCanvas />
+    <div class="hero__content">
+      <p class="hero__eyebrow" aria-hidden="true">WHO WE ARE // SYSTEMS INTEGRATOR</p>
+      <h1 class="hero__title">
+        <span class="hero__line">{t('home.hero.titleLine1', locale)}</span>
+        <span class="hero__line"
+          >{t('home.hero.titleLine2', locale)}<span class="hero__nowrap"
+            >{t('home.hero.titleNowrap', locale)}</span
+          ></span
+        >
+      </h1>
+      <p class="hero__lead">{t('home.hero.lead', locale)}</p>
+      <ul class="hero__chips">
+        {chips.map((c) => <li class={`chip chip--${c.accent}`}>{c.label}</li>)}
+      </ul>
+      <div class="hero__actions">
+        <CTAButton variant="clay" href="/contact/" label={t('cta.consult', locale)} />
+        <a class="hero__secondary" href="#architecture">{t('cta.viewArchitecture', locale)} →</a>
+      </div>
+    </div>
+  </Fragment>
+
+  <!-- 01 Positioning + anti-overpromise trust line -->
+  <section class="section" id="positioning" aria-labelledby="heading-01">
+    <SectionHeader
+      index="01"
+      zh={t('home.section01.zh', locale)}
+      en={t('home.section01.en', locale)}
+    />
+    <div class="prose reveal">
+      <p>{t('home.section01.prose1', locale)}</p>
+      <p class="trust-line">{t('home.section01.trustLine', locale)}</p>
+    </div>
+  </section>
+
+  <!-- 02 Six-layer architecture -->
+  <section class="section" id="architecture" aria-labelledby="heading-02">
+    <SectionHeader
+      index="02"
+      zh={t('home.section02.zh', locale)}
+      en={t('home.section02.en', locale)}
+    />
+    <LayerStack />
+  </section>
+
+  <!-- 03 Universal SLA strip -->
+  <section class="section" id="sla" aria-labelledby="heading-03">
+    <SectionHeader
+      index="03"
+      zh={t('home.section03.zh', locale)}
+      en={t('home.section03.en', locale)}
+    />
+    <SlaStrip />
+  </section>
+
+  <!-- 04 FAB300 4-phase / 8-gate teaser -->
+  <section class="section" id="phases" aria-labelledby="heading-04">
+    <SectionHeader
+      index="04"
+      zh={t('home.section04.zh', locale)}
+      en={t('home.section04.en', locale)}
+    />
+    <PhaseTimeline />
+  </section>
+
+  <!-- 05 By the Numbers -->
+  <section class="section" id="numbers" aria-labelledby="heading-05">
+    <SectionHeader
+      index="05"
+      zh={t('home.section05.zh', locale)}
+      en={t('home.section05.en', locale)}
+    />
+    <ByTheNumbers />
+  </section>
+
+  <!-- 06 Compliance cluster + NVIDIA Blackwell / GB300 ecosystem signal -->
+  <section class="section" id="compliance" aria-labelledby="heading-06">
+    <SectionHeader
+      index="06"
+      zh={t('home.section06.zh', locale)}
+      en={t('home.section06.en', locale)}
+    />
+    <ComplianceBadges />
+    <p class="ecosystem reveal">{t('home.section06.ecosystem', locale)}</p>
+  </section>
+
+  <!-- 07 Build vs Buy -->
+  <BuildVsBuy />
+
+  <!-- 08 ENGAGE -->
+  <EngageCTA locale={locale} />
+</PageLayout>
+
+<script>
+  import { revealOnEnter } from '../scripts/theme-motion';
+  revealOnEnter('.reveal');
+</script>
+
+<style>
+  .hero__content {
+    position: relative;
+    z-index: 2;
+    max-width: var(--maxw);
+    margin-inline: auto;
+    padding: clamp(7rem, 14vh, 11rem) var(--gutter) clamp(3rem, 8vh, 6rem);
+    width: 100%;
+  }
+  .hero__eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.2em;
+    color: var(--sun);
+    margin: 0 0 1.25rem;
+  }
+  .hero__title {
+    font-size: clamp(2.8rem, 9vw, 7rem);
+    font-weight: 900;
+    margin: 0 0 1.5rem;
+    text-wrap: balance;
+  }
+  .hero__line {
+    display: block;
+  }
+  /* Prevents trailing single glyph orphan on the closing clause */
+  .hero__nowrap {
+    white-space: nowrap;
+  }
+  .hero__lead {
+    max-width: 52ch;
+    font-size: clamp(1.05rem, 2vw, 1.3rem);
+    color: var(--ink);
+    margin-bottom: 2rem;
+  }
+  .hero__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    list-style: none;
+    margin: 0 0 2.5rem;
+    padding: 0;
+  }
+  .chip {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    padding: 0.4rem 0.9rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    color: var(--ink);
+  }
+  .chip--clay {
+    border-color: var(--clay);
+    color: var(--clay);
+  }
+  .chip--gold {
+    border-color: var(--sun);
+    color: var(--sun);
+  }
+  .chip--sage {
+    border-color: var(--sage);
+    color: var(--sage);
+  }
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  .hero__secondary {
+    font-family: var(--font-mono);
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--sun);
+    padding-bottom: 0.2rem;
+  }
+
+  .prose {
+    max-width: 62ch;
+    font-size: 1.1rem;
+  }
+  .trust-line {
+    margin-top: 1.5rem;
+    font-family: var(--font-serif-tc);
+    font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+    color: var(--sun);
+    line-height: 1.5;
+  }
+
+  .ecosystem {
+    margin-top: 2rem;
+    max-width: 62ch;
+    color: var(--ink-muted);
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+</style>

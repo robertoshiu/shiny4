@@ -1,15 +1,18 @@
 ---
+import { siblingUrl } from '../i18n/utils';
 import type { Locale } from '../i18n/utils';
+
 interface Props {
   locale: Locale;
-  path?: string;
 }
-const { locale, path = '/' } = Astro.props;
-// 繁中 is unprefixed at root; localized variants live under /en and /zh-hans (Plan 3).
+const { locale } = Astro.props;
+
+// Compute sibling URLs from the actual current page path.
+const pathname = Astro.url.pathname;
 const segs = [
-  { code: 'zh-Hant', label: '繁', href: path },
-  { code: 'en', label: 'EN', href: `/en${path}` },
-  { code: 'zh-Hans', label: '简', href: `/zh-hans${path}` },
+  { code: 'zh-Hant' as Locale, label: '繁', href: siblingUrl(pathname, 'zh-Hant') },
+  { code: 'en' as Locale, label: 'EN', href: siblingUrl(pathname, 'en') },
+  { code: 'zh-Hans' as Locale, label: '简', href: siblingUrl(pathname, 'zh-Hans') },
 ] as const;
 ---
 

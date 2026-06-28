@@ -1,0 +1,646 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import SubHero from '../components/SubHero.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import DeliveryMatrix from '../components/DeliveryMatrix.astro';
+import PhaseTimeline from '../components/PhaseTimeline.astro';
+import SlaStrip from '../components/SlaStrip.astro';
+import ComplianceBadges from '../components/ComplianceBadges.astro';
+import RiskCard from '../components/RiskCard.astro';
+import EngageCTA from '../components/EngageCTA.astro';
+import { getCollection } from 'astro:content';
+import { t } from '../i18n/utils';
+import type { Locale } from '../i18n/utils';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+
+const risks = (await getCollection('risks')).sort((a, b) =>
+  a.data.id.localeCompare(b.data.id),
+);
+
+const heroStats = [
+  {
+    value: t('methodology.hero.stat1.value', locale),
+    label: t('methodology.hero.stat1.label', locale),
+    sub: t('methodology.hero.stat1.sub', locale),
+    accent: 'sage' as const,
+  },
+  {
+    value: 'GB300',
+    label: 'NVL72 AI Fabric',
+    sub: t('methodology.hero.stat2.sub', locale),
+  },
+  {
+    value: '≤4hr',
+    label: 'DR RTO',
+    sub: t('methodology.hero.stat3.sub', locale),
+    accent: 'clay' as const,
+  },
+  {
+    value: '≥95%',
+    label: t('methodology.hero.stat4.label', locale),
+    sub: t('methodology.hero.stat4.sub', locale),
+    accent: 'sun' as const,
+  },
+];
+
+const replSteps = [
+  {
+    num: '01',
+    zh: t('methodology.section06.step1.zh', locale),
+    en: 'TEMPLATE ARCHIVE',
+    body: t('methodology.section06.step1.body', locale),
+  },
+  {
+    num: '02',
+    zh: t('methodology.section06.step2.zh', locale),
+    en: 'GAP ASSESSMENT',
+    body: t('methodology.section06.step2.body', locale),
+  },
+  {
+    num: '03',
+    zh: t('methodology.section06.step3.zh', locale),
+    en: 'ACCELERATED DEPLOY',
+    body: t('methodology.section06.step3.body', locale),
+  },
+];
+
+const templateItems = [
+  t('methodology.section06.templateItem1', locale),
+  t('methodology.section06.templateItem2', locale),
+  t('methodology.section06.templateItem3', locale),
+  t('methodology.section06.templateItem4', locale),
+  t('methodology.section06.templateItem5', locale),
+];
+---
+
+<PageLayout
+  title={t('page.methodology.title', locale)}
+  description={t('page.methodology.description', locale)}
+  locale={locale}
+>
+  <Fragment slot="hero">
+    <SubHero
+      eyebrow="FAB300 REFERENCE METHODOLOGY // SYSTEMS INTEGRATOR"
+      zhTitle={t('methodology.hero.zhTitle', locale)}
+      enLabel="INTELLIGENT WAFER FAB IT/OT+AI INTEGRATION METHODOLOGY"
+      lede={t('methodology.hero.lede', locale)}
+      stats={heroStats}
+      ctas={[
+        { href: '/contact/', label: t('cta.consult', locale), variant: 'clay' },
+        { href: '#matrix', label: t('methodology.hero.cta2', locale), variant: 'ghost' },
+      ]}
+    />
+  </Fragment>
+
+  <!-- FIG.02: 六層×階段交付矩陣 ─────────────────────────── -->
+  <section class="section" id="matrix" aria-labelledby="heading-02">
+    <SectionHeader
+      index="02"
+      zh={t('methodology.section02.zh', locale)}
+      en={t('methodology.section02.en', locale)}
+    />
+    <p class="fig-lede reveal">
+      {t('methodology.section02.lede', locale)}
+    </p>
+    <div class="reveal">
+      <DeliveryMatrix />
+    </div>
+  </section>
+
+  <!-- FIG.03: 四階段交付 ──────────────────────────────────── -->
+  <section class="section" id="timeline" aria-labelledby="heading-03">
+    <SectionHeader
+      index="03"
+      zh={t('methodology.section03.zh', locale)}
+      en={t('methodology.section03.en', locale)}
+    />
+    <p class="fig-lede reveal">
+      {t('methodology.section03.lede', locale)}
+    </p>
+    <div class="reveal">
+      <PhaseTimeline />
+    </div>
+    <div class="phase-detail reveal" aria-label={t('methodology.section03.phaseDetailAriaLabel', locale)}>
+      <div class="phase-detail__row">
+        <span class="phase-detail__tag phase-detail__tag--sage">{t('methodology.section03.p1.tag', locale)}</span>
+        <p class="phase-detail__body">{t('methodology.section03.p1.body', locale)}</p>
+      </div>
+      <div class="phase-detail__row">
+        <span class="phase-detail__tag phase-detail__tag--gold">{t('methodology.section03.p2.tag', locale)}</span>
+        <p class="phase-detail__body">{t('methodology.section03.p2.body', locale)}</p>
+      </div>
+      <div class="phase-detail__row">
+        <span class="phase-detail__tag phase-detail__tag--clay">{t('methodology.section03.p3.tag', locale)}</span>
+        <p class="phase-detail__body">{t('methodology.section03.p3.body', locale)}</p>
+      </div>
+      <div class="phase-detail__row">
+        <span class="phase-detail__tag phase-detail__tag--gold">{t('methodology.section03.p4.tag', locale)}</span>
+        <p class="phase-detail__body">{t('methodology.section03.p4.body', locale)}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FIG.04: 成果與承諾 ──────────────────────────────────── -->
+  <section class="section" id="sla" aria-labelledby="heading-04">
+    <SectionHeader
+      index="04"
+      zh={t('methodology.section04.zh', locale)}
+      en={t('methodology.section04.en', locale)}
+    />
+    <p class="fig-lede reveal">
+      {t('methodology.section04.lede', locale)}
+    </p>
+    <div class="reveal">
+      <SlaStrip />
+    </div>
+    <div class="kpi-detail reveal" aria-label={t('methodology.section04.kpiAriaLabel', locale)}>
+      <div class="kpi-row">
+        <span class="kpi-row__code kpi-row__code--gold">YLD.01</span>
+        <div>
+          <strong>{t('methodology.section04.kpi1.label', locale)}</strong>
+          <p>{t('methodology.section04.kpi1.body', locale)}</p>
+        </div>
+      </div>
+      <div class="kpi-row">
+        <span class="kpi-row__code kpi-row__code--gold">SLO.02</span>
+        <div>
+          <strong>{t('methodology.section04.kpi2.label', locale)}</strong>
+          <p>{t('methodology.section04.kpi2.body', locale)}</p>
+        </div>
+      </div>
+      <div class="kpi-row">
+        <span class="kpi-row__code kpi-row__code--clay">DR.03</span>
+        <div>
+          <strong>{t('methodology.section04.kpi3.label', locale)}</strong>
+          <p>{t('methodology.section04.kpi3.body', locale)}</p>
+        </div>
+      </div>
+      <div class="kpi-row">
+        <span class="kpi-row__code kpi-row__code--clay">DR.04</span>
+        <div>
+          <strong>{t('methodology.section04.kpi4.label', locale)}</strong>
+          <p>{t('methodology.section04.kpi4.body', locale)}</p>
+        </div>
+      </div>
+      <div class="kpi-row">
+        <span class="kpi-row__code kpi-row__code--sage">TPL.05</span>
+        <div>
+          <strong>{t('methodology.section04.kpi5.label', locale)}</strong>
+          <p>{t('methodology.section04.kpi5.body', locale)}</p>
+        </div>
+      </div>
+    </div>
+    <div class="compliance-wrap reveal">
+      <p class="compliance-label">{t('methodology.section04.complianceLabel', locale)}</p>
+      <ComplianceBadges />
+    </div>
+    <p class="governance-note reveal">
+      {t('methodology.section04.governanceNote', locale)}
+    </p>
+  </section>
+
+  <!-- FIG.05: 風險與合規 ──────────────────────────────────── -->
+  <section class="section section--deep" id="risk" aria-labelledby="heading-05">
+    <SectionHeader
+      index="05"
+      zh={t('methodology.section05.zh', locale)}
+      en={t('methodology.section05.en', locale)}
+    />
+    <p class="fig-lede reveal">
+      {t('methodology.section05.lede', locale)}
+    </p>
+    <div class="risk-grid reveal" role="list" aria-label={t('methodology.section05.riskGridAriaLabel', locale)}>
+      {risks.map((r) => (
+        <div role="listitem">
+          <RiskCard
+            id={r.data.id}
+            zhRisk={r.data.zhRisk}
+            mitigation={r.data.mitigation}
+            tier={r.data.tier}
+          />
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- FIG.06: 跨廠複製藍圖 ────────────────────────────────── -->
+  <section class="section" id="replication" aria-labelledby="heading-06">
+    <SectionHeader
+      index="06"
+      zh={t('methodology.section06.zh', locale)}
+      en={t('methodology.section06.en', locale)}
+    />
+    <p class="fig-lede reveal">
+      {t('methodology.section06.lede', locale)}
+    </p>
+
+    <!-- 3-step process -->
+    <ol class="repl-steps" aria-label={t('methodology.section06.stepsAriaLabel', locale)}>
+      {replSteps.map((s) => (
+        <li class="repl-step reveal">
+          <div class="repl-step__num" aria-hidden="true">{s.num}</div>
+          <div class="repl-step__content">
+            <h3 class="repl-step__zh">{s.zh}</h3>
+            <p class="repl-step__en" aria-hidden="true">{s.en}</p>
+            <p class="repl-step__body">{s.body}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+
+    <!-- Template content checklist -->
+    <div class="checklist-wrap reveal">
+      <p class="checklist-label">
+        <span class="checklist-label__dot" aria-hidden="true"></span>
+        {t('methodology.section06.checklistLabel', locale)}
+        <span class="checklist-label__en" aria-hidden="true">TEMPLATE CONTENT</span>
+        <span class="checklist-badge checklist-badge--sage">COVERAGE</span>
+      </p>
+      <ul class="checklist" aria-label={t('methodology.section06.checklistAriaLabel', locale)}>
+        {templateItems.map((item) => (
+          <li class="checklist__item">
+            <span class="checklist__status checklist__status--sage" aria-label={t('methodology.section06.archivedAriaLabel', locale)}>{t('methodology.section06.archivedLabel', locale)}</span>
+            <span class="checklist__text">{item}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <!-- Honest disclaimer -->
+    <div class="disclaimer reveal" role="note" aria-label={t('methodology.section06.disclaimerAriaLabel', locale)}>
+      <span class="disclaimer__label" aria-hidden="true">// NOTE</span>
+      <p class="disclaimer__text">
+        {t('methodology.section06.disclaimerText', locale)}
+      </p>
+    </div>
+  </section>
+
+  <!-- ENGAGE CTA -->
+  <EngageCTA locale={locale} />
+</PageLayout>
+
+<script>
+  import { revealOnEnter } from '../scripts/theme-motion';
+  revealOnEnter('.reveal');
+</script>
+
+<style>
+  /* ── Section intro lede ───────────────────────────────── */
+  .fig-lede {
+    max-width: 64ch;
+    color: var(--ink-muted);
+    font-size: clamp(0.95rem, 2vw, 1.05rem);
+    line-height: 1.7;
+    margin-bottom: clamp(1.75rem, 4vw, 2.5rem);
+  }
+
+  /* ── Deep background for risk section ────────────────── */
+  .section--deep {
+    background: var(--bg-deep);
+  }
+
+  /* ── Phase detail rows (FIG.03 supplement) ───────────── */
+  .phase-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 2rem;
+    border: 1px solid var(--border);
+  }
+
+  .phase-detail__row {
+    display: grid;
+    grid-template-columns: 14rem 1fr;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    align-items: start;
+  }
+  .phase-detail__row:last-child {
+    border-bottom: none;
+  }
+
+  .phase-detail__tag {
+    font-family: var(--font-mono);
+    font-size: 0.73rem;
+    letter-spacing: 0.12em;
+    font-weight: 600;
+    padding: clamp(0.75rem, 2vw, 1.1rem) clamp(0.85rem, 2vw, 1.25rem);
+    border-right: 1px solid var(--border);
+    line-height: 1.5;
+    background: var(--surface);
+  }
+  .phase-detail__tag--sage { color: var(--sage); }
+  .phase-detail__tag--gold { color: var(--sun); }
+  .phase-detail__tag--clay { color: var(--clay); }
+
+  .phase-detail__body {
+    font-size: 0.875rem;
+    color: var(--ink-muted);
+    line-height: 1.65;
+    padding: clamp(0.75rem, 2vw, 1.1rem) clamp(0.85rem, 2vw, 1.25rem);
+    margin: 0;
+  }
+
+  @media (max-width: 600px) {
+    .phase-detail__row {
+      grid-template-columns: 1fr;
+    }
+    .phase-detail__tag {
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+    }
+  }
+
+  /* ── KPI detail rows (FIG.04) ────────────────────────── */
+  .kpi-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 2rem 0;
+    border: 1px solid var(--border);
+  }
+
+  .kpi-row {
+    display: grid;
+    grid-template-columns: 7rem 1fr;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    align-items: start;
+  }
+  .kpi-row:last-child {
+    border-bottom: none;
+  }
+
+  .kpi-row__code {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    font-weight: 700;
+    padding: clamp(0.85rem, 2vw, 1.25rem);
+    border-right: 1px solid var(--border);
+    background: var(--surface);
+    display: flex;
+    align-items: flex-start;
+    padding-top: clamp(0.85rem, 2vw, 1.3rem);
+  }
+  .kpi-row__code--clay { color: var(--clay); }
+  .kpi-row__code--gold { color: var(--sun); }
+  .kpi-row__code--sage { color: var(--sage); }
+
+  .kpi-row > div {
+    padding: clamp(0.75rem, 2vw, 1.1rem) clamp(0.85rem, 2vw, 1.25rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .kpi-row strong {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .kpi-row p {
+    font-size: 0.82rem;
+    color: var(--ink-muted);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  @media (max-width: 480px) {
+    .kpi-row {
+      grid-template-columns: 1fr;
+    }
+    .kpi-row__code {
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+    }
+  }
+
+  /* ── Compliance wrap (FIG.04) ─────────────────────────── */
+  .compliance-wrap {
+    margin-top: 2.5rem;
+  }
+  .compliance-label {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    color: var(--sage);
+    font-weight: 600;
+    margin-bottom: 0.85rem;
+  }
+
+  /* ── Governance note (FIG.04) ────────────────────────── */
+  .governance-note {
+    margin-top: 1.5rem;
+    max-width: 72ch;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    color: var(--ink-muted);
+    line-height: 1.8;
+    border-left: 2px solid var(--border-strong);
+    padding-left: 1rem;
+  }
+
+  /* ── Risk grid (FIG.05) ──────────────────────────────── */
+  .risk-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+    gap: 1.25rem;
+  }
+
+  /* ── Replication steps (FIG.06) ──────────────────────── */
+  .repl-steps {
+    list-style: none;
+    margin: 0 0 2.5rem;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+    gap: 0;
+    border: 1px solid var(--border);
+    counter-reset: repl-counter;
+  }
+
+  .repl-step {
+    display: flex;
+    gap: 1.25rem;
+    padding: clamp(1.25rem, 3vw, 1.75rem);
+    border-right: 1px solid var(--border);
+    background: var(--surface);
+    position: relative;
+  }
+  .repl-step:last-child {
+    border-right: none;
+  }
+
+  @media (max-width: 640px) {
+    .repl-steps {
+      grid-template-columns: 1fr;
+    }
+    .repl-step {
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+    }
+    .repl-step:last-child {
+      border-bottom: none;
+    }
+  }
+
+  /* step number large numeral — gold accent = performance/delivery */
+  .repl-step__num {
+    font-family: var(--font-mono);
+    font-size: clamp(2rem, 5vw, 2.75rem);
+    font-weight: 500;
+    color: var(--sun);
+    line-height: 1;
+    flex-shrink: 0;
+    opacity: 0.55;
+    min-width: 2.5rem;
+  }
+
+  .repl-step__content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .repl-step__zh {
+    font-size: clamp(1rem, 2.5vw, 1.15rem);
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  .repl-step__en {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.16em;
+    color: var(--ink-faint);
+    margin: 0;
+  }
+
+  .repl-step__body {
+    font-size: 0.875rem;
+    color: var(--ink-muted);
+    line-height: 1.65;
+    margin: 0.3rem 0 0;
+  }
+
+  /* ── Template checklist (FIG.06) ─────────────────────── */
+  .checklist-wrap {
+    margin-bottom: 2rem;
+    border: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .checklist-label {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    color: var(--sage);
+    font-weight: 600;
+    padding: 0.85rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    margin: 0;
+  }
+
+  .checklist-label__dot {
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    background: var(--sage);
+    border-radius: 1px;
+    flex-shrink: 0;
+  }
+
+  .checklist-label__en {
+    opacity: 0.55;
+    font-weight: 400;
+  }
+
+  .checklist-badge {
+    font-family: var(--font-mono);
+    font-size: 0.60rem;
+    letter-spacing: 0.14em;
+    font-weight: 600;
+    padding: 0.12em 0.45em;
+    border-radius: 2px;
+    border: 1px solid;
+    margin-left: auto;
+  }
+  .checklist-badge--sage {
+    color: var(--sage);
+    border-color: color-mix(in srgb, var(--sage) 40%, transparent);
+    background: color-mix(in srgb, var(--sage) 8%, transparent);
+  }
+
+  .checklist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .checklist__item {
+    display: flex;
+    align-items: baseline;
+    gap: 0.85rem;
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+  .checklist__item:last-child {
+    border-bottom: none;
+  }
+
+  .checklist__status {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .checklist__status--sage {
+    color: var(--sage);
+  }
+
+  .checklist__text {
+    color: var(--ink);
+  }
+
+  /* ── Honest disclaimer (FIG.06) ──────────────────────── */
+  .disclaimer {
+    background: color-mix(in srgb, var(--surface) 60%, transparent);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--border-strong);
+    padding: clamp(1rem, 3vw, 1.5rem) clamp(1rem, 3vw, 1.5rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .disclaimer__label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--ink-faint);
+    font-weight: 600;
+  }
+
+  .disclaimer__text {
+    font-size: 0.875rem;
+    color: var(--ink-muted);
+    line-height: 1.7;
+    max-width: 68ch;
+    margin: 0;
+  }
+</style>
