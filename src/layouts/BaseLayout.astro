@@ -33,7 +33,7 @@ const hrefZhHans = new URL(siblingUrl(pathname, 'zh-Hans'), Astro.site).href;
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}favicon.svg`} />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -45,8 +45,8 @@ const hrefZhHans = new URL(siblingUrl(pathname, 'zh-Hans'), Astro.site).href;
     <!-- Self-hosted latin fonts (Fraunces, Nunito Sans, Spline Sans Mono) resolve from
          /fonts/ via @font-face in fonts.css — no cross-origin stylesheet fetch needed.
          Preload the two fonts that are most likely to be the LCP element. -->
-    <link rel="preload" as="font" type="font/woff2" href="/fonts/fraunces-latin.woff2" crossorigin />
-    <link rel="preload" as="font" type="font/woff2" href="/fonts/nunito-sans-latin.woff2" crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={`${import.meta.env.BASE_URL}fonts/fraunces-latin.woff2`} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={`${import.meta.env.BASE_URL}fonts/nunito-sans-latin.woff2`} crossorigin />
     <!-- CJK fonts (Noto Serif TC / Noto Sans TC) loaded async — never blocks first paint.
          font-display:swap in the Google Fonts URL ensures fallback text shows immediately. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
