@@ -9,6 +9,7 @@ import EngageCTA from '../components/EngageCTA.astro';
 import LayerStack from '../components/LayerStack.astro';
 import DiagramSolutions from '../components/diagram-solutions.astro';
 import SolutionBlock from '../components/SolutionBlock.astro';
+import ImmersiveStage from '../components/ImmersiveStage.astro';
 import { getCollection } from 'astro:content';
 import { t, localized, withBase } from '../i18n/utils';
 import type { Locale } from '../i18n/utils';
@@ -77,7 +78,10 @@ const govPillars = [
     />
   </Fragment>
 
-  <div class="solutions-scan-wrapper">
+  <!-- Immersive backdrop: position:fixed canvas at z-index:-1, behind all content -->
+  <ImmersiveStage accent="sun" />
+
+  <div class="solutions-scan-wrapper" data-immersive>
 
   <!-- ── SOL.02 六層架構→六解決框架 ── -->
   <section class="section" id="sol-framework" aria-labelledby="heading-02">
@@ -377,7 +381,7 @@ const govPillars = [
    * overflow:hidden clips the canvas to the section boundary.
    */
   .section--alt {
-    background: var(--bg-deep);
+    background: transparent;
     position: relative;
     isolation: isolate;
     overflow: hidden;

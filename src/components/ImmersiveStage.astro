@@ -1,0 +1,156 @@
+---
+/**
+ * ImmersiveStage.astro
+ * Reusable drop-in backdrop: renders the cleanroom wire-frame fly-through
+ * BEHIND any page's existing content (canvas is position:fixed; z-index:-1).
+ *
+ * Usage: place <ImmersiveStage accent="sun" /> anywhere in a page's default
+ * slot. Wrap the scrolling content region you want to drive progress over with
+ * [data-immersive] — the engine reads that region's scroll position.
+ *
+ * Gates (both skip all canvas work; page renders as normal static content):
+ *   prefers-reduced-motion → no mount
+ *   max-width ≤ 48rem     → no mount
+ */
+
+interface Props {
+  accent?: 'sun' | 'sage' | 'clay';
+}
+const { accent = 'sun' } = Astro.props;
+---
+
+<canvas
+  class="immersive-stage__canvas"
+  data-immersive-canvas
+  aria-hidden="true"
+  tabindex="-1"
+  data-accent={accent}
+></canvas>
+
+<style>
+  /*
+    position:fixed keeps the canvas viewport-anchored as the user scrolls.
+    z-index:-1 places it in the ROOT stacking context, below all in-flow content
+    but above the body background — so any transparent section wrapper lets the
+    fly-through show through without ever covering forms, tables, or text.
+    The canvas can NEVER obstruct content: if content has an opaque background,
+    that content simply paints over the canvas in those areas.
+  */
+  .immersive-stage__canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+    display: block;
+    opacity: 0;
+    transition: opacity var(--dur-slow) var(--ease-out);
+  }
+  .immersive-stage__canvas.is-active {
+    opacity: 1;
+  }
+</style>
+
+<script>
+  import { initCleanroomFly } from '../scripts/motion/cleanroom-fly';
+  import { prefersReducedMotion } from '../scripts/theme-motion';
+  import { getLenis } from '../scripts/motion/smooth-scroll';
+
+  // Module-scope state: one engine instance per page lifetime.
+  let handle: { destroy(): void; setScroll(p: number): void } | null = null;
+  let scrollUnsubscribe: (() => void) | null = null;
+  let sectionIO: IntersectionObserver | null = null;
+
+  /** Compute scroll progress over [data-immersive] and push it to the engine. */
+  function updateProgress(): void {
+    const region = document.querySelector<HTMLElement>('[data-immersive]');
+    if (!region || !handle) return;
+    const rect  = region.getBoundingClientRect();
+    const total = Math.max(rect.height - window.innerHeight, 1);
+    const p     = Math.max(0, Math.min(1, -rect.top / total));
+    handle.setScroll(p);
+  }
+
+  function mount(): void {
+    // Accessible path: no canvas, sections render fully opaque (CSS gate).
+    if (prefersReducedMotion()) return;
+    // Mobile path: static page content, no canvas (CSS gate).
+    if (window.matchMedia('(max-width: 48rem)').matches) return;
+
+    const canvas = document.querySelector<HTMLCanvasElement>('[data-immersive-canvas]');
+    if (!canvas) return;   // component not on this page
+    if (handle)  return;   // already mounted
+
+    const region = document.querySelector('[data-immersive]');
+    if (!region) return;   // no scroll-driver region declared on this page
+
+    const start = (): void => {
+      if (handle) return;
+      if (!canvas.isConnected) return; // navigated away before idle fired
+
+      // Read accent from the canvas element itself so the prop is self-contained.
+      const accentVal = canvas.dataset.accent as 'clay' | 'sun' | 'sage' | undefined;
+      handle = initCleanroomFly(
+        canvas,
+        accentVal ? { accentEmphasis: accentVal } : {},
+      );
+
+      // ── Scroll driver ──────────────────────────────────────────────────────
+      // Prefer Lenis (initialised by BaseLayout); fall back to native scroll.
+      const lenis = getLenis();
+      if (lenis) {
+        lenis.on('scroll', updateProgress);
+        scrollUnsubscribe = () => getLenis()?.off('scroll', updateProgress);
+      } else {
+        window.addEventListener('scroll', updateProgress, { passive: true });
+        scrollUnsubscribe = () => window.removeEventListener('scroll', updateProgress);
+      }
+
+      // ── Section activation IO ──────────────────────────────────────────────
+      // Canvas fades in when [data-immersive] enters the viewport,
+      // fades out when it exits (past the last section / into the footer).
+      const reg = document.querySelector('[data-immersive]');
+      if (reg) {
+        sectionIO = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              canvas.classList.toggle('is-active', entry.isIntersecting);
+            }
+          },
+          { threshold: 0 },
+        );
+        sectionIO.observe(reg);
+      }
+
+      // Seed progress so the fly position is correct on first paint.
+      requestAnimationFrame(() => updateProgress());
+    };
+
+    // Lazy start via requestIdleCallback (timeout 1800 ms; setTimeout 160 ms fallback).
+    if ('requestIdleCallback' in window) {
+      (window as unknown as { requestIdleCallback: (cb: () => void, o?: object) => void })
+        .requestIdleCallback(start, { timeout: 1800 });
+    } else {
+      setTimeout(start, 160);
+    }
+  }
+
+  function teardown(): void {
+    handle?.destroy();
+    handle = null;
+    scrollUnsubscribe?.();
+    scrollUnsubscribe = null;
+    sectionIO?.disconnect();
+    sectionIO = null;
+    // Clean activation class so next mount starts with opacity:0.
+    const canvas = document.querySelector('[data-immersive-canvas]');
+    if (canvas) canvas.classList.remove('is-active');
+  }
+
+  // Re-mount on every page-load (initial + View-Transition nav);
+  // release engine before each swap and on real page exit.
+  document.addEventListener('astro:page-load', mount);
+  document.addEventListener('astro:before-swap', teardown);
+  window.addEventListener('pagehide', teardown);
+</script>
