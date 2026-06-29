@@ -1,0 +1,262 @@
+---
+/**
+ * DiagramRackStack.astro — Compute-Rack L1–L6 Vertical Exploded.
+ * Genre: rack/layer exploded assembly. Projection: dimetric exploded, iso-z.
+ * Dominant accent: SUN (GPU tray + dataflow). SAGE = security (L5). CLAY = DR (L6).
+ * Generic MGX-class schematic — NOT any specific vendor's equipment.
+ */
+import DiagramField from './DiagramField.astro';
+import { t, type Locale } from '../i18n/utils';
+import { isoBox } from '../lib/diagram/primitives';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+
+const legend = [
+  { accent: 'sun'  as const, labelKey: 'comp.c.crc.legend.sun'  },
+  { accent: 'sage' as const, labelKey: 'comp.c.crc.legend.sage' },
+  { accent: 'clay' as const, labelKey: 'comp.c.crc.legend.clay' },
+];
+
+const bom = [
+  { n: 1, labelKey: 'diagram.rack.bom.1' },
+  { n: 2, labelKey: 'diagram.rack.bom.2' },
+  { n: 3, labelKey: 'diagram.rack.bom.3', accent: 'sun'  as const },
+  { n: 4, labelKey: 'diagram.rack.bom.4' },
+  { n: 5, labelKey: 'diagram.rack.bom.5' },
+  { n: 6, labelKey: 'diagram.rack.bom.6', accent: 'sage' as const },
+  { n: 7, labelKey: 'diagram.rack.bom.7', accent: 'clay' as const },
+  { n: 8, labelKey: 'diagram.rack.bom.8' },
+];
+
+// ── Rack geometry (assembled tight stack, center CX=720) ─────────────────────
+const CX = 720;
+
+// Assembled positions (tight stack, datum L1 at bottom)
+const L1  = isoBox(CX, 700, 0, 0, 22);  // PDU + liquid cooling (datum)
+const L2  = isoBox(CX, 678, 0, 0, 18);  // data/storage tray
+const L3G = isoBox(CX, 658, 0, 0, 20);  // GPU compute tray (SUN)
+const L3N = isoBox(CX, 636, 0, 0, 14);  // NVLink spine
+const L4  = isoBox(CX, 620, 0, 0, 16);  // MES control
+const L5  = isoBox(CX, 602, 0, 0, 16);  // security gateway (SAGE)
+const L6  = isoBox(CX, 584, 0, 0, 16);  // DR module (CLAY)
+const CAP = isoBox(CX, 568, 0, 0, 12);  // top cap
+
+// Explode deltas (assembled → exploded, all iso-z upward)
+const EX = {
+  l1:  { dx: 0, dy:   0 }, // datum
+  l2:  { dx: 0, dy: -96 },
+  l3g: { dx: 0, dy: -168 },
+  l3n: { dx: 0, dy: -232 },
+  l4:  { dx: 0, dy: -296 },
+  l5:  { dx: 0, dy: -360 },
+  l6:  { dx: 0, dy: -424 },
+  cap: { dx: 0, dy: -492 },
+};
+
+// Sparse grid
+const gridLines: { x1:number; y1:number; x2:number; y2:number }[] = [];
+for (let x = 48; x < 1440; x += 96) gridLines.push({ x1:x, y1:0, x2:x, y2:900 });
+for (let y = 48; y < 900;  y += 96) gridLines.push({ x1:0, y1:y, x2:1440, y2:y });
+
+// GPU tray top-face module ticks (compute density indicator)
+const gpuTicks: {x1:number;y1:number;x2:number;y2:number}[] = [];
+for (let i = -3; i <= 3; i++) {
+  gpuTicks.push({
+    x1: CX + i * 14 - 5, y1: L3G.cy - 12,
+    x2: CX + i * 14 + 5, y2: L3G.cy - 12,
+  });
+}
+
+// Balloon column: right side at x=980, stacked from top to bottom
+const BX = 980;
+const balloonY = [660, 568, 490, 412, 336, 260, 178, 96];
+---
+
+<DiagramField
+  id="rack-stack"
+  locale={locale}
+  figcaptionKey="diagram.rack.figcaption"
+  legend={legend}
+  bom={bom}
+  dominantAccent="sun"
+  viewBox="0 0 1440 900"
+  numeral="01"
+>
+  <defs>
+    <pattern id="dg-hatch45" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="7" stroke="var(--ink-faint)" stroke-width="1" opacity="0.5"/>
+    </pattern>
+  </defs>
+
+  {/* Grid */}
+  <g data-diagram-layer="grid" aria-hidden="true" class="dg-layer-mobile-hide">
+    {gridLines.map(l => <line x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} class="dg__grid-line" />)}
+  </g>
+
+  {/* Column centerline */}
+  <g data-diagram-layer="centerlines" aria-hidden="true" class="dg-layer-mobile-hide">
+    <path
+      d={`M ${CX} ${CAP.cy + EX.cap.dy - 20} L ${CX} ${L1.cy + L1.cy * 0 + 780}`}
+      data-centerline class="dg__centerline"
+    />
+  </g>
+
+  {/* ── PARTS (exploded — markup bakes final exploded positions) ── */}
+  <g data-diagram-layer="parts">
+
+    {/* 8 — Top cap / hot-aisle containment */}
+    <g data-part data-part-id="top-cap" data-ex-dx={EX.cap.dx} data-ex-dy={EX.cap.dy}
+       transform={`translate(${EX.cap.dx},${EX.cap.dy})`}>
+      <polygon points={CAP.top}   class="dg__tool-top"   />
+      <polygon points={CAP.left}  class="dg__tool-left"  />
+      <polygon points={CAP.right} class="dg__tool-right" />
+      <text x={CAP.cx} y={CAP.cy - 4} class="dg__tool-label" text-anchor="middle">{t('diagram.rack.bom.8', locale)}</text>
+      <line x1={CAP.cx + 65} y1={CAP.cy + 6} x2={BX - 14} y2={balloonY[7]} class="dg__leader" />
+      <circle cx={CAP.cx + 65} cy={CAP.cy + 6} r="3" class="dg__leader-dot" />
+      <circle cx={BX} cy={balloonY[7]} r="14" class="dg__balloon" />
+      <text x={BX} y={balloonY[7] + 4} class="dg__balloon-num" text-anchor="middle">8</text>
+    </g>
+
+    {/* 7 — DR module (CLAY) */}
+    <g data-part data-part-id="dr-module" data-ex-dx={EX.l6.dx} data-ex-dy={EX.l6.dy}
+       transform={`translate(${EX.l6.dx},${EX.l6.dy})`}>
+      <polygon points={L6.top}   class="dg__tool-top"   />
+      <polygon points={L6.left}  class="dg__tool-left dg__tool-left--clay" />
+      <polygon points={L6.right} class="dg__tool-right" />
+      <text x={L6.cx - 8} y={L6.cy + 10} class="dg__tool-label dg__tool-label--clay" text-anchor="end">L6</text>
+      <text x={L6.cx} y={L6.cy + 10} class="dg__tool-label" text-anchor="middle">{t('diagram.rack.bom.7', locale)}</text>
+      <line x1={L6.cx + 65} y1={L6.cy + 8} x2={BX - 14} y2={balloonY[6]} class="dg__leader" />
+      <circle cx={L6.cx + 65} cy={L6.cy + 8} r="3" class="dg__leader-dot" />
+      <circle cx={BX} cy={balloonY[6]} r="14" class="dg__balloon" />
+      <text x={BX} y={balloonY[6] + 4} class="dg__balloon-num" text-anchor="middle">7</text>
+    </g>
+
+    {/* 6 — Security gateway (SAGE) */}
+    <g data-part data-part-id="security-gw" data-ex-dx={EX.l5.dx} data-ex-dy={EX.l5.dy}
+       transform={`translate(${EX.l5.dx},${EX.l5.dy})`}>
+      <polygon points={L5.top}   class="dg__tool-top"   />
+      <polygon points={L5.left}  class="dg__tool-left"  />
+      <polygon points={L5.right} class="dg__tool-right dg__tool-right--sage" />
+      <text x={L5.cx - 8} y={L5.cy + 10} class="dg__tool-label dg__tool-label--sage" text-anchor="end">L5</text>
+      <text x={L5.cx} y={L5.cy + 10} class="dg__tool-label dg__tool-label--sage" text-anchor="middle">{t('diagram.rack.bom.6', locale)}</text>
+      <line x1={L5.cx + 65} y1={L5.cy + 8} x2={BX - 14} y2={balloonY[5]} class="dg__leader" />
+      <circle cx={L5.cx + 65} cy={L5.cy + 8} r="3" class="dg__leader-dot" />
+      <circle cx={BX} cy={balloonY[5]} r="14" class="dg__balloon" />
+      <text x={BX} y={balloonY[5] + 4} class="dg__balloon-num" text-anchor="middle">6</text>
+    </g>
+
+    {/* 5 — MES control module */}
+    <g data-part data-part-id="mes-control" data-ex-dx={EX.l4.dx} data-ex-dy={EX.l4.dy}
+       transform={`translate(${EX.l4.dx},${EX.l4.dy})`}>
+      <polygon points={L4.top}   class="dg__tool-top"   />
+      <polygon points={L4.left}  class="dg__tool-left"  />
+      <polygon points={L4.right} class="dg__tool-right" />
+      <text x={L4.cx - 8} y={L4.cy + 10} class="dg__tool-label" text-anchor="end">L4</text>
+      <text x={L4.cx} y={L4.cy + 10} class="dg__tool-label" text-anchor="middle">{t('diagram.rack.bom.5', locale)}</text>
+      <line x1={L4.cx + 65} y1={L4.cy + 8} x2={BX - 14} y2={balloonY[4]} class="dg__leader" />
+      <circle cx={L4.cx + 65} cy={L4.cy + 8} r="3" class="dg__leader-dot" />
+      <circle cx={BX} cy={balloonY[4]} r="14" class="dg__balloon" />
+      <text x={BX} y={balloonY[4] + 4} class="dg__balloon-num" text-anchor="middle">5</text>
+    </g>
+
+    {/* 4 — NVLink network spine */}
+    <g data-part data-part-id="nvlink-spine" data-ex-dx={EX.l3n.dx} data-ex-dy={EX.l3n.dy}
+       transform={`translate(${EX.l3n.dx},${EX.l3n.dy})`}>
+      <polygon points={L3N.top}   class="dg__tool-top"   />
+      <polygon points={L3N.left}  class="dg__tool-left"  />
+      <polygon points={L3N.right} class="dg__tool-right" />
+      <text x={L3N.cx - 8} y={L3N.cy + 8} class="dg__tool-label" text-anchor="end">L3</text>
+      <text x={L3N.cx} y={L3N.cy + 8} class="dg__tool-label" text-anchor="middle">{t('diagram.rack.bom.4', locale)}</text>
+      <line x1={L3N.cx + 65} y1={L3N.cy + 6} x2={BX - 14} y2={balloonY[3]} class="dg__leader" />
+      <circle cx={L3N.cx + 65} cy={L3N.cy + 6} r="3" class="dg__leader-dot" />
+      <circle cx={BX} cy={balloonY[3]} r="14" class="dg__balloon" />
+      <text x={BX} y={balloonY[3] + 4} class="dg__balloon-num" text-anchor="middle">4</text>
+    </g>
+
+    {/* 3 — GPU compute tray (SUN) */}
+    <g data-part data-part-id="gpu-tray" data-ex-dx={EX.l3g.dx} data-ex-dy={EX.l3g.dy}
+       transform={`translate(${EX.l3g.dx},${EX.l3g.dy})`}>
+      <polygon points={L3G.top}   class="dg__tool-top dg__tool-top--sun" />
+      <polygon points={L3G.left}  class="dg__tool-left"  />
+      <polygon points={L3G.right} class="dg__tool-right" />
+      {/* GPU module ticks on top face */}
+      {gpuTicks.map(tick => (
+        <line x1={tick.x1} y1={tick.y1} x2={tick.x2} y2={tick.y2} class="dg__detail-line" />
+      ))}
+      <text x={L3G.cx - 8} y={L3G.cy + 12} class="dg__tool-label dg__tool-label--sun" text-anchor="end">L3</text>
+      <text x={L3G.cx} y={L3G.cy + 12} class="dg__tool-label dg__tool-label--sun" text-anchor="middle">{t('diagram.rack.bom.3', locale)}</text>
+      <line x1={L3G.cx + 65} y1={L3G.cy + 10} x2={BX - 14} y2={balloonY[2]} class="dg__leader dg__leader--sun" />
+      <circle cx={L3G.cx + 65} cy={L3G.cy + 10} r="3" class="dg__leader-dot dg__leader-dot--sun" />
+      <circle cx={BX} cy={balloonY[2]} r="14" class="dg__balloon" />
+      <text x={BX} y={balloonY[2] + 4} class="dg__balloon-num" text-anchor="middle">3</text>
+    </g>
+
+    {/* 2 — Data/storage tray */}
+    <g data-part data-part-id="data-storage" data-ex-dx={EX.l2.dx} data-ex-dy={EX.l2.dy}
+       transform={`translate(${EX.l2.dx},${EX.l2.dy})`}>
+      <polygon points={L2.top}   class="dg__tool-top"   />
+      <polygon points={L2.left}  class="dg__tool-left"  />
+      <polygon points={L2.right} class="dg__tool-right" />
+      <text x={L2.cx - 8} y={L2.cy + 10} class="dg__tool-label" text-anchor="end">L2</text>
+      <text x={L2.cx} y={L2.cy + 10} class="dg__tool-label" text-anchor="middle">{t('diagram.rack.bom.2', locale)}</text>
+      <line x1={L2.cx + 65} y1={L2.cy + 8} x2={BX - 14} y2={balloonY[1]} class="dg__leader" />
+      <circle cx={L2.cx + 65} cy={L2.cy + 8} r="3" class="dg__leader-dot" />
+      <circle cx={BX} cy={balloonY[1]} r="14" class="dg__balloon" />
+      <text x={BX} y={balloonY[1] + 4} class="dg__balloon-num" text-anchor="middle">2</text>
+    </g>
+
+    {/* 1 — Rack base: PDU + liquid cooling (datum) */}
+    <g data-part data-part-id="rack-base" data-ex-dx={EX.l1.dx} data-ex-dy={EX.l1.dy}
+       transform={`translate(${EX.l1.dx},${EX.l1.dy})`}>
+      <polygon points={L1.top}   class="dg__tool-top"   />
+      {/* Base left face: section hatch */}
+      <polygon points={L1.left}  class="dg__tool-left dg__tool-hatch dg-layer-mobile-hide" />
+      <polygon points={L1.right} class="dg__tool-right" />
+      <text x={L1.cx - 8} y={L1.cy + 12} class="dg__tool-label" text-anchor="end">L1</text>
+      <text x={L1.cx} y={L1.cy + 12} class="dg__tool-label" text-anchor="middle">{t('diagram.rack.bom.1', locale)}</text>
+      <line x1={L1.cx + 65} y1={L1.cy + 10} x2={BX - 14} y2={balloonY[0]} class="dg__leader" />
+      <circle cx={L1.cx + 65} cy={L1.cy + 10} r="3" class="dg__leader-dot" />
+      <circle cx={BX} cy={balloonY[0]} r="14" class="dg__balloon" />
+      <text x={BX} y={balloonY[0] + 4} class="dg__balloon-num" text-anchor="middle">1</text>
+    </g>
+
+  </g>
+
+  {/* ── Dimensions ── */}
+  <g data-diagram-layer="dimensions" aria-hidden="true" class="dg-layer-mobile-hide">
+    {/* SUN: system SLO vertical bracket (left of rack column) */}
+    <line x1="560" y1="100" x2="560" y2="764" class="dg__dim-line" />
+    <line x1="552" y1="100" x2="568" y2="100" class="dg__dim-tick" />
+    <line x1="552" y1="764" x2="568" y2="764" class="dg__dim-tick" />
+    <text x="540" y="435" class="dg__dim-val dg__dim-val--sun" text-anchor="end">≥ 95%</text>
+    <text x="540" y="449" class="dg__dim-caption dg__dim-caption--sun" text-anchor="end">{t('diagram.rack.dim.sun.cap', locale)}</text>
+
+    {/* SAGE: full-stack coverage L1–L6 */}
+    <line x1="475" y1="100" x2="475" y2="764" class="dg__dim-line dg__dim-line--sage" />
+    <line x1="467" y1="100" x2="483" y2="100" class="dg__dim-tick" />
+    <line x1="467" y1="764" x2="483" y2="764" class="dg__dim-tick" />
+    <text x="460" y="435" class="dg__dim-val dg__dim-val--sage" text-anchor="end">L1–L6</text>
+    <text x="460" y="449" class="dg__dim-caption dg__dim-caption--sage" text-anchor="end">{t('diagram.rack.dim.sage.cap', locale)}</text>
+
+    {/* CLAY: DR RTO bracket (at DR module layer) */}
+    <line x1="840" y1={L6.cy + EX.l6.dy - 8} x2="840" y2={L6.cy + EX.l6.dy + 24} class="dg__dim-line dg__dim-line--clay" stroke-dasharray="6 3" />
+    <line x1="832" y1={L6.cy + EX.l6.dy - 8} x2="848" y2={L6.cy + EX.l6.dy - 8} class="dg__dim-tick" />
+    <line x1="832" y1={L6.cy + EX.l6.dy + 24} x2="848" y2={L6.cy + EX.l6.dy + 24} class="dg__dim-tick" />
+    <text x="855" y={L6.cy + EX.l6.dy + 10} class="dg__dim-val dg__dim-val--clay" text-anchor="start">≤ 4hr</text>
+    <text x="855" y={L6.cy + EX.l6.dy + 24} class="dg__dim-caption dg__dim-caption--clay" text-anchor="start">{t('diagram.rack.dim.clay.cap', locale)}</text>
+
+    {/* Neutral: 42U rack height */}
+    <text x="720" y="800" class="dg__dim-val" text-anchor="middle">42U</text>
+  </g>
+
+  {/* ── Sun dataflow climb (dominant accent) ── */}
+  <g data-diagram-layer="flow">
+    <path
+      d={`M ${CX - 30} ${L1.cy + 10} L ${CX - 30} ${CAP.cy + EX.cap.dy + 6}`}
+      data-flow pathLength="1" class="dg__flow-path"
+    />
+  </g>
+
+  <text x="720" y="888" class="dg__disclaimer" text-anchor="middle" aria-hidden="true">{t('diagram.rack.disclaimer', locale)}</text>
+</DiagramField>

@@ -14,6 +14,7 @@ import ContactForm from '../components/ContactForm.astro';
 import InquiryTypeCard from '../components/InquiryTypeCard.astro';
 import CTAButton from '../components/CTAButton.astro';
 import HudCoordinate from '../components/HudCoordinate.astro';
+import DiagramNetZone from '../components/DiagramNetZone.astro';
 import { getCollection } from 'astro:content';
 import { t, localized } from '../i18n/utils';
 import type { Locale } from '../i18n/utils';
@@ -48,6 +49,8 @@ const inquiryTypes = (await getCollection('inquiryTypes')).sort(
     />
   </Fragment>
 
+  <div class="contact-scan-wrapper">
+
   <!-- ── ENGAGE.00 四步交付流程 ─────────────────────────────────── -->
   <section class="section" id="process" aria-labelledby="heading-00">
     <SectionHeader index="00" zh={t('contact.section00.zh', locale)} en={t('contact.section00.en', locale)} />
@@ -55,6 +58,12 @@ const inquiryTypes = (await getCollection('inquiryTypes')).sort(
     <p class="process-note reveal">
       {t('contact.section00.processNote', locale)}
     </p>
+  </section>
+
+  <!-- ── NET.01 資安網路拓樸 ────────────────────────────────────── -->
+  <section class="section" id="netzone-section" aria-labelledby="heading-netzone">
+    <SectionHeader index="02" zh={t('diagram.netzone.section.zh', locale)} en={t('diagram.netzone.section.en', locale)} />
+    <DiagramNetZone locale={locale} />
   </section>
 
   <!-- ── FORM.01 諮詢表單 ────────────────────────────────────────── -->
@@ -169,6 +178,7 @@ const inquiryTypes = (await getCollection('inquiryTypes')).sort(
     </section>
   </div>
 
+  </div>{/* end .contact-scan-wrapper */}
 </PageLayout>
 
 <script>
@@ -455,6 +465,12 @@ const inquiryTypes = (await getCollection('inquiryTypes')).sort(
 </script>
 
 <style>
+  /* ── Contact scan wrapper — stacking context for SVG fallback ── */
+  .contact-scan-wrapper {
+    position: relative;
+    isolation: isolate;
+  }
+
   /* ─────────────────────────────────────────────────────────────────
      ENGAGE.00 — Process note
   ───────────────────────────────────────────────────────────────── */

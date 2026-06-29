@@ -1,0 +1,300 @@
+---
+/**
+ * DiagramFabSection.astro — Cleanroom FFU Airflow Facility Cross-Section.
+ * Genre: building cross-section (剖面 + poché hatch + laminar streamlines).
+ * Projection: axonometric section (orthographic vertical slice).
+ * Dominant accent: SAGE (laminar coverage). Secondary: CLAY (AHU N+1).
+ * Non-exploded: all [data-part] have data-ex-dx=0 data-ex-dy=0 — no motion.
+ * Original generic schematic — NOT any specific facility.
+ */
+import DiagramField from './DiagramField.astro';
+import { t, type Locale } from '../i18n/utils';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+
+const legend = [
+  { accent: 'sage' as const, labelKey: 'diagram.fab.legend.sage' },
+  { accent: 'clay' as const, labelKey: 'diagram.fab.legend.clay' },
+];
+
+const bom = [
+  { n: 1,  labelKey: 'diagram.fab.bom.1'  },
+  { n: 2,  labelKey: 'diagram.fab.bom.2'  },
+  { n: 3,  labelKey: 'diagram.fab.bom.3'  },
+  { n: 4,  labelKey: 'diagram.fab.bom.4'  },
+  { n: 5,  labelKey: 'diagram.fab.bom.5'  },
+  { n: 6,  labelKey: 'diagram.fab.bom.6'  },
+  { n: 7,  labelKey: 'diagram.fab.bom.7'  },
+  { n: 8,  labelKey: 'diagram.fab.bom.8'  },
+  { n: 9,  labelKey: 'diagram.fab.bom.9', accent: 'clay' as const },
+  { n: 10, labelKey: 'diagram.fab.bom.10' },
+];
+
+// Sparse warm grid
+const gridLines: { x1:number; y1:number; x2:number; y2:number }[] = [];
+for (let x = 48; x < 1440; x += 96) gridLines.push({ x1:x, y1:0, x2:x, y2:900 });
+for (let y = 48; y < 900;  y += 96) gridLines.push({ x1:0, y1:y, x2:1440, y2:y });
+
+// FFU unit centers (x) at y=185
+const FFU_CX = [440, 580, 720, 860, 1000];
+
+// Perforated raised-floor dots
+const perfDots: {cx:number;cy:number}[] = [];
+for (let px = 395; px < 1010; px += 26) {
+  perfDots.push({ cx: px, cy: 599 });
+}
+
+// BOM balloon column at x=1195 (right of right wall x=1075)
+// 10 balloons, y from 165 to 795, step 70
+const BX = 1195;
+const balloonY = [165, 235, 305, 375, 445, 515, 585, 655, 725, 795];
+---
+
+<DiagramField
+  id="fab-section"
+  locale={locale}
+  figcaptionKey="diagram.fab.figcaption"
+  legend={legend}
+  bom={bom}
+  dominantAccent="sage"
+  viewBox="0 0 1440 900"
+  numeral="02"
+>
+  <defs>
+    <pattern id="dg-hatch45" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="7" stroke="var(--ink-faint)" stroke-width="1" opacity="0.5"/>
+    </pattern>
+  </defs>
+
+  {/* Grid */}
+  <g data-diagram-layer="grid" aria-hidden="true" class="dg-layer-mobile-hide">
+    {gridLines.map(l => <line x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} class="dg__grid-line" />)}
+  </g>
+
+  {/* Centerlines */}
+  <g data-diagram-layer="centerlines" aria-hidden="true" class="dg-layer-mobile-hide">
+    <path d="M 720 153 L 720 760" data-centerline class="dg__centerline" />
+    <path d="M 365 585 L 1057 585" data-centerline class="dg__centerline" />
+  </g>
+
+  {/* ── Structural background (hatch poché — not BOM parts, aria-hidden in parent SVG) ── */}
+  <g data-diagram-layer="structure" aria-hidden="true">
+    {/* Ceiling slab */}
+    <rect x="365" y="115" width="710" height="38" class="dg__section-slab dg__tool-hatch" />
+    <rect x="365" y="115" width="710" height="38" class="dg__section-slab-outline" />
+    {/* Left wall */}
+    <rect x="365" y="153" width="18" height="607" class="dg__section-slab dg__tool-hatch" />
+    <rect x="365" y="153" width="18" height="607" class="dg__section-slab-outline" />
+    {/* Right wall (x=1057–1075) */}
+    <rect x="1057" y="153" width="18" height="607" class="dg__section-slab dg__tool-hatch" />
+    <rect x="1057" y="153" width="18" height="607" class="dg__section-slab-outline" />
+    {/* Base slab */}
+    <rect x="365" y="760" width="710" height="40" class="dg__section-slab dg__tool-hatch" />
+    <rect x="365" y="760" width="710" height="40" class="dg__section-slab-outline" />
+    {/* Raised floor slab */}
+    <rect x="383" y="585" width="627" height="28" class="dg__section-slab dg__tool-hatch" />
+    <rect x="383" y="585" width="627" height="28" class="dg__section-slab-outline" />
+    {/* Return chase (vertical void on right, x=1010–1057) */}
+    <rect x="1010" y="153" width="47" height="607" class="dg__section-void" />
+    <rect x="1010" y="153" width="47" height="607" class="dg__section-chase-outline" />
+  </g>
+
+  {/* ── PARTS (all non-exploded, dx=0 dy=0) ── */}
+  <g data-diagram-layer="parts">
+
+    {/* 1 — Ceiling plenum void */}
+    <g data-part data-part-id="ceiling-plenum" data-ex-dx="0" data-ex-dy="0" transform="translate(0,0)">
+      <text x="590" y="196" class="dg__tool-label" text-anchor="middle">{t('diagram.fab.bom.1', locale)}</text>
+      <line x1="720" y1="188" x2={BX - 14} y2={balloonY[0]} class="dg__leader" />
+      <circle cx="720" cy="188" r="3" class="dg__leader-dot" />
+      <circle cx={BX} cy={balloonY[0]} r="14" class="dg__balloon" />
+      <text x={BX} y={balloonY[0] + 4} class="dg__balloon-num" text-anchor="middle">1</text>
+    </g>
+
+    {/* 2 — FFU fan-filter bank */}
+    <g data-part data-part-id="ffu-bank" data-ex-dx="0" data-ex-dy="0" transform="translate(0,0)">
+      {FFU_CX.map(cx => (
+        <g>
+          <rect x={cx - 37} y="171" width="74" height="27" class="dg__ffu-unit" />
+          <line x1={cx - 18} y1="171" x2={cx - 18} y2="198" class="dg__detail-line" />
+          <line x1={cx}      y1="171" x2={cx}      y2="198" class="dg__detail-line" />
+          <line x1={cx + 18} y1="171" x2={cx + 18} y2="198" class="dg__detail-line" />
+        </g>
+      ))}
+      <text x="580" y="161" class="dg__tool-label" text-anchor="middle">{t('diagram.fab.bom.2', locale)}</text>
+      <line x1="820" y1="184" x2={BX - 14} y2={balloonY[1]} class="dg__leader" />
+      <circle cx="820" cy="184" r="3" class="dg__leader-dot" />
+      <circle cx={BX} cy={balloonY[1]} r="14" class="dg__balloon" />
+      <text x={BX} y={balloonY[1] + 4} class="dg__balloon-num" text-anchor="middle">2</text>
+    </g>
+
+    {/* 3 — HEPA/ULPA terminal filter face */}
+    <g data-part data-part-id="hepa-filter" data-ex-dx="0" data-ex-dy="0" transform="translate(0,0)">
+      <rect x="383" y="240" width="627" height="13" class="dg__filter-face" />
+      <text x="560" y="234" class="dg__tool-label" text-anchor="middle">{t('diagram.fab.bom.3', locale)}</text>
+      <line x1="720" y1="247" x2={BX - 14} y2={balloonY[2]} class="dg__leader" />
+      <circle cx="720" cy="247" r="3" class="dg__leader-dot" />
+      <circle cx={BX} cy={balloonY[2]} r="14" class="dg__balloon" />
+      <text x={BX} y={balloonY[2] + 4} class="dg__balloon-num" text-anchor="middle">3</text>
+    </g>
+
+    {/* 4 — ISO Class 5 process bay (open void) */}
+    <g data-part data-part-id="process-bay" data-ex-dx="0" data-ex-dy="0" transform="translate(0,0)">
+      <text x="440" y="418" class="dg__tool-label" text-anchor="middle">{t('diagram.fab.bom.4', locale)}</text>
+      <line x1="450" y1="422" x2={BX - 14} y2={balloonY[3]} class="dg__leader" />
+      <circle cx="450" cy="422" r="3" class="dg__leader-dot" />
+      <circle cx={BX} cy={balloonY[3]} r="14" class="dg__balloon" />
+      <text x={BX} y={balloonY[3] + 4} class="dg__balloon-num" text-anchor="middle">4</text>
+    </g>
+
+    {/* 5 — Process tool (half-section): left face = hatch cut, right face = solid */}
+    <g data-part data-part-id="process-tool" data-ex-dx="0" data-ex-dy="0" transform="translate(0,0)">
+      {/* Left half: section cut (hatch) */}
+      <rect x="660" y="435" width="60" height="82" class="dg__tool-hatch dg__tool-left" />
+      <rect x="660" y="435" width="60" height="82" class="dg__section-slab-outline" />
+      {/* Right half: solid wall */}
+      <rect x="720" y="435" width="60" height="82" class="dg__tool-right" />
+      {/* Top face line */}
+      <line x1="660" y1="435" x2="780" y2="435" class="dg__section-slab-outline" />
+      <text x="720" y="430" class="dg__tool-label" text-anchor="middle">{t('diagram.fab.bom.5', locale)}</text>
+      <line x1="780" y1="476" x2={BX - 14} y2={balloonY[4]} class="dg__leader" />
+      <circle cx="780" cy="476" r="3" class="dg__leader-dot" />
+      <circle cx={BX} cy={balloonY[4]} r="14" class="dg__balloon" />
+      <text x={BX} y={balloonY[4] + 4} class="dg__balloon-num" text-anchor="middle">5</text>
+    </g>
+
+    {/* 6 — Perforated raised access floor */}
+    <g data-part data-part-id="raised-floor" data-ex-dx="0" data-ex-dy="0" transform="translate(0,0)">
+      {perfDots.map(d => <circle cx={d.cx} cy={d.cy} r="2.5" class="dg__perf-dot" />)}
+      <text x="560" y="578" class="dg__tool-label" text-anchor="middle">{t('diagram.fab.bom.6', locale)}</text>
+      <line x1="720" y1="599" x2={BX - 14} y2={balloonY[5]} class="dg__leader" />
+      <circle cx="720" cy="599" r="3" class="dg__leader-dot" />
+      <circle cx={BX} cy={balloonY[5]} r="14" class="dg__balloon" />
+      <text x={BX} y={balloonY[5] + 4} class="dg__balloon-num" text-anchor="middle">6</text>
+    </g>
+
+    {/* 7 — Sub-fab return-air plenum */}
+    <g data-part data-part-id="subfab-plenum" data-ex-dx="0" data-ex-dy="0" transform="translate(0,0)">
+      <text x="560" y="690" class="dg__tool-label" text-anchor="middle">{t('diagram.fab.bom.7', locale)}</text>
+      <line x1="560" y1="695" x2={BX - 14} y2={balloonY[6]} class="dg__leader" />
+      <circle cx="560" cy="695" r="3" class="dg__leader-dot" />
+      <circle cx={BX} cy={balloonY[6]} r="14" class="dg__balloon" />
+      <text x={BX} y={balloonY[6] + 4} class="dg__balloon-num" text-anchor="middle">7</text>
+    </g>
+
+    {/* 8 — Return-air chase */}
+    <g data-part data-part-id="return-chase" data-ex-dx="0" data-ex-dy="0" transform="translate(0,0)">
+      <text x="1033" y="456" class="dg__tool-label" text-anchor="middle" transform="rotate(-90 1033 456)">{t('diagram.fab.bom.8', locale)}</text>
+      <line x1="1033" y1="400" x2={BX - 14} y2={balloonY[7]} class="dg__leader" />
+      <circle cx="1033" cy="400" r="3" class="dg__leader-dot" />
+      <circle cx={BX} cy={balloonY[7]} r="14" class="dg__balloon" />
+      <text x={BX} y={balloonY[7] + 4} class="dg__balloon-num" text-anchor="middle">8</text>
+    </g>
+
+    {/* 9 — AHU N+1 (clay accent) */}
+    <g data-part data-part-id="ahu" data-ex-dx="0" data-ex-dy="0" transform="translate(0,0)">
+      <rect x="420" y="638" width="115" height="66" class="dg__ahu-box" />
+      <text x="477" y="668" class="dg__tool-label dg__tool-label--clay" text-anchor="middle">AHU</text>
+      <text x="477" y="684" class="dg__tool-label dg__tool-label--clay" text-anchor="middle">N+1</text>
+      <line x1="535" y1="671" x2={BX - 14} y2={balloonY[8]} class="dg__leader" />
+      <circle cx="535" cy="671" r="3" class="dg__leader-dot" />
+      <circle cx={BX} cy={balloonY[8]} r="14" class="dg__balloon" />
+      <text x={BX} y={balloonY[8] + 4} class="dg__balloon-num" text-anchor="middle">9</text>
+    </g>
+
+    {/* 10 — Pressure cascade annotation */}
+    <g data-part data-part-id="pressure-cascade" data-ex-dx="0" data-ex-dy="0" transform="translate(0,0)">
+      {/* Small chevrons indicating positive pressure gradient */}
+      <path d="M 395 310 L 415 300 L 435 310" class="dg__pressure-arrow" />
+      <path d="M 395 335 L 415 325 L 435 335" class="dg__pressure-arrow" />
+      <text x="415" y="293" class="dg__tool-label" text-anchor="middle">{t('diagram.fab.bom.10', locale)}</text>
+      <line x1="415" y1="316" x2={BX - 14} y2={balloonY[9]} class="dg__leader" />
+      <circle cx="415" cy="316" r="3" class="dg__leader-dot" />
+      <circle cx={BX} cy={balloonY[9]} r="14" class="dg__balloon" />
+      <text x={BX} y={balloonY[9] + 4} class="dg__balloon-num" text-anchor="middle">10</text>
+    </g>
+
+  </g>
+
+  {/* ── Dimensions ── */}
+  <g data-diagram-layer="dimensions" aria-hidden="true" class="dg-layer-mobile-hide">
+    {/* SAGE: laminar coverage span x=440–1000 @y=840 */}
+    <line x1="440" y1="840" x2="1000" y2="840" class="dg__dim-line dg__dim-line--sage" />
+    <line x1="440" y1="830" x2="440" y2="850" class="dg__dim-tick" />
+    <line x1="1000" y1="830" x2="1000" y2="850" class="dg__dim-tick" />
+    <text x="720" y="858" class="dg__dim-val dg__dim-val--sage" text-anchor="middle">100%</text>
+    <text x="720" y="872" class="dg__dim-caption dg__dim-caption--sage" text-anchor="middle">{t('diagram.fab.dim.sage.cap', locale)}</text>
+
+    {/* CLAY: N+1 vertical bracket at x=345 */}
+    <line x1="345" y1="613" x2="345" y2="760" class="dg__dim-line dg__dim-line--clay" stroke-dasharray="6 3" />
+    <line x1="337" y1="613" x2="353" y2="613" class="dg__dim-tick" />
+    <line x1="337" y1="760" x2="353" y2="760" class="dg__dim-tick" />
+    <text x="330" y="692" class="dg__dim-val dg__dim-val--clay" text-anchor="end">N+1</text>
+    <text x="330" y="706" class="dg__dim-caption dg__dim-caption--clay" text-anchor="end">{t('diagram.fab.dim.clay.cap', locale)}</text>
+
+    {/* Neutral: 0.45 m/s velocity arrow */}
+    <line x1="760" y1="310" x2="760" y2="510" class="dg__dim-line" />
+    <line x1="752" y1="310" x2="768" y2="310" class="dg__dim-tick" />
+    <line x1="752" y1="510" x2="768" y2="510" class="dg__dim-tick" />
+    <text x="775" y="416" class="dg__dim-val" text-anchor="start">0.45 m/s</text>
+  </g>
+
+  {/* ── Sage laminar flow (dominant accent) ── */}
+  <g data-diagram-layer="flow">
+    {/* Three downward streamlines in process bay */}
+    <path d="M 520 253 L 520 585" data-flow pathLength="1" class="dg__flow-path dg__flow-path--sage" />
+    <path d="M 720 253 L 720 435" data-flow pathLength="1" class="dg__flow-path dg__flow-path--sage" />
+    <path d="M 920 253 L 920 585" data-flow pathLength="1" class="dg__flow-path dg__flow-path--sage" />
+    {/* Return: right edge → chase up → plenum → inlet */}
+    <path d="M 920 585 L 1010 585 L 1033 585 L 1033 165 L 720 165" data-flow pathLength="1" class="dg__flow-path dg__flow-path--sage" />
+  </g>
+
+  <text x="720" y="888" class="dg__disclaimer" text-anchor="middle" aria-hidden="true">{t('diagram.fab.disclaimer', locale)}</text>
+</DiagramField>
+
+<style>
+  /* Page-specific additions (shared dg__* classes live in DiagramField.astro) */
+
+  :global(.dg__section-slab) {
+    fill: color-mix(in srgb, var(--ink) 6%, transparent);
+  }
+  :global(.dg__section-slab-outline) {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 1.4;
+    opacity: 0.75;
+  }
+  :global(.dg__section-void) {
+    fill: color-mix(in srgb, var(--ink) 2%, transparent);
+    stroke: none;
+  }
+  :global(.dg__section-chase-outline) {
+    fill: none;
+    stroke: var(--ink-muted);
+    stroke-width: 1;
+    opacity: 0.5;
+  }
+  :global(.dg__ffu-unit) {
+    fill: color-mix(in srgb, var(--ink) 8%, transparent);
+    stroke: var(--ink);
+    stroke-width: 1.2;
+  }
+  :global(.dg__filter-face) {
+    fill: color-mix(in srgb, var(--ink) 12%, transparent);
+    stroke: var(--ink);
+    stroke-width: 1.2;
+  }
+  :global(.dg__ahu-box) {
+    fill: color-mix(in srgb, var(--clay) 10%, transparent);
+    stroke: var(--clay);
+    stroke-width: 1.4;
+    opacity: 0.8;
+  }
+  :global(.dg__pressure-arrow) {
+    fill: none;
+    stroke: var(--ink-muted);
+    stroke-width: 1;
+    opacity: 0.6;
+  }
+</style>

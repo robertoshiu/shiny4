@@ -1,0 +1,643 @@
+---
+/**
+ * CleanroomCutaway
+ * Semiconductor cleanroom perspective/scan cutaway — skeleton placeholder.
+ * SVG layers (each a <g data-scan-layer="...">):
+ *   ceiling  — FFU tile grid + laminar-flow arrows (--ink-faint / --sage)
+ *   shell    — bay/chase outline + raised-floor tile grid (--ink-faint)
+ *   tools    — 6 isometric box placeholders for process equipment (--ink)
+ *   wafers   — wafer-flow path (--sun, pathLength="1")
+ *   subfab   — sub-fab utility lines (--sage)
+ *   dr       — DR/redundancy element (--clay, pathLength="1")
+ *
+ * TODO: Replace placeholder box polygons with hand-drawn equipment art
+ *       (litho/etch/CVD/EFEM/load-port/FOUP) once design is finalised.
+ *
+ * Projection: SVG authored in true isometric (HTW=65, HTH=32);
+ * CSS perspective tilt (rotateX 6deg, rotateY -2deg) adds depth feel.
+ *
+ * Reduced-motion: clip-path is left at its default (none), beam is
+ * display:none, no transitions — full final-state diagram shows.
+ * JS sets the hidden start state only when motion is enabled.
+ */
+import { t, type Locale } from '../i18n/utils';
+
+interface Props { locale?: Locale }
+const { locale = 'zh-Hant' } = Astro.props;
+
+// ── Isometric geometry helpers ──────────────────────────────────────────────
+// Projection: half-tile-width (HTW) and half-tile-height (HTH).
+// Tile top vertex at (ox + col*HTW - row*HTW, oy + col*HTH + row*HTH).
+// Rhombus points: T, R (+HTW,+HTH), B (+0,+HTH*2), L (-HTW,+HTH).
+const HTW = 65; // half tile width  (px, screen space)
+const HTH = 32; // half tile height (px, screen space)
+
+function rhombus(ox: number, oy: number, col: number, row: number): string {
+  const tx = ox + col * HTW - row * HTW;
+  const ty = oy + col * HTH + row * HTH;
+  return `${tx},${ty} ${tx + HTW},${ty + HTH} ${tx},${ty + HTH * 2} ${tx - HTW},${ty + HTH}`;
+}
+
+// Isometric box faces: top (rhombus), left (quad), right (quad).
+// boxH = height of box sides in screen-space pixels.
+function isoBox(ox: number, oy: number, col: number, row: number, boxH: number) {
+  const tx = ox + col * HTW - row * HTW;
+  const ty = oy + col * HTH + row * HTH;
+  const top   = `${tx},${ty} ${tx+HTW},${ty+HTH} ${tx},${ty+HTH*2} ${tx-HTW},${ty+HTH}`;
+  const left  = `${tx-HTW},${ty+HTH} ${tx},${ty+HTH*2} ${tx},${ty+HTH*2+boxH} ${tx-HTW},${ty+HTH+boxH}`;
+  const right = `${tx},${ty+HTH*2} ${tx+HTW},${ty+HTH} ${tx+HTW},${ty+HTH+boxH} ${tx},${ty+HTH*2+boxH}`;
+  return { top, left, right, cx: tx, cy: ty + HTH * 2 };
+}
+
+// ── Ceiling FFU grid ─────────────────────────────────────────────────────────
+// 10 cols x 4 rows of Fan Filter Unit ceiling tiles; origin (200, 60)
+const CEIL_COLS = 10;
+const CEIL_ROWS = 4;
+const CEIL_OX   = 200;
+const CEIL_OY   = 60;
+
+const ceilingTiles = Array.from({ length: CEIL_ROWS }, (_, r) =>
+  Array.from({ length: CEIL_COLS }, (_, c) => rhombus(CEIL_OX, CEIL_OY, c, r))
+).flat();
+
+// Sage laminar-flow down-arrows (5 evenly spaced positions)
+const laminarX = [320, 500, 680, 860, 1040];
+const LAMINAY  = 220; // top of arrow (below ceiling band)
+
+// ── Shell (bay outline + raised-floor tile grid) ─────────────────────────────
+const BAY_X1 = 100;  const BAY_Y1 = 180;
+const BAY_X2 = 1340; const BAY_Y2 = 820;
+
+// Raised-floor tiles: 8 cols x 3 rows; origin (220, 680)
+const FLOOR_COLS = 8;
+const FLOOR_ROWS = 3;
+const FLOOR_OX   = 220;
+const FLOOR_OY   = 680;
+
+const floorTiles = Array.from({ length: FLOOR_ROWS }, (_, r) =>
+  Array.from({ length: FLOOR_COLS }, (_, c) => rhombus(FLOOR_OX, FLOOR_OY, c, r))
+).flat();
+
+// ── Process tool boxes ───────────────────────────────────────────────────────
+// TODO: Replace these placeholder boxes with hand-drawn equipment art
+//       once the design is finalised (litho scanner, etch chamber, CVD reactor,
+//       EFEM robot, load-port, FOUP stocker).
+// col spacing: every 2 HTW = 130px; FOUP station on a second row (row:2).
+const TOOL_OX       = 320;
+const TOOL_OY       = 380;
+const MAX_TOOL_BOXH = 150; // tallest tool height — used for wafer path baseline
+
+const toolDefs = [
+  { col: 0, row: 0, label: 'LITHO',     en: 'Lithography',  type: 'litho',    boxH: 150 },
+  { col: 2, row: 0, label: 'ETCH',      en: 'Etch',         type: 'etch',     boxH: 100 },
+  { col: 4, row: 0, label: 'CVD',       en: 'CVD Dep.',     type: 'cvd',      boxH: 110 },
+  { col: 6, row: 0, label: 'EFEM',      en: 'EFEM',         type: 'efem',     boxH: 70  },
+  { col: 8, row: 0, label: 'LOAD-PORT', en: 'Load Port',    type: 'loadport', boxH: 115 },
+  { col: 0, row: 2, label: 'FOUP',      en: 'FOUP Station', type: 'foup',     boxH: 140 },
+];
+
+const toolBoxes = toolDefs.map((td) => ({
+  ...isoBox(TOOL_OX, TOOL_OY, td.col, td.row, td.boxH),
+  label: td.label,
+  en: td.en,
+  type: td.type,
+  boxH: td.boxH,
+}));
+
+// ── Wafer flow path (sun — throughput semantic) ─────────────────────────────
+// Horizontal dashed path at foot-of-tools level, left to right.
+const WAFER_Y = TOOL_OY + HTH * 2 + MAX_TOOL_BOXH + 20;
+const waferPath = `M ${TOOL_OX} ${WAFER_Y} `
+  + toolDefs.slice(0, 5).map((td) => {
+      const tx = TOOL_OX + td.col * HTW;
+      return `L ${tx} ${WAFER_Y}`;
+    }).join(' ');
+
+// ── Sub-fab utility lines (sage — coverage semantic) ─────────────────────────
+const SUBFAB_Y1 = 760; const SUBFAB_Y2 = 800; const SUBFAB_Y3 = 830;
+
+// ── DR redundancy element (clay — resilience semantic) ───────────────────────
+const DR_X1 = 1160; const DR_X2 = 1320;
+const DR_Y1 = 350;  const DR_Y2 = 620;
+const DR_MID_Y = (DR_Y1 + DR_Y2) / 2;
+---
+
+{/* ── Outer section wrapper ──────────────────────────────────────────── */}
+<section class="fab" data-fab aria-labelledby="fab-caption">
+
+  {/* ── HUD coordinate strip (aria-hidden — decoration only) ──────────── */}
+  <div class="fab__hud" aria-hidden="true">
+    <span class="fab__hud-coord">{t('comp.c.crc.hudCoord', locale)}</span>
+    <span class="fab__hud-label">{t('comp.c.crc.hudLabel', locale)}</span>
+  </div>
+
+  {/* ── Giant ghost section numeral (signature motif, aria-hidden) ─────── */}
+  <span class="fab__numeral" aria-hidden="true">05</span>
+
+  {/* ── The cutaway illustration ─────────────────────────────────────────── */}
+  <figure class="fab__figure">
+    {/*
+      figcaption is visually hidden (sr-only) but gives AT users the full
+      scene description. The SVG is aria-hidden decoration.
+    */}
+    <figcaption id="fab-caption" class="fab__figcaption">
+      {t('comp.c.crc.figcaption', locale)}
+    </figcaption>
+
+    {/*
+      fab__stage: applies CSS perspective projection.
+      fab__inked: the clip-path wipe target.
+        Default CSS → clip-path: none (full diagram visible; no-JS / SSR).
+        JS sets → clip-path: inset(0 0 100% 0) as the hidden start state,
+        then animates to inset(0 0 0% 0) on scroll-enter.
+    */}
+    <div class="fab__stage">
+      <svg
+        class="fab__inked"
+        viewBox="0 0 1440 900"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+        focusable="false"
+      >
+
+        {/* ── ceiling: FFU tile grid + laminar-flow arrows ────────────── */}
+        <g data-scan-layer="ceiling">
+          {ceilingTiles.map((pts) => (
+            <polygon points={pts} class="fab__ffu-tile" />
+          ))}
+          {laminarX.map((x) => (
+            <g class="fab__laminar">
+              <line x1={x} y1={LAMINAY} x2={x} y2={LAMINAY + 60} />
+              <polyline points={`${x - 8},${LAMINAY + 48} ${x},${LAMINAY + 62} ${x + 8},${LAMINAY + 48}`} />
+            </g>
+          ))}
+        </g>
+
+        {/* ── shell: bay/chase outline + raised-floor tile grid ────────── */}
+        <g data-scan-layer="shell">
+          <rect
+            x={BAY_X1} y={BAY_Y1}
+            width={BAY_X2 - BAY_X1} height={BAY_Y2 - BAY_Y1}
+            class="fab__bay"
+          />
+          {floorTiles.map((pts) => (
+            <polygon points={pts} class="fab__floor-tile" />
+          ))}
+        </g>
+
+        {/* ── tools: process equipment isometric boxes with type details ── */}
+        <g data-scan-layer="tools">
+          {toolBoxes.map((box) => (
+            <g class="fab__tool">
+              <polygon points={box.top}   class="fab__tool-top"   />
+              <polygon points={box.left}  class="fab__tool-left"  />
+              <polygon points={box.right} class="fab__tool-right" />
+              <text
+                x={box.cx}
+                y={box.cy + box.boxH / 2}
+                class="fab__tool-label"
+                text-anchor="middle"
+              >{box.label}</text>
+
+              {box.type === 'litho' && (
+                <g data-detail="" class="fab__detail">
+                  <line x1={box.cx} y1={box.cy-64} x2={box.cx} y2={box.cy-92} />
+                  <polygon points={`${box.cx},${box.cy-100} ${box.cx+14},${box.cy-96} ${box.cx},${box.cy-92} ${box.cx-14},${box.cy-96}`} />
+                  <ellipse cx={box.cx} cy={box.cy-32} rx={14} ry={7} />
+                </g>
+              )}
+
+              {box.type === 'etch' && (
+                <g data-detail="" class="fab__detail">
+                  <ellipse cx={box.cx-22} cy={box.cy-32} rx={20} ry={10} />
+                  <ellipse cx={box.cx+20} cy={box.cy-32} rx={20} ry={10} />
+                </g>
+              )}
+
+              {box.type === 'cvd' && (
+                <g data-detail="" class="fab__detail">
+                  <ellipse cx={box.cx-18} cy={box.cy-67} rx={11} ry={5} />
+                  <line x1={box.cx-29} y1={box.cy-67} x2={box.cx-29} y2={box.cy-32} />
+                  <line x1={box.cx-7}  y1={box.cy-67} x2={box.cx-7}  y2={box.cy-32} />
+                  <path d={`M ${box.cx-29},${box.cy-32} A 11 5 0 0 0 ${box.cx-7},${box.cy-32}`} />
+                  <ellipse cx={box.cx+18} cy={box.cy-67} rx={11} ry={5} />
+                  <line x1={box.cx+7}  y1={box.cy-67} x2={box.cx+7}  y2={box.cy-32} />
+                  <line x1={box.cx+29} y1={box.cy-67} x2={box.cx+29} y2={box.cy-32} />
+                  <path d={`M ${box.cx+7},${box.cy-32} A 11 5 0 0 0 ${box.cx+29},${box.cy-32}`} />
+                </g>
+              )}
+
+              {box.type === 'efem' && (
+                <g data-detail="" class="fab__detail">
+                  <polygon points={`${box.cx+6},${box.cy+4} ${box.cx+33},${box.cy-10} ${box.cx+33},${box.cy+16} ${box.cx+6},${box.cy+30}`} />
+                  <polygon points={`${box.cx+6},${box.cy+36} ${box.cx+33},${box.cy+22} ${box.cx+33},${box.cy+48} ${box.cx+6},${box.cy+62}`} />
+                  <polyline points={`${box.cx},${box.cy-32} ${box.cx+22},${box.cy-43} ${box.cx+38},${box.cy-37}`} />
+                </g>
+              )}
+
+              {box.type === 'loadport' && (
+                <g data-detail="" class="fab__detail">
+                  <polygon points={`${box.cx+20},${box.cy+25} ${box.cx+52},${box.cy+9} ${box.cx+52},${box.cy+55} ${box.cx+20},${box.cy+71}`} />
+                  <line x1={box.cx+36} y1={box.cy+12} x2={box.cx+36} y2={box.cy+17} />
+                </g>
+              )}
+
+              {box.type === 'foup' && (
+                <g data-detail="" class="fab__detail">
+                  <line x1={box.cx-65} y1={box.cy+3}  x2={box.cx} y2={box.cy+35}  />
+                  <line x1={box.cx-65} y1={box.cy+38} x2={box.cx} y2={box.cy+70}  />
+                  <line x1={box.cx-65} y1={box.cy+73} x2={box.cx} y2={box.cy+105} />
+                  <polygon points={`${box.cx-65},${box.cy+7} ${box.cx-39},${box.cy+16} ${box.cx-39},${box.cy+51} ${box.cx-65},${box.cy+38}`} />
+                  <polygon points={`${box.cx-33},${box.cy+54} ${box.cx},${box.cy+70} ${box.cx},${box.cy+105} ${box.cx-33},${box.cy+89}`} />
+                </g>
+              )}
+            </g>
+          ))}
+        </g>
+
+        {/* ── wafers: wafer throughput flow path (sun) ─────────────────── */}
+        <g data-scan-layer="wafers">
+          <path
+            d={waferPath}
+            pathLength="1"
+            class="fab__wafer-path"
+          />
+        </g>
+
+        {/* ── subfab: utility lines (sage) ─────────────────────────────── */}
+        <g data-scan-layer="subfab">
+          <path
+            d={`M ${BAY_X1 + 40} ${SUBFAB_Y1} L ${BAY_X2 - 40} ${SUBFAB_Y1}`}
+            pathLength="1"
+            class="fab__subfab-line"
+          />
+          <path
+            d={`M ${BAY_X1 + 40} ${SUBFAB_Y2} L ${BAY_X2 - 40} ${SUBFAB_Y2}`}
+            pathLength="1"
+            class="fab__subfab-line"
+          />
+          <path
+            d={`M ${BAY_X1 + 40} ${SUBFAB_Y3} L ${BAY_X2 - 40} ${SUBFAB_Y3}`}
+            pathLength="1"
+            class="fab__subfab-line"
+          />
+        </g>
+
+        {/* ── dr: resilience/DR placeholder (clay) ─────────────────────── */}
+        <g data-scan-layer="dr">
+          <path
+            d={`M ${DR_X1} ${DR_Y1} L ${DR_X2} ${DR_Y1} L ${DR_X2} ${DR_Y2} L ${DR_X1} ${DR_Y2} Z`}
+            pathLength="1"
+            class="fab__dr-rect"
+          />
+          <line
+            x1={DR_X1 - 20} y1={DR_MID_Y}
+            x2={DR_X1} y2={DR_MID_Y}
+            class="fab__dr-tick"
+          />
+        </g>
+
+      </svg>
+
+      {/* ── Scan beam (position driven by JS onUpdate, aria-hidden) ──────── */}
+      <div class="fab__beam" aria-hidden="true"></div>
+    </div>
+  </figure>
+
+  {/* ── Tri-accent legend (real DOM text — color never sole encoding) ───── */}
+  <dl class="fab__legend" aria-label="legend">
+    <div class="fab__legend-item">
+      <dt class="fab__legend-swatch fab__legend-swatch--clay" aria-hidden="true"></dt>
+      <dd class="fab__legend-label fab__legend-label--clay">
+        {t('comp.c.crc.legend.clay', locale)}
+      </dd>
+    </div>
+    <div class="fab__legend-item">
+      <dt class="fab__legend-swatch fab__legend-swatch--sun" aria-hidden="true"></dt>
+      <dd class="fab__legend-label fab__legend-label--sun">
+        {t('comp.c.crc.legend.sun', locale)}
+      </dd>
+    </div>
+    <div class="fab__legend-item">
+      <dt class="fab__legend-swatch fab__legend-swatch--sage" aria-hidden="true"></dt>
+      <dd class="fab__legend-label fab__legend-label--sage">
+        {t('comp.c.crc.legend.sage', locale)}
+      </dd>
+    </div>
+  </dl>
+
+</section>
+
+{/* ── Motion init (lazy, pagehide cleanup, skip under reduced-motion) ─── */}
+<script>
+  import { initCleanroomScan } from '../scripts/motion/cleanroom-scan';
+  import { prefersReducedMotion } from '../scripts/theme-motion';
+
+  function init(): void {
+    if (prefersReducedMotion()) return;
+    const cleanup = initCleanroomScan();
+    window.addEventListener('pagehide', cleanup, { once: true });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+</script>
+
+<style>
+  /* ── Outer section ───────────────────────────────────────────────────── */
+  .fab {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-block: 2.5rem;
+  }
+
+  /* ── HUD coordinate strip (aria-hidden decoration) ──────────────────── */
+  .fab__hud {
+    display: flex;
+    align-items: baseline;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .fab__hud-coord {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint); /* decoration only — aria-hidden parent */
+  }
+  .fab__hud-label {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    color: var(--sun);
+    text-transform: uppercase;
+  }
+
+  /* ── Giant ghost numeral (signature motif, aria-hidden) ─────────────── */
+  .fab__numeral {
+    position: absolute;
+    right: 0;
+    top: -1.5rem;
+    font-family: var(--font-display, serif);
+    font-size: clamp(5rem, 12vw, 9rem);
+    font-weight: 900;
+    line-height: 1;
+    color: var(--ink-faint);
+    pointer-events: none;
+    user-select: none;
+    opacity: 0.12;
+    z-index: 0;
+  }
+
+  /* ── Figure wrapper ──────────────────────────────────────────────────── */
+  .fab__figure {
+    position: relative;
+    margin: 0;
+    border: 1px solid var(--border-strong);
+    background: var(--bg-deep);
+    overflow: hidden;
+  }
+
+  /* Screen-reader-only figcaption: visually hidden, reachable by AT */
+  .fab__figcaption {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* ── Perspective stage ───────────────────────────────────────────────── */
+  .fab__stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1440 / 900;
+    perspective: 1200px;
+    perspective-origin: 50% 40%;
+  }
+
+  /* ── Inked SVG — clip-path wipe target ──────────────────────────────── */
+  .fab__inked {
+    display: block;
+    width: 100%;
+    height: 100%;
+    /*
+     * Hybrid projection: slight rotateX/Y gives a near-vs-far depth feel
+     * while the SVG geometry stays in parallel isometric coordinates.
+     * Dropped to transform:none on mobile (see responsive section below).
+     */
+    transform: rotateX(6deg) rotateY(-2deg);
+    transform-origin: 50% 40%;
+    /*
+     * Default: clip-path none → full diagram visible (no-JS / SSR / reduced-motion).
+     * initCleanroomScan() sets 'inset(0 0 100% 0)' before first frame.
+     */
+    clip-path: none;
+  }
+
+  /* ── Scan beam (JS-controlled position + opacity) ────────────────────── */
+  .fab__beam {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 3px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--sun) 30%,
+      var(--clay) 70%,
+      transparent 100%
+    );
+    mix-blend-mode: screen;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* ── SVG element styles ──────────────────────────────────────────────── */
+
+  /* Ceiling FFU tile grid */
+  .fab__ffu-tile {
+    fill: none;
+    stroke: var(--ink-faint);
+    stroke-width: 0.5;
+    opacity: 0.5;
+  }
+
+  /* Sage laminar-flow arrows */
+  .fab__laminar line,
+  .fab__laminar polyline {
+    fill: none;
+    stroke: var(--sage);
+    stroke-width: 1.5;
+    opacity: 0.45;
+  }
+
+  /* Bay/chase outline */
+  .fab__bay {
+    fill: none;
+    stroke: var(--ink-faint);
+    stroke-width: 1;
+    opacity: 0.4;
+  }
+
+  /* Raised-floor tile grid */
+  .fab__floor-tile {
+    fill: none;
+    stroke: var(--ink-faint);
+    stroke-width: 0.5;
+    opacity: 0.35;
+  }
+
+  /* Tool placeholder box faces */
+  .fab__tool-top {
+    fill: color-mix(in srgb, var(--ink) 4%, transparent);
+    stroke: var(--ink);
+    stroke-width: 1;
+  }
+  .fab__tool-left {
+    fill: color-mix(in srgb, var(--ink) 2%, transparent);
+    stroke: var(--ink);
+    stroke-width: 1;
+    opacity: 0.7;
+  }
+  .fab__tool-right {
+    fill: color-mix(in srgb, var(--ink) 6%, transparent);
+    stroke: var(--ink);
+    stroke-width: 1;
+    opacity: 0.55;
+  }
+  .fab__tool-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    fill: var(--ink-muted);
+    letter-spacing: 0.08em;
+    pointer-events: none;
+  }
+
+  /* Wafer flow path (sun = throughput) */
+  .fab__wafer-path {
+    fill: none;
+    stroke: var(--sun);
+    stroke-width: 2;
+    opacity: 0.7;
+    stroke-dasharray: 8 5;
+  }
+
+  /* Sub-fab utility lines (sage = coverage) */
+  .fab__subfab-line {
+    fill: none;
+    stroke: var(--sage);
+    stroke-width: 1;
+    opacity: 0.5;
+  }
+
+  /* DR redundancy element (clay = resilience) */
+  .fab__dr-rect {
+    fill: color-mix(in srgb, var(--clay) 6%, transparent);
+    stroke: var(--clay);
+    stroke-width: 1.5;
+    stroke-dasharray: 6 3;
+    opacity: 0.7;
+  }
+  .fab__dr-tick {
+    stroke: var(--clay);
+    stroke-width: 1;
+    opacity: 0.5;
+  }
+
+  /* Tool isometric detail elements (type-specific line art) */
+  .fab__detail line,
+  .fab__detail path,
+  .fab__detail polyline {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 1;
+    opacity: 0.6;
+  }
+  .fab__detail polygon,
+  .fab__detail ellipse {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 1;
+    opacity: 0.55;
+  }
+
+  /* ── Tri-accent legend ───────────────────────────────────────────────── */
+  .fab__legend {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .fab__legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  /* dt = color swatch (aria-hidden), dd = text label */
+  .fab__legend-swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    flex-shrink: 0;
+    margin: 0;
+  }
+  .fab__legend-swatch--clay { background: var(--clay); }
+  .fab__legend-swatch--sun  { background: var(--sun);  }
+  .fab__legend-swatch--sage { background: var(--sage); }
+
+  .fab__legend-label {
+    font-family: var(--font-mono);
+    font-size: 0.70rem;
+    letter-spacing: 0.06em;
+    margin: 0;
+  }
+  /* Accent colors pass AA on --surface (clay ~3.4:1 large, sun ~10.5:1, sage ~5:1) */
+  .fab__legend-label--clay { color: var(--clay); }
+  .fab__legend-label--sun  { color: var(--sun);  }
+  .fab__legend-label--sage { color: var(--sage); }
+
+  /* ── Mobile: flat isometric (no CSS perspective tilt) ───────────────── */
+  @media (max-width: 48rem) {
+    .fab__stage {
+      perspective: none;
+    }
+    .fab__inked {
+      transform: none;
+    }
+    /* Hide detail-only decorations */
+    [data-detail] {
+      display: none;
+    }
+  }
+
+  /* ── Reduced-motion: always show final state, never animate ─────────── */
+  @media (prefers-reduced-motion: reduce) {
+    .fab__inked {
+      clip-path: none !important;
+    }
+    .fab__beam {
+      display: none !important;
+    }
+    .fab__ffu-tile,
+    .fab__laminar line,
+    .fab__laminar polyline,
+    .fab__wafer-path,
+    .fab__subfab-line,
+    .fab__dr-rect {
+      transition: none;
+    }
+  }
+</style>

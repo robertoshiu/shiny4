@@ -1,0 +1,336 @@
+---
+/**
+ * DiagramStationPlan.astro — Duty-Station Plan-View + Section Inset.
+ * Genre: architectural plan-view + small section. Projection: top-down plan + section.
+ * Dominant accent: SUN (central console + team links/growth). SAGE = SOC coverage. CLAY = T6 DR.
+ * Non-exploded: all [data-part] have dx=0 dy=0.
+ * Original generic schematic — original drawing.
+ */
+import DiagramField from './DiagramField.astro';
+import { t, type Locale } from '../i18n/utils';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+
+const legend = [
+  { accent: 'sun'  as const, labelKey: 'diagram.station.legend.sun'  },
+  { accent: 'sage' as const, labelKey: 'diagram.station.legend.sage' },
+  { accent: 'clay' as const, labelKey: 'diagram.station.legend.clay' },
+];
+
+const bom = [
+  { n: 1,  labelKey: 'diagram.station.bom.1',  accent: 'sun'  as const },
+  { n: 2,  labelKey: 'diagram.station.bom.2'  },
+  { n: 3,  labelKey: 'diagram.station.bom.3'  },
+  { n: 4,  labelKey: 'diagram.station.bom.4'  },
+  { n: 5,  labelKey: 'diagram.station.bom.5'  },
+  { n: 6,  labelKey: 'diagram.station.bom.6'  },
+  { n: 7,  labelKey: 'diagram.station.bom.7',  accent: 'clay' as const },
+  { n: 8,  labelKey: 'diagram.station.bom.8'  },
+  { n: 9,  labelKey: 'diagram.station.bom.9'  },
+  { n: 10, labelKey: 'diagram.station.bom.10', accent: 'sage' as const },
+  { n: 11, labelKey: 'diagram.station.bom.11' },
+  { n: 12, labelKey: 'diagram.station.bom.12' },
+];
+
+// ── Plan geometry ─────────────────────────────────────────────────────────────
+// Room: x=305-1140, y=155-760 (835×605 plan)
+const ROOM = { x1: 305, y1: 155, x2: 1140, y2: 760, wall: 14 };
+const CX = 720; // console center x
+const CY = 455; // console center y
+
+// Central handover console (rounded rect, SUN)
+const CON = { x: CX - 115, y: CY - 55, w: 230, h: 110 };
+
+// 8 function pods: 4 top (T1-T4 y=248), 4 bottom (T5-T8 y=658)
+const TOP_POD_XS  = [460, 610, 790, 960];
+const BOT_POD_XS  = [460, 610, 790, 960];
+const POD_W = 110; const POD_H = 70;
+
+// SOC video wall (sage) along top wall y=168-188, x=440-1000
+const SOC = { x: 440, y: 168, w: 560, h: 20 };
+
+// War-room table x=1000, y=430
+const WAR = { x: 1000, y: CY - 35, w: 85, h: 70 };
+
+// Entry airlock: bottom center x=665-775, y=730
+const AIR = { x: 665, y: 730, w: 110, h: 30 };
+
+// A-A section line: y=455, x=285-1160
+const AA_Y = CY;
+
+// Section inset: x=1180-1410, y=575-760
+const SI = { x: 1185, y: 575, w: 220, h: 170 };
+
+// Sparse grid
+const gridLines: { x1:number; y1:number; x2:number; y2:number }[] = [];
+for (let x = 48; x < 1440; x += 96) gridLines.push({ x1:x, y1:0, x2:x, y2:900 });
+for (let y = 48; y < 900;  y += 96) gridLines.push({ x1:0, y1:y, x2:1440, y2:y });
+
+// BOM balloon column at x=200 (left of room x1=305)
+// Top pods top-row items: place at left. Console/SOC/side items: right
+const BX_L = 220; // left balloon column
+---
+
+<DiagramField
+  id="station-plan"
+  locale={locale}
+  figcaptionKey="diagram.station.figcaption"
+  legend={legend}
+  bom={bom}
+  dominantAccent="sun"
+  viewBox="0 0 1440 900"
+  numeral="02"
+>
+  <defs>
+    <pattern id="dg-hatch45" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="7" stroke="var(--ink-faint)" stroke-width="1" opacity="0.5"/>
+    </pattern>
+  </defs>
+
+  {/* Grid */}
+  <g data-diagram-layer="grid" aria-hidden="true" class="dg-layer-mobile-hide">
+    {gridLines.map(l => <line x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} class="dg__grid-line" />)}
+  </g>
+
+  {/* Centerlines: A-A section line + console symmetry */}
+  <g data-diagram-layer="centerlines" aria-hidden="true" class="dg-layer-mobile-hide">
+    {/* A-A section line */}
+    <path d={`M 282 ${AA_Y} L 1162 ${AA_Y}`} data-centerline class="dg__section-line" />
+    {/* Console symmetry axis (vertical) */}
+    <path d={`M ${CX} 175 L ${CX} 740`} data-centerline class="dg__centerline" />
+  </g>
+
+  {/* ── Wall poché (background structure) ── */}
+  <g data-diagram-layer="structure" aria-hidden="true">
+    {/* Top wall (hatch poché) */}
+    <rect x={ROOM.x1} y={ROOM.y1} width={ROOM.x2-ROOM.x1} height={ROOM.wall} class="dg__section-slab dg__tool-hatch" />
+    <rect x={ROOM.x1} y={ROOM.y1} width={ROOM.x2-ROOM.x1} height={ROOM.wall} class="dg__section-slab-outline" />
+    {/* Bottom wall (leaving airlock gap) */}
+    <rect x={ROOM.x1} y={ROOM.y2-ROOM.wall} width={AIR.x-ROOM.x1} height={ROOM.wall} class="dg__section-slab dg__tool-hatch" />
+    <rect x={ROOM.x1} y={ROOM.y2-ROOM.wall} width={AIR.x-ROOM.x1} height={ROOM.wall} class="dg__section-slab-outline" />
+    <rect x={AIR.x+AIR.w} y={ROOM.y2-ROOM.wall} width={ROOM.x2-(AIR.x+AIR.w)} height={ROOM.wall} class="dg__section-slab dg__tool-hatch" />
+    <rect x={AIR.x+AIR.w} y={ROOM.y2-ROOM.wall} width={ROOM.x2-(AIR.x+AIR.w)} height={ROOM.wall} class="dg__section-slab-outline" />
+    {/* Left wall */}
+    <rect x={ROOM.x1} y={ROOM.y1} width={ROOM.wall} height={ROOM.y2-ROOM.y1} class="dg__section-slab dg__tool-hatch" />
+    <rect x={ROOM.x1} y={ROOM.y1} width={ROOM.wall} height={ROOM.y2-ROOM.y1} class="dg__section-slab-outline" />
+    {/* Right wall */}
+    <rect x={ROOM.x2-ROOM.wall} y={ROOM.y1} width={ROOM.wall} height={ROOM.y2-ROOM.y1} class="dg__section-slab dg__tool-hatch" />
+    <rect x={ROOM.x2-ROOM.wall} y={ROOM.y1} width={ROOM.wall} height={ROOM.y2-ROOM.y1} class="dg__section-slab-outline" />
+    {/* Section inset (lower-right) */}
+    <rect x={SI.x} y={SI.y} width={SI.w} height={SI.h} class="dg__section-inset" />
+    {/* Section inset: hatched floor + desk elevation */}
+    <rect x={SI.x} y={SI.y+SI.h-24} width={SI.w} height="24" class="dg__section-slab dg__tool-hatch" />
+    <rect x={SI.x+40} y={SI.y+80} width="140" height="16" class="dg__desk" />
+    {/* Section inset centerline (ergonomic axis) */}
+    <path d={`M ${SI.x+SI.w/2} ${SI.y+20} L ${SI.x+SI.w/2} ${SI.y+SI.h-24}`} class="dg__centerline" />
+    {/* North arrow */}
+    <path d="M 328 184 L 328 172 L 323 180 L 328 172 L 333 180" class="dg__north-arrow" />
+    <text x="328" y="198" class="dg__tool-label" text-anchor="middle" font-size="8">N</text>
+    {/* Scale bar */}
+    <line x1="322" y1="738" x2="422" y2="738" class="dg__dim-line" />
+    <line x1="322" y1="732" x2="322" y2="744" class="dg__dim-tick" />
+    <line x1="422" y1="732" x2="422" y2="744" class="dg__dim-tick" />
+    <text x="372" y="754" class="dg__dim-val" text-anchor="middle" font-size="9">12.0 m</text>
+    {/* A section label at each end */}
+    <text x="270" y={AA_Y + 4} class="dg__tool-label dg__tool-label--sage" text-anchor="middle" font-size="10" font-weight="600">A</text>
+    <text x="1173" y={AA_Y + 4} class="dg__tool-label dg__tool-label--sage" text-anchor="middle" font-size="10" font-weight="600">A</text>
+    {/* Section inset label */}
+    <text x={SI.x + SI.w/2} y={SI.y - 6} class="dg__tool-label" text-anchor="middle" font-size="9">{t('diagram.station.sectionLabel', locale)}</text>
+  </g>
+
+  {/* ── PARTS ── */}
+  <g data-diagram-layer="parts">
+
+    {/* 10 — SOC video wall (sage, top wall) */}
+    <g data-part data-part-id="soc-wall" data-ex-dx="0" data-ex-dy="0" transform="translate(0,0)">
+      <rect x={SOC.x} y={SOC.y} width={SOC.w} height={SOC.h} class="dg__soc-wall" />
+      <text x={SOC.x + SOC.w/2} y={SOC.y + 14} class="dg__tool-label dg__tool-label--sage" text-anchor="middle">SOC</text>
+      {/* SOC sightline arc */}
+      <path d={`M ${SOC.x} ${SOC.y+SOC.h} Q ${SOC.x+SOC.w/2} ${CY-80} ${SOC.x+SOC.w} ${SOC.y+SOC.h}`} class="dg__soc-arc" />
+      <line x1={SOC.x+SOC.w/2} y1={SOC.y+SOC.h} x2={BX_L} y2={216} class="dg__leader" />
+      <circle cx={SOC.x+SOC.w/2} cy={SOC.y+SOC.h} r="3" class="dg__leader-dot" />
+      <circle cx={BX_L} cy={216} r="14" class="dg__balloon" />
+      <text x={BX_L} y="220" class="dg__balloon-num" text-anchor="middle">10</text>
+    </g>
+
+    {/* Top row pods T1-T4 */}
+    {TOP_POD_XS.map((px, i) => {
+      const podY = 220;
+      const accent = i === 0 ? 'sage' : undefined;
+      return (
+        <g data-part data-part-id={`t${i+1}`} data-ex-dx="0" data-ex-dy="0" transform="translate(0,0)">
+          <rect x={px - POD_W/2} y={podY - POD_H/2} width={POD_W} height={POD_H}
+                class:list={['dg__desk', accent ? `dg__desk--${accent}` : '']} />
+          <text x={px} y={podY - 2} class="dg__tool-label" text-anchor="middle">T{i+1}</text>
+        </g>
+      );
+    })}
+
+    {/* Bottom row pods T5-T8 */}
+    {BOT_POD_XS.map((px, i) => {
+      const podY = 680;
+      const isT6 = i === 1; // T6 is clay
+      return (
+        <g data-part data-part-id={`t${i+5}`} data-ex-dx="0" data-ex-dy="0" transform="translate(0,0)">
+          <rect x={px - POD_W/2} y={podY - POD_H/2} width={POD_W} height={POD_H}
+                class:list={['dg__desk', isT6 ? 'dg__desk--clay' : '']} />
+          <text x={px} y={podY - 2} class:list={['dg__tool-label', isT6 ? 'dg__tool-label--clay' : '']}
+                text-anchor="middle">T{i+5}</text>
+        </g>
+      );
+    })}
+
+    {/* 1 — Central handover console (SUN) */}
+    <g data-part data-part-id="console" data-ex-dx="0" data-ex-dy="0" transform="translate(0,0)">
+      <rect x={CON.x} y={CON.y} width={CON.w} height={CON.h} rx="8" class="dg__console" />
+      <text x={CX} y={CY - 8} class="dg__tool-label dg__tool-label--sun" text-anchor="middle">{t('diagram.station.bom.1', locale)}</text>
+      <text x={CX} y={CY + 8} class="dg__tool-label dg__tool-label--sun" text-anchor="middle">CCC</text>
+      <line x1={CX} y1={CY - 55} x2={BX_L} y2={156} class="dg__leader dg__leader--sun" />
+      <circle cx={CX} cy={CY - 55} r="3" class="dg__leader-dot dg__leader-dot--sun" />
+      <circle cx={BX_L} cy={156} r="14" class="dg__balloon" />
+      <text x={BX_L} y="160" class="dg__balloon-num" text-anchor="middle">1</text>
+    </g>
+
+    {/* 11 — War-room table */}
+    <g data-part data-part-id="war-table" data-ex-dx="0" data-ex-dy="0" transform="translate(0,0)">
+      <rect x={WAR.x} y={WAR.y} width={WAR.w} height={WAR.h} class="dg__desk" />
+      <text x={WAR.x + WAR.w/2} y={WAR.y + WAR.h/2 + 4} class="dg__tool-label" text-anchor="middle">{t('diagram.station.bom.11', locale)}</text>
+    </g>
+
+    {/* 12 — Entry airlock */}
+    <g data-part data-part-id="airlock" data-ex-dx="0" data-ex-dy="0" transform="translate(0,0)">
+      <rect x={AIR.x} y={AIR.y} width={AIR.w} height={AIR.h} class="dg__section-slab-outline" />
+      <text x={AIR.x + AIR.w/2} y={AIR.y + 20} class="dg__tool-label" text-anchor="middle">{t('diagram.station.bom.12', locale)}</text>
+    </g>
+
+    {/* Individual BOM leaders for pods T1-T8 (grouped per spec) */}
+    <g data-part data-part-id="bom-pods" data-ex-dx="0" data-ex-dy="0" transform="translate(0,0)">
+      {/* T1-T4 balloon numbers above top pods */}
+      {TOP_POD_XS.map((px, i) => (
+        <g>
+          <line x1={px} y1={185} x2={px} y2={162} class="dg__leader" />
+          <circle cx={px} cy={185} r="3" class="dg__leader-dot" />
+          <circle cx={px} cy={148} r="14" class="dg__balloon" />
+          <text x={px} y={152} class="dg__balloon-num" text-anchor="middle">{i+2}</text>
+        </g>
+      ))}
+      {/* T5-T8 balloon numbers below bottom pods */}
+      {BOT_POD_XS.map((px, i) => {
+        const isT6 = i === 1;
+        return (
+          <g>
+            <line x1={px} y1={715} x2={px} y2={738} class="dg__leader" />
+            <circle cx={px} cy={715} r="3" class:list={['dg__leader-dot', isT6 ? 'dg__leader-dot--sun' : '']} />
+            <circle cx={px} cy={752} r="14" class="dg__balloon" />
+            <text x={px} y={756} class="dg__balloon-num" text-anchor="middle">{i+6}</text>
+          </g>
+        );
+      })}
+    </g>
+
+  </g>
+
+  {/* ── Dimensions ── */}
+  <g data-diagram-layer="dimensions" aria-hidden="true" class="dg-layer-mobile-hide">
+    {/* SUN: room width (all 8 functions) */}
+    <line x1="460" y1="808" x2="960" y2="808" class="dg__dim-line" />
+    <line x1="460" y1="800" x2="460" y2="816" class="dg__dim-tick" />
+    <line x1="960" y1="800" x2="960" y2="816" class="dg__dim-tick" />
+    <text x="710" y="824" class="dg__dim-val dg__dim-val--sun" text-anchor="middle">8/8</text>
+    <text x="710" y="838" class="dg__dim-caption dg__dim-caption--sun" text-anchor="middle">{t('diagram.station.dim.sun.cap', locale)}</text>
+
+    {/* SAGE: SOC arc coverage span */}
+    <line x1="440" y1="130" x2="1000" y2="130" class="dg__dim-line dg__dim-line--sage" />
+    <line x1="440" y1="122" x2="440" y2="138" class="dg__dim-tick" />
+    <line x1="1000" y1="122" x2="1000" y2="138" class="dg__dim-tick" />
+    <text x="720" y="120" class="dg__dim-val dg__dim-val--sage" text-anchor="middle">360°</text>
+    <text x="720" y="110" class="dg__dim-caption dg__dim-caption--sage" text-anchor="middle">{t('diagram.station.dim.sage.cap', locale)}</text>
+
+    {/* CLAY: T6 on-call bracket */}
+    <line x1="557" y1="641" x2="665" y2="641" class="dg__dim-line dg__dim-line--clay" stroke-dasharray="6 3" />
+    <text x="610" y="635" class="dg__dim-val dg__dim-val--clay" text-anchor="middle">24/7</text>
+    <text x="610" y="626" class="dg__dim-caption dg__dim-caption--clay" text-anchor="middle">{t('diagram.station.dim.clay.cap', locale)}</text>
+  </g>
+
+  {/* ── Sun topology links (dominant accent: console → all pods) ── */}
+  <g data-diagram-layer="flow">
+    {[...TOP_POD_XS, ...BOT_POD_XS].map((px, i) => {
+      const py = i < 4 ? 220 : 680;
+      return (
+        <path
+          d={`M ${CX} ${CY} L ${px} ${py}`}
+          data-flow pathLength="1"
+          class="dg__flow-path"
+        />
+      );
+    })}
+    {/* SOC link */}
+    <path d={`M ${CX} ${CY} L ${SOC.x+SOC.w/2} ${SOC.y+SOC.h}`} data-flow pathLength="1" class="dg__flow-path dg__flow-path--sage" />
+  </g>
+
+  <text x="720" y="888" class="dg__disclaimer" text-anchor="middle" aria-hidden="true">{t('diagram.station.disclaimer', locale)}</text>
+</DiagramField>
+
+<style>
+  :global(.dg__section-slab) {
+    fill: color-mix(in srgb, var(--ink) 6%, transparent);
+  }
+  :global(.dg__section-slab-outline) {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 1.4;
+    opacity: 0.75;
+  }
+  :global(.dg__section-line) {
+    fill: none;
+    stroke: var(--ink-muted);
+    stroke-width: 1.2;
+    stroke-dasharray: 16 4 2 4;
+    opacity: 0.6;
+  }
+  :global(.dg__console) {
+    fill: color-mix(in srgb, var(--sun) 10%, transparent);
+    stroke: var(--sun);
+    stroke-width: 1.6;
+  }
+  :global(.dg__desk) {
+    fill: color-mix(in srgb, var(--ink) 5%, transparent);
+    stroke: var(--ink);
+    stroke-width: 1.2;
+  }
+  :global(.dg__desk--clay) {
+    fill: color-mix(in srgb, var(--clay) 10%, transparent);
+    stroke: var(--clay);
+    stroke-width: 1.4;
+  }
+  :global(.dg__desk--sage) {
+    fill: color-mix(in srgb, var(--sage) 8%, transparent);
+    stroke: var(--sage);
+    stroke-width: 1.2;
+  }
+  :global(.dg__soc-wall) {
+    fill: color-mix(in srgb, var(--sage) 12%, transparent);
+    stroke: var(--sage);
+    stroke-width: 1.4;
+  }
+  :global(.dg__soc-arc) {
+    fill: none;
+    stroke: var(--sage);
+    stroke-width: 0.75;
+    stroke-dasharray: 5 3;
+    opacity: 0.45;
+  }
+  :global(.dg__north-arrow) {
+    fill: none;
+    stroke: var(--ink-muted);
+    stroke-width: 1.2;
+    opacity: 0.7;
+  }
+  :global(.dg__section-inset) {
+    fill: color-mix(in srgb, var(--ink) 2%, transparent);
+    stroke: var(--ink-muted);
+    stroke-width: 1;
+    opacity: 0.7;
+  }
+</style>

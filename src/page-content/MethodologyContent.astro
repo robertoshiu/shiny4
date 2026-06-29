@@ -8,6 +8,7 @@ import SlaStrip from '../components/SlaStrip.astro';
 import ComplianceBadges from '../components/ComplianceBadges.astro';
 import RiskCard from '../components/RiskCard.astro';
 import EngageCTA from '../components/EngageCTA.astro';
+import DiagramGateProcess from '../components/DiagramGateProcess.astro';
 import { getCollection } from 'astro:content';
 import { t, localized, withBase } from '../i18n/utils';
 import type { Locale } from '../i18n/utils';
@@ -96,6 +97,14 @@ const templateItems = [
       locale={locale}
     />
   </Fragment>
+
+  <div class="methodology-scan-wrapper">
+
+  <!-- FIG.01: 四階八閘交付流程 P&ID ─────────────────────── -->
+  <section class="section" id="gate-section" aria-labelledby="heading-gate">
+    <SectionHeader index="01" zh={t('diagram.gate.section.zh', locale)} en={t('diagram.gate.section.en', locale)} />
+    <DiagramGateProcess locale={locale} />
+  </section>
 
   <!-- FIG.02: 六層×階段交付矩陣 ─────────────────────────── -->
   <section class="section" id="matrix" aria-labelledby="heading-02">
@@ -283,6 +292,7 @@ const templateItems = [
 
   <!-- ENGAGE CTA -->
   <EngageCTA locale={locale} />
+  </div>{/* end .methodology-scan-wrapper */}
 </PageLayout>
 
 <script>
@@ -642,6 +652,12 @@ const templateItems = [
 </script>
 
 <style>
+  /* ── Methodology scan wrapper — stacking context for SVG fallback ── */
+  .methodology-scan-wrapper {
+    position: relative;
+    isolation: isolate;
+  }
+
   /* ── Section intro lede ───────────────────────────────── */
   .fig-lede {
     max-width: 64ch;

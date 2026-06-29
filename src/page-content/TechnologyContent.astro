@@ -4,6 +4,7 @@ import SubHero from '../components/SubHero.astro';
 import SectionHeader from '../components/SectionHeader.astro';
 import HardwareTable from '../components/HardwareTable.astro';
 import SecurityZoneDiagram from '../components/SecurityZoneDiagram.astro';
+import DiagramRackStack from '../components/DiagramRackStack.astro';
 import ComplianceMatrix from '../components/ComplianceMatrix.astro';
 import EngageCTA from '../components/EngageCTA.astro';
 import { getCollection } from 'astro:content';
@@ -117,6 +118,8 @@ const heroStats = [
     />
   </Fragment>
 
+  <div class="tech-wrapper">
+
   <!-- Sticky L1-L6 layer-nav strip (in main, outside overflow:hidden hero) -->
   <nav class="layer-nav" aria-label={t('technology.layerNav.ariaLabel', locale)}>
     <div class="layer-nav__inner">
@@ -136,6 +139,12 @@ const heroStats = [
       {t('technology.section01.lede', locale)}
     </p>
     <HardwareTable locale={locale} />
+  </section>
+
+  <!-- ── 01b 機櫃棧析爆炸圖 ────────────────────────────────────────────── -->
+  <section class="section" id="rack-section" aria-labelledby="heading-rack">
+    <SectionHeader index="01" zh={t('diagram.rack.section.zh', locale)} en={t('diagram.rack.section.en', locale)} />
+    <DiagramRackStack locale={locale} />
   </section>
 
   <!-- ── 02 高速網絡 Fabric ─────────────────────────────────────────────── -->
@@ -337,6 +346,7 @@ const heroStats = [
   </section>
 
   <EngageCTA locale={locale} />
+  </div>{/* end .tech-wrapper */}
 </PageLayout>
 
 <script>
@@ -508,6 +518,12 @@ const heroStats = [
 </script>
 
 <style>
+  /* ── ScanField host — position:relative gives the absolute ScanField its bounds */
+  .tech-wrapper {
+    position: relative;
+    isolation: isolate;
+  }
+
   /* ── Section layout ──────────────────────────────────────────────────────── */
   /* scroll-margin-top: sticky layer-nav (44px) + fixed header (68px) */
   #compute, #network, #mes, #data-ai, #security, #dr, #compliance {

@@ -7,6 +7,7 @@ import ComplianceBadges from '../components/ComplianceBadges.astro';
 import BuildVsBuy from '../components/BuildVsBuy.astro';
 import EngageCTA from '../components/EngageCTA.astro';
 import LayerStack from '../components/LayerStack.astro';
+import DiagramSolutions from '../components/diagram-solutions.astro';
 import SolutionBlock from '../components/SolutionBlock.astro';
 import { getCollection } from 'astro:content';
 import { t, localized, withBase } from '../i18n/utils';
@@ -76,6 +77,8 @@ const govPillars = [
     />
   </Fragment>
 
+  <div class="solutions-scan-wrapper">
+
   <!-- ── SOL.02 六層架構→六解決框架 ── -->
   <section class="section" id="sol-framework" aria-labelledby="heading-02">
     <div class="section__inner">
@@ -89,6 +92,18 @@ const govPillars = [
       <div data-signal-travel>
         <LayerStack locale={locale} />
       </div>
+    </div>
+  </section>
+
+  <!-- ── SOL.02b 工具剖析 — 爆炸圖 ── -->
+  <section class="section" id="sol-anatomy" aria-labelledby="heading-anatomy">
+    <div class="section__inner">
+      <SectionHeader
+        index="02"
+        zh={t('diagram.tool.section.zh', locale)}
+        en={t('diagram.tool.section.en', locale)}
+      />
+      <DiagramSolutions locale={locale} />
     </div>
   </section>
 
@@ -163,6 +178,7 @@ const govPillars = [
 
   <!-- ── ENGAGE ── -->
   <EngageCTA locale={locale} />
+  </div>{/* end .solutions-scan-wrapper */}
 </PageLayout>
 
 <script>
@@ -344,6 +360,12 @@ const govPillars = [
 </script>
 
 <style>
+  /* ── Solutions scan wrapper — stacking context for SVG fallback ── */
+  .solutions-scan-wrapper {
+    position: relative;
+    isolation: isolate;
+  }
+
   /* ── Section scaffolding ── */
   .section {
     padding: clamp(4rem, 10vw, 7rem) var(--gutter);

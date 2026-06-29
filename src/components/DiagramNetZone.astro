@@ -1,0 +1,331 @@
+---
+/**
+ * DiagramNetZone.astro — OT/IT Security Network Topology.
+ * Genre: network-topology blueprint (zones, conduits, firewalls, trust boundaries).
+ * Projection: orthogonal topology plan. Based on public zone/DMZ principles, original drawing.
+ * Dominant: SUN (primary data link) + CLAY (DR link). SAGE = SOC coverage.
+ * Non-exploded: all [data-part] have dx=0 dy=0.
+ */
+import DiagramField from './DiagramField.astro';
+import { t, type Locale } from '../i18n/utils';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+
+const legend = [
+  { accent: 'sun'  as const, labelKey: 'diagram.netzone.legend.sun'  },
+  { accent: 'clay' as const, labelKey: 'diagram.netzone.legend.clay' },
+  { accent: 'sage' as const, labelKey: 'diagram.netzone.legend.sage' },
+];
+
+const bom = [
+  { n: 1,  labelKey: 'diagram.netzone.bom.1'  },
+  { n: 2,  labelKey: 'diagram.netzone.bom.2'  },
+  { n: 3,  labelKey: 'diagram.netzone.bom.3'  },
+  { n: 4,  labelKey: 'diagram.netzone.bom.4'  },
+  { n: 5,  labelKey: 'diagram.netzone.bom.5',  accent: 'sun' as const },
+  { n: 6,  labelKey: 'diagram.netzone.bom.6'  },
+  { n: 7,  labelKey: 'diagram.netzone.bom.7'  },
+  { n: 8,  labelKey: 'diagram.netzone.bom.8'  },
+  { n: 9,  labelKey: 'diagram.netzone.bom.9',  accent: 'sun' as const },
+  { n: 10, labelKey: 'diagram.netzone.bom.10', accent: 'sun' as const },
+  { n: 11, labelKey: 'diagram.netzone.bom.11' },
+  { n: 12, labelKey: 'diagram.netzone.bom.12', accent: 'clay' as const },
+  { n: 13, labelKey: 'diagram.netzone.bom.13', accent: 'sage' as const },
+];
+
+// ── Zone geometry ─────────────────────────────────────────────────────────────
+// OT zone: x=90-475, DMZ: x=530-905, IT: x=960-1350; all y=175-725
+const ZONE_Y1 = 175; const ZONE_Y2 = 725;
+const OT  = { x: 90,  w: 385, label: 'OT'  };
+const DMZ = { x: 530, w: 375, label: 'DMZ' };
+const IT  = { x: 960, w: 390, label: 'IT'  };
+
+// Trust boundaries (vertical dash-dot)
+const TB1_X = 507; // OT|DMZ
+const TB2_X = 937; // DMZ|IT
+
+// Node dimensions
+const NW = 122; const NH = 52;
+
+// Node positions [cx, cy] — side: 'left'=OT balloon col, 'right'=IT balloon col, 'above'=DMZ/SOC above
+const NODES: { id: string; x: number; y: number; accent?: string; bom: number; side: 'left'|'right'|'above' }[] = [
+  // OT zone
+  { id: 'plc',       x: 195, y: 310, bom: 1,  side: 'left' },
+  { id: 'scada',     x: 360, y: 310, bom: 2,  side: 'left' },
+  { id: 'historian', x: 275, y: 460, bom: 3,  side: 'left' },
+  { id: 'ot-fw',     x: 430, y: 385, bom: 4,  side: 'left' },
+  // DMZ zone
+  { id: 'diode',     x: 618, y: 310, accent: 'sun',  bom: 5,  side: 'above' },
+  { id: 'proxy',     x: 810, y: 310, bom: 6,  side: 'above' },
+  { id: 'broker',    x: 718, y: 460, bom: 7,  side: 'above' },
+  { id: 'dmz-fw',    x: 718, y: 600, bom: 8,  side: 'above' },
+  // IT zone
+  { id: 'lakehouse', x: 1060, y: 310, accent: 'sun',  bom: 9,  side: 'right' },
+  { id: 'ai-rag',    x: 1248, y: 310, accent: 'sun',  bom: 10, side: 'right' },
+  { id: 'iam',       x: 1155, y: 460, bom: 11, side: 'right' },
+  { id: 'dr-site',   x: 1248, y: 640, accent: 'clay', bom: 12, side: 'right' },
+  // SOC (above all zones)
+  { id: 'soc',       x: 718, y: 110, accent: 'sage',  bom: 13, side: 'above' },
+];
+
+// Helper: node rect x/y
+function nodeRect(n: { x: number; y: number }) {
+  return { x: n.x - NW/2, y: n.y - NH/2, w: NW, h: NH };
+}
+
+// Internal OT links (neutral)
+const OT_LINKS = [
+  [195,310, 360,310], // PLC→SCADA
+  [275,460, 195,360], // Historian→PLC
+  [275,460, 360,360], // Historian→SCADA
+  [360,336, 430,385], // SCADA→OT-FW
+];
+
+// Internal IT links (neutral)
+const IT_LINKS = [
+  [1060,310, 1155,460], // Lakehouse→IAM
+  [1155,460, 1248,310], // IAM→AI/RAG
+];
+
+// Sparse grid
+const gridLines: { x1:number; y1:number; x2:number; y2:number }[] = [];
+for (let x = 48; x < 1440; x += 96) gridLines.push({ x1:x, y1:0, x2:x, y2:900 });
+for (let y = 48; y < 900;  y += 96) gridLines.push({ x1:0, y1:y, x2:1440, y2:y });
+
+// BOM balloon column positions (right side x=1395)
+// With 13 items, place them in two columns if needed
+// Left column x=60 for items 1-8, right column for 9-13
+const BX_L = 60; const BX_R = 1400;
+---
+
+<DiagramField
+  id="net-zone"
+  locale={locale}
+  figcaptionKey="diagram.netzone.figcaption"
+  legend={legend}
+  bom={bom}
+  dominantAccent="sun"
+  viewBox="0 0 1440 900"
+  numeral="02"
+>
+  <defs>
+    <pattern id="dg-hatch45" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="7" stroke="var(--ink-faint)" stroke-width="1" opacity="0.5"/>
+    </pattern>
+    <marker id="dg-arr-sun" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M 0 0 L 7 3.5 L 0 7 Z" fill="var(--sun)" opacity="0.8"/>
+    </marker>
+    <marker id="dg-arr-clay" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M 0 0 L 7 3.5 L 0 7 Z" fill="var(--clay)" opacity="0.8"/>
+    </marker>
+    <marker id="dg-arr-sage" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M 0 0 L 7 3.5 L 0 7 Z" fill="var(--sage)" opacity="0.7"/>
+    </marker>
+  </defs>
+
+  {/* Grid */}
+  <g data-diagram-layer="grid" aria-hidden="true" class="dg-layer-mobile-hide">
+    {gridLines.map(l => <line x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} class="dg__grid-line" />)}
+  </g>
+
+  {/* Trust boundaries (dash-dot verticals) */}
+  <g data-diagram-layer="centerlines" aria-hidden="true" class="dg-layer-mobile-hide">
+    <path d={`M ${TB1_X} ${ZONE_Y1 - 20} L ${TB1_X} ${ZONE_Y2 + 20}`} data-centerline class="dg__centerline" />
+    <path d={`M ${TB2_X} ${ZONE_Y1 - 20} L ${TB2_X} ${ZONE_Y2 + 20}`} data-centerline class="dg__centerline" />
+  </g>
+
+  {/* ── Zone backgrounds ── */}
+  <g data-diagram-layer="zones" aria-hidden="true">
+    {/* OT zone */}
+    <rect x={OT.x} y={ZONE_Y1} width={OT.w} height={ZONE_Y2-ZONE_Y1} class="dg__zone dg__zone--ot" />
+    <text x={OT.x + OT.w/2} y={ZONE_Y1 + 20} class="dg__zone-label" text-anchor="middle">{t('diagram.netzone.zone.ot', locale)}</text>
+
+    {/* DMZ zone (hatch poché interior band — bottom strip) */}
+    <rect x={DMZ.x} y={ZONE_Y1} width={DMZ.w} height={ZONE_Y2-ZONE_Y1} class="dg__zone dg__zone--dmz" />
+    <rect x={DMZ.x+8} y={ZONE_Y2-40} width={DMZ.w-16} height="32" class="dg__tool-hatch dg-layer-mobile-hide" />
+    <text x={DMZ.x + DMZ.w/2} y={ZONE_Y1 + 20} class="dg__zone-label" text-anchor="middle">{t('diagram.netzone.zone.dmz', locale)}</text>
+
+    {/* IT zone */}
+    <rect x={IT.x} y={ZONE_Y1} width={IT.w} height={ZONE_Y2-ZONE_Y1} class="dg__zone dg__zone--it" />
+    <text x={IT.x + IT.w/2} y={ZONE_Y1 + 20} class="dg__zone-label" text-anchor="middle">{t('diagram.netzone.zone.it', locale)}</text>
+
+    {/* Neutral internal links */}
+    {OT_LINKS.map(([x1,y1,x2,y2]) => (
+      <line x1={x1} y1={y1} x2={x2} y2={y2} class="dg__node-link" />
+    ))}
+    {IT_LINKS.map(([x1,y1,x2,y2]) => (
+      <line x1={x1} y1={y1} x2={x2} y2={y2} class="dg__node-link" />
+    ))}
+
+    {/* Topology note */}
+    <text x="90" y="160" class="dg__tool-label">3 ZONES · 2 CONDUITS</text>
+  </g>
+
+  {/* ── PARTS (nodes) ── */}
+  <g data-diagram-layer="parts">
+
+    {/* Render all nodes */}
+    {NODES.map(n => {
+      const r = nodeRect(n);
+      const accentClass = n.accent
+        ? n.accent === 'sun' ? 'dg__node--sun'
+          : n.accent === 'clay' ? 'dg__node--clay'
+          : 'dg__node--sage'
+        : '';
+      const labelClass = n.accent
+        ? n.accent === 'sun' ? 'dg__tool-label--sun'
+          : n.accent === 'clay' ? 'dg__tool-label--clay'
+          : 'dg__tool-label--sage'
+        : '';
+      // Balloon placement: left col = OT zone, right col = IT zone, above = DMZ/SOC
+      const isLeft  = n.side === 'left';
+      const isRight = n.side === 'right';
+      const bx = isLeft ? BX_L + 28 : isRight ? BX_R - 14 : undefined;
+      const by = isLeft
+        ? 220 + (n.bom - 1) * 70
+        : isRight
+          ? 200 + (n.bom - 9) * 70
+          : undefined;
+      return (
+        <g data-part data-part-id={n.id} data-ex-dx="0" data-ex-dy="0" transform="translate(0,0)">
+          <rect x={r.x} y={r.y} width={r.w} height={r.h} class:list={['dg__node', accentClass]} />
+          <text x={n.x} y={n.y + 4} class:list={['dg__tool-label', labelClass]} text-anchor="middle">{t(`diagram.netzone.bom.${n.bom}`, locale)}</text>
+          {/* Balloon + leader — for nodes without a column, use above/below */}
+          {bx !== undefined && by !== undefined ? (
+            <g>
+              <line x1={r.x + (isLeft ? 0 : r.w)} y1={n.y} x2={bx} y2={by} class="dg__leader" />
+              <circle cx={r.x + (isLeft ? 0 : r.w)} cy={n.y} r="3" class="dg__leader-dot" />
+              <circle cx={bx} cy={by} r="14" class="dg__balloon" />
+              <text x={bx} y={by + 4} class="dg__balloon-num" text-anchor="middle">{n.bom}</text>
+            </g>
+          ) : (
+            <g>
+              {/* Inline label placement for DMZ nodes (bom 5-8) */}
+              <line x1={n.x} y1={r.y} x2={n.x} y2={r.y - 28} class="dg__leader" />
+              <circle cx={n.x} cy={r.y} r="3" class="dg__leader-dot" />
+              <circle cx={n.x} cy={r.y - 42} r="14" class="dg__balloon" />
+              <text x={n.x} y={r.y - 38} class="dg__balloon-num" text-anchor="middle">{n.bom}</text>
+            </g>
+          )}
+        </g>
+      );
+    })}
+
+    {/* Data diode one-way gate symbol */}
+    <g data-part data-part-id="diode-gate" data-ex-dx="0" data-ex-dy="0" transform="translate(0,0)" aria-hidden="true">
+      {/* Triangle pointing right (one-way) */}
+      <path d="M 498 302 L 510 310 L 498 318 Z" class="dg__diode" />
+      <line x1="475" y1="310" x2="498" y2="310" class="dg__dim-line" />
+    </g>
+
+    {/* OT firewall symbol */}
+    <g data-part data-part-id="ot-fw-sym" data-ex-dx="0" data-ex-dy="0" transform="translate(0,0)" aria-hidden="true">
+      <path d="M 415 378 L 445 378 L 445 392 L 415 392 Z M 415 378 L 430 367 L 445 378" class="dg__firewall" />
+    </g>
+
+    {/* DMZ firewall symbol */}
+    <g data-part data-part-id="dmz-fw-sym" data-ex-dx="0" data-ex-dy="0" transform="translate(0,0)" aria-hidden="true">
+      <path d="M 703 593 L 733 593 L 733 607 L 703 607 Z M 703 593 L 718 582 L 733 593" class="dg__firewall" />
+    </g>
+
+    {/* SOC monitoring coverage lines (sage taps into each zone) */}
+    <g data-part data-part-id="soc-taps" data-ex-dx="0" data-ex-dy="0" transform="translate(0,0)">
+      <line x1="718" y1="136" x2="275" y2={ZONE_Y1} class="dg__leader" style="stroke: var(--sage); opacity: 0.4;" />
+      <line x1="718" y1="136" x2="718" y2={ZONE_Y1} class="dg__leader" style="stroke: var(--sage); opacity: 0.4;" />
+      <line x1="718" y1="136" x2="1155" y2={ZONE_Y1} class="dg__leader" style="stroke: var(--sage); opacity: 0.4;" />
+    </g>
+
+  </g>
+
+  {/* ── Dimensions ── */}
+  <g data-diagram-layer="dimensions" aria-hidden="true" class="dg-layer-mobile-hide">
+    {/* SUN: primary link uptime */}
+    <line x1="430" y1="780" x2="1060" y2="780" class="dg__dim-line" />
+    <line x1="430" y1="772" x2="430" y2="788" class="dg__dim-tick" />
+    <line x1="1060" y1="772" x2="1060" y2="788" class="dg__dim-tick" />
+    <text x="745" y="797" class="dg__dim-val dg__dim-val--sun" text-anchor="middle">≥ 99.9%</text>
+    <text x="745" y="811" class="dg__dim-caption dg__dim-caption--sun" text-anchor="middle">{t('diagram.netzone.dim.sun.cap', locale)}</text>
+
+    {/* CLAY: DR RPO */}
+    <line x1="1155" y1="620" x2="1248" y2="620" class="dg__dim-line dg__dim-line--clay" stroke-dasharray="6 3" />
+    <text x="1200" y="614" class="dg__dim-val dg__dim-val--clay" text-anchor="middle">≤ 15min</text>
+    <text x="1200" y="604" class="dg__dim-caption dg__dim-caption--clay" text-anchor="middle">{t('diagram.netzone.dim.clay.cap', locale)}</text>
+
+    {/* SAGE: SOC coverage span */}
+    <line x1="90" y1="840" x2="1350" y2="840" class="dg__dim-line dg__dim-line--sage" />
+    <line x1="90" y1="832" x2="90" y2="848" class="dg__dim-tick" />
+    <line x1="1350" y1="832" x2="1350" y2="848" class="dg__dim-tick" />
+    <text x="720" y="857" class="dg__dim-val dg__dim-val--sage" text-anchor="middle">100%</text>
+    <text x="720" y="871" class="dg__dim-caption dg__dim-caption--sage" text-anchor="middle">{t('diagram.netzone.dim.sage.cap', locale)}</text>
+  </g>
+
+  {/* ── Primary data link (SUN) + DR replication (CLAY) ── */}
+  <g data-diagram-layer="flow">
+    {/* Primary link: SCADA/Historian → OT-FW → DataDiode → Broker → DMZ-FW → Lakehouse */}
+    <path d="M 360 310 L 430 385 L 508 310 L 618 310 L 718 460 L 718 574" data-flow pathLength="1"
+          class="dg__flow-path" marker-end="url(#dg-arr-sun)" />
+    <path d="M 718 626 L 1060 310" data-flow pathLength="1" class="dg__flow-path" marker-end="url(#dg-arr-sun)" />
+    {/* CLAY DR replication link: Lakehouse → DR site */}
+    <path d="M 1060 336 L 1060 420 L 1248 420 L 1248 614" data-flow pathLength="1"
+          class="dg__flow-path dg__flow-path--clay" marker-end="url(#dg-arr-clay)" stroke-dasharray="8 4" />
+    {/* SAGE SOC monitoring arc */}
+    <path d="M 718 136 Q 200 90 90 200 Q 90 450 350 500" data-flow pathLength="1"
+          class="dg__flow-path dg__flow-path--sage" stroke-dasharray="6 3" stroke-width="1.5" marker-end="url(#dg-arr-sage)" />
+  </g>
+
+  <text x="720" y="888" class="dg__disclaimer" text-anchor="middle" aria-hidden="true">{t('diagram.netzone.disclaimer', locale)}</text>
+</DiagramField>
+
+<style>
+  :global(.dg__zone) {
+    fill: color-mix(in srgb, var(--ink) 3%, transparent);
+    stroke: var(--ink-faint);
+    stroke-width: 1;
+    opacity: 0.7;
+  }
+  :global(.dg__zone--dmz) {
+    fill: color-mix(in srgb, var(--ink) 5%, transparent);
+  }
+  :global(.dg__zone-label) {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    fill: var(--ink-muted);
+    letter-spacing: 0.12em;
+    pointer-events: none;
+    font-weight: 600;
+  }
+  :global(.dg__node) {
+    fill: color-mix(in srgb, var(--ink) 7%, transparent);
+    stroke: var(--ink);
+    stroke-width: 1.2;
+  }
+  :global(.dg__node--sun)  { fill: color-mix(in srgb, var(--sun)  10%, transparent); stroke: var(--sun);  stroke-width: 1.4; }
+  :global(.dg__node--clay) { fill: color-mix(in srgb, var(--clay) 10%, transparent); stroke: var(--clay); stroke-width: 1.4; }
+  :global(.dg__node--sage) { fill: color-mix(in srgb, var(--sage) 10%, transparent); stroke: var(--sage); stroke-width: 1.4; }
+  :global(.dg__firewall) {
+    fill: color-mix(in srgb, var(--ink) 12%, transparent);
+    stroke: var(--ink);
+    stroke-width: 1.2;
+  }
+  :global(.dg__diode) {
+    fill: color-mix(in srgb, var(--sun) 20%, transparent);
+    stroke: var(--sun);
+    stroke-width: 1.2;
+  }
+  :global(.dg__node-link) {
+    stroke: var(--ink-faint);
+    stroke-width: 0.75;
+    fill: none;
+    opacity: 0.45;
+  }
+  :global(.dg__section-slab) {
+    fill: color-mix(in srgb, var(--ink) 6%, transparent);
+  }
+  :global(.dg__section-slab-outline) {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 1.4;
+    opacity: 0.75;
+  }
+</style>

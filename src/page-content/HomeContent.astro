@@ -11,6 +11,7 @@ import LayerStack from '../components/LayerStack.astro';
 import PhaseTimeline from '../components/PhaseTimeline.astro';
 import ByTheNumbers from '../components/ByTheNumbers.astro';
 import BuildVsBuy from '../components/BuildVsBuy.astro';
+import ScanField from '../components/ScanField.astro';
 import { t, withBase } from '../i18n/utils';
 import type { Locale } from '../i18n/utils';
 
@@ -76,6 +77,10 @@ const chips = [
       </div>
     </div>
   </Fragment>
+
+  {/* ScanField: fly-through canvas is position:fixed + CSS-masked above the hero fold */}
+  <div class="home-scan-wrapper">
+  <ScanField variant="home" locale={locale} />
 
   <!-- 01 Positioning + anti-overpromise trust line -->
   <section class="section" id="positioning" aria-labelledby="heading-01">
@@ -158,6 +163,7 @@ const chips = [
 
   <!-- 08 ENGAGE -->
   <EngageCTA locale={locale} />
+  </div>{/* end .home-scan-wrapper */}
 </PageLayout>
 
 <script>
@@ -299,6 +305,14 @@ const chips = [
 </script>
 
 <style>
+  /* ── Home scan wrapper — stacking context for SVG fallback ─────────────────── */
+  /* The canvas fly-through is position:fixed (not contained here), but the SVG  */
+  /* fallback + scrim render inside this wrapper when canvas is unavailable.      */
+  .home-scan-wrapper {
+    position: relative;
+    isolation: isolate;
+  }
+
   /* ── Hero content ──────────────────────────────────────────────────────────── */
   .hero__content {
     position: relative;

@@ -1,0 +1,827 @@
+---
+/**
+ * ScanField
+ * Full-bleed animated isometric fab-environment background.
+ * Pilot variant: 'technology'. Add entries to src/lib/scan/variants.ts for others.
+ *
+ * Positioning: position:absolute; inset:0; z-index:-1 within a position:relative parent.
+ * The parent (.tech-wrapper) creates the stacking context.
+ *
+ * Six Tier-1 axes:
+ *   1. Full-bleed environment   — CSS inset:0 + mask-image edge fade + scrim
+ *   2. Scroll-scrub             — plane parallax driven by scroll in scan-field.ts
+ *   3. Depth parallax + cursor  — translateX/Y per depth plane via rAF in scan-field.ts
+ *   4. Ambient life             — wafer dash-march, FFU flicker, periodic beam sweep
+ *   5. Density + depth-fog      — denser FFU grid, structural lines, fog gradient
+ *   6. Chromatic energy         — clay/sage offset copies of accent paths, mix-blend-mode:screen
+ *
+ * Degradation: no-JS/SSR → final static scene. prefers-reduced-motion → static.
+ * Save-Data → static (no loops). Mobile → no cursor, reduced density.
+ */
+
+import { t, type Locale } from '../i18n/utils';
+
+interface Props {
+  variant?: string;
+  locale?: Locale;
+}
+const { variant = 'technology', locale = 'zh-Hant' } = Astro.props;
+
+// ── Isometric geometry (same projection as CleanroomCutaway) ──────────────────
+const HTW = 65; // half tile width
+const HTH = 32; // half tile height
+
+function rhombus(ox: number, oy: number, col: number, row: number): string {
+  const tx = ox + col * HTW - row * HTW;
+  const ty = oy + col * HTH + row * HTH;
+  return `${tx},${ty} ${tx + HTW},${ty + HTH} ${tx},${ty + HTH * 2} ${tx - HTW},${ty + HTH}`;
+}
+
+function isoBox(ox: number, oy: number, col: number, row: number, boxH: number) {
+  const tx = ox + col * HTW - row * HTW;
+  const ty = oy + col * HTH + row * HTH;
+  const top   = `${tx},${ty} ${tx+HTW},${ty+HTH} ${tx},${ty+HTH*2} ${tx-HTW},${ty+HTH}`;
+  const left  = `${tx-HTW},${ty+HTH} ${tx},${ty+HTH*2} ${tx},${ty+HTH*2+boxH} ${tx-HTW},${ty+HTH+boxH}`;
+  const right = `${tx},${ty+HTH*2} ${tx+HTW},${ty+HTH} ${tx+HTW},${ty+HTH+boxH} ${tx},${ty+HTH*2+boxH}`;
+  return { top, left, right, cx: tx, cy: ty + HTH * 2 };
+}
+
+// ── Ceiling FFU grid (16 cols × 7 rows for richer depth plane) ───────────────
+const CEIL_COLS = 16;
+const CEIL_ROWS = 7;
+const CEIL_OX   = 140;
+const CEIL_OY   = 30;
+
+const ceilingTiles = Array.from({ length: CEIL_ROWS }, (_, r) =>
+  Array.from({ length: CEIL_COLS }, (_, c) => rhombus(CEIL_OX, CEIL_OY, c, r))
+).flat();
+
+// Laminar-flow arrows (7 positions)
+const laminarX = [280, 430, 580, 730, 880, 1030, 1180];
+const LAMINAY  = 230;
+
+// ── Structural overhead lines (pipe/duct/truss density) ───────────────────────
+// 8 horizontal structural lines — dense pipe/duct rack above FFU ceiling
+const STRUCT_LINES = [162, 171, 180, 189, 199, 210, 222, 236].map((y) => ({
+  x1: 60, y1: y, x2: 1380, y2: y,
+}));
+// 8 vertical structural columns (evenly spaced across bay)
+const STRUCT_COLS_X = [210, 390, 565, 740, 915, 1090, 1255, 1335];
+
+// ── Shell (bay + denser floor: 12 cols × 5 rows) ─────────────────────────────
+const BAY_X1 = 80;  const BAY_Y1 = 175;
+const BAY_X2 = 1360; const BAY_Y2 = 830;
+
+const FLOOR_COLS = 12;
+const FLOOR_ROWS = 5;
+const FLOOR_OX   = 180;
+const FLOOR_OY   = 690;
+
+// Dimension ticks at structural column / bay-wall intersections
+const dimTicks = STRUCT_COLS_X.flatMap((x) => [
+  { x1: x, y1: BAY_Y1 - 7, x2: x, y2: BAY_Y1 + 7 },
+  { x1: x, y1: BAY_Y2 - 7, x2: x, y2: BAY_Y2 + 7 },
+]);
+
+// Truss cross-braces in overhead structural zone (X pattern between column pairs)
+const trussBraces: { x1: number; y1: number; x2: number; y2: number }[] = [];
+for (let i = 0; i < STRUCT_COLS_X.length - 1; i += 2) {
+  const xa = STRUCT_COLS_X[i];
+  const xb = STRUCT_COLS_X[i + 1];
+  if (xa !== undefined && xb !== undefined) {
+    trussBraces.push({ x1: xa, y1: BAY_Y1, x2: xb, y2: BAY_Y1 + 50 });
+    trussBraces.push({ x1: xb, y1: BAY_Y1, x2: xa, y2: BAY_Y1 + 50 });
+  }
+}
+
+const floorTiles = Array.from({ length: FLOOR_ROWS }, (_, r) =>
+  Array.from({ length: FLOOR_COLS }, (_, c) => rhombus(FLOOR_OX, FLOOR_OY, c, r))
+).flat();
+
+// ── Process tool boxes (same 6 as CleanroomCutaway) ──────────────────────────
+const TOOL_OX       = 320;
+const TOOL_OY       = 380;
+const MAX_TOOL_BOXH = 150;
+
+const toolDefs = [
+  { col: 0, row: 0, label: 'LITHO',     type: 'litho',    boxH: 150 },
+  { col: 2, row: 0, label: 'ETCH',      type: 'etch',     boxH: 100 },
+  { col: 4, row: 0, label: 'CVD',       type: 'cvd',      boxH: 110 },
+  { col: 6, row: 0, label: 'EFEM',      type: 'efem',     boxH: 70  },
+  { col: 8, row: 0, label: 'LOAD-PORT', type: 'loadport', boxH: 115 },
+  { col: 0, row: 2, label: 'FOUP',      type: 'foup',     boxH: 140 },
+];
+
+const toolBoxes = toolDefs.map((td) => ({
+  ...isoBox(TOOL_OX, TOOL_OY, td.col, td.row, td.boxH),
+  label: td.label,
+  type: td.type,
+  boxH: td.boxH,
+}));
+
+// ── Accent paths ──────────────────────────────────────────────────────────────
+// Wafer flow
+const WAFER_Y = TOOL_OY + HTH * 2 + MAX_TOOL_BOXH + 20;
+const waferPath = `M ${TOOL_OX} ${WAFER_Y} `
+  + toolDefs.slice(0, 5).map((td) => `L ${TOOL_OX + td.col * HTW} ${WAFER_Y}`).join(' ');
+
+// Sub-fab utility lines
+const SUBFAB_Y1 = 766; const SUBFAB_Y2 = 800; const SUBFAB_Y3 = 834;
+const subfabPaths = [
+  `M ${BAY_X1 + 50} ${SUBFAB_Y1} L ${BAY_X2 - 50} ${SUBFAB_Y1}`,
+  `M ${BAY_X1 + 50} ${SUBFAB_Y2} L ${BAY_X2 - 50} ${SUBFAB_Y2}`,
+  `M ${BAY_X1 + 50} ${SUBFAB_Y3} L ${BAY_X2 - 50} ${SUBFAB_Y3}`,
+];
+
+// DR redundancy
+const DR_X1 = 1170; const DR_X2 = 1340;
+const DR_Y1 = 340;  const DR_Y2 = 630;
+const DR_MID_Y = (DR_Y1 + DR_Y2) / 2;
+const drRectPath = `M ${DR_X1} ${DR_Y1} L ${DR_X2} ${DR_Y1} L ${DR_X2} ${DR_Y2} L ${DR_X1} ${DR_Y2} Z`;
+---
+
+{/* ── Full-bleed background wrapper ────────────────────────────────────── */}
+<div class="sf" data-scan-field data-variant={variant} aria-hidden="true">
+
+  {/* ── SVG scene (aria-hidden — all semantics in figcaption + legend below) */}
+  <figure class="sf__figure">
+
+    <div class="sf__perspective">
+      <svg
+        class="sf__svg"
+        viewBox="0 0 1440 900"
+        preserveAspectRatio="xMidYMid slice"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+        focusable="false"
+      >
+
+        {/* ── depth plane: ceiling / FFU / structure (far) ─────────────── */}
+        <g data-sf-plane="ceiling" data-scan-layer="ceiling">
+
+          {/* Structural overhead lines — pipe/duct/truss density */}
+          {STRUCT_LINES.map((l) => (
+            <line
+              x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2}
+              class="sf__struct-line"
+            />
+          ))}
+
+          {/* Structural vertical columns */}
+          {STRUCT_COLS_X.map((x) => (
+            <line
+              x1={x} y1={BAY_Y1} x2={x} y2={BAY_Y2}
+              class="sf__struct-col"
+            />
+          ))}
+
+          {/* Dimension ticks at structural column / bay-wall intersections */}
+          {dimTicks.map((t) => (
+            <line x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2} class="sf__dim-tick" />
+          ))}
+
+          {/* Truss cross-braces in overhead structural zone */}
+          {trussBraces.map((b) => (
+            <line x1={b.x1} y1={b.y1} x2={b.x2} y2={b.y2} class="sf__truss-brace" />
+          ))}
+
+          {/* FFU ceiling tile grid */}
+          {ceilingTiles.map((pts) => (
+            <polygon points={pts} class="sf__ffu-tile" />
+          ))}
+
+          {/* Laminar-flow down-arrows */}
+          {laminarX.map((x) => (
+            <g class="sf__laminar">
+              <line x1={x} y1={LAMINAY} x2={x} y2={LAMINAY + 55} />
+              <polyline points={`${x - 7},${LAMINAY + 44} ${x},${LAMINAY + 58} ${x + 7},${LAMINAY + 44}`} />
+            </g>
+          ))}
+        </g>
+
+        {/* ── depth plane: shell / floor (mid) ─────────────────────────── */}
+        <g data-sf-plane="shell" data-scan-layer="shell">
+          <rect
+            x={BAY_X1} y={BAY_Y1}
+            width={BAY_X2 - BAY_X1} height={BAY_Y2 - BAY_Y1}
+            class="sf__bay"
+          />
+          {floorTiles.map((pts) => (
+            <polygon points={pts} class="sf__floor-tile" />
+          ))}
+        </g>
+
+        {/* ── depth plane: tools (near) ─────────────────────────────────── */}
+        <g data-sf-plane="tools" data-scan-layer="tools">
+          {toolBoxes.map((box) => (
+            <g class="sf__tool">
+              <polygon points={box.top}   class="sf__tool-top"   />
+              <polygon points={box.left}  class="sf__tool-left"  />
+              <polygon points={box.right} class="sf__tool-right" />
+              <text
+                x={box.cx}
+                y={box.cy + box.boxH / 2}
+                class="sf__tool-label"
+                text-anchor="middle"
+              >{box.label}</text>
+
+              {box.type === 'litho' && (
+                <g class="sf__detail">
+                  <line x1={box.cx} y1={box.cy-64} x2={box.cx} y2={box.cy-92} />
+                  <polygon points={`${box.cx},${box.cy-100} ${box.cx+14},${box.cy-96} ${box.cx},${box.cy-92} ${box.cx-14},${box.cy-96}`} />
+                  <ellipse cx={box.cx} cy={box.cy-32} rx={14} ry={7} />
+                </g>
+              )}
+              {box.type === 'etch' && (
+                <g class="sf__detail">
+                  <ellipse cx={box.cx-22} cy={box.cy-32} rx={20} ry={10} />
+                  <ellipse cx={box.cx+20} cy={box.cy-32} rx={20} ry={10} />
+                </g>
+              )}
+              {box.type === 'cvd' && (
+                <g class="sf__detail">
+                  <ellipse cx={box.cx-18} cy={box.cy-67} rx={11} ry={5} />
+                  <line x1={box.cx-29} y1={box.cy-67} x2={box.cx-29} y2={box.cy-32} />
+                  <line x1={box.cx-7}  y1={box.cy-67} x2={box.cx-7}  y2={box.cy-32} />
+                  <path d={`M ${box.cx-29},${box.cy-32} A 11 5 0 0 0 ${box.cx-7},${box.cy-32}`} />
+                  <ellipse cx={box.cx+18} cy={box.cy-67} rx={11} ry={5} />
+                  <line x1={box.cx+7}  y1={box.cy-67} x2={box.cx+7}  y2={box.cy-32} />
+                  <line x1={box.cx+29} y1={box.cy-67} x2={box.cx+29} y2={box.cy-32} />
+                  <path d={`M ${box.cx+7},${box.cy-32} A 11 5 0 0 0 ${box.cx+29},${box.cy-32}`} />
+                </g>
+              )}
+              {box.type === 'efem' && (
+                <g class="sf__detail">
+                  <polygon points={`${box.cx+6},${box.cy+4} ${box.cx+33},${box.cy-10} ${box.cx+33},${box.cy+16} ${box.cx+6},${box.cy+30}`} />
+                  <polygon points={`${box.cx+6},${box.cy+36} ${box.cx+33},${box.cy+22} ${box.cx+33},${box.cy+48} ${box.cx+6},${box.cy+62}`} />
+                  <polyline points={`${box.cx},${box.cy-32} ${box.cx+22},${box.cy-43} ${box.cx+38},${box.cy-37}`} />
+                </g>
+              )}
+              {box.type === 'loadport' && (
+                <g class="sf__detail">
+                  <polygon points={`${box.cx+20},${box.cy+25} ${box.cx+52},${box.cy+9} ${box.cx+52},${box.cy+55} ${box.cx+20},${box.cy+71}`} />
+                  <line x1={box.cx+36} y1={box.cy+12} x2={box.cx+36} y2={box.cy+17} />
+                </g>
+              )}
+              {box.type === 'foup' && (
+                <g class="sf__detail">
+                  <line x1={box.cx-65} y1={box.cy+3}  x2={box.cx} y2={box.cy+35}  />
+                  <line x1={box.cx-65} y1={box.cy+38} x2={box.cx} y2={box.cy+70}  />
+                  <line x1={box.cx-65} y1={box.cy+73} x2={box.cx} y2={box.cy+105} />
+                  <polygon points={`${box.cx-65},${box.cy+7} ${box.cx-39},${box.cy+16} ${box.cx-39},${box.cy+51} ${box.cx-65},${box.cy+38}`} />
+                  <polygon points={`${box.cx-33},${box.cy+54} ${box.cx},${box.cy+70} ${box.cx},${box.cy+105} ${box.cx-33},${box.cy+89}`} />
+                </g>
+              )}
+            </g>
+          ))}
+        </g>
+
+        {/* ── depth plane: accent paths — wafers / subfab / dr ─────────── */}
+        <g data-sf-plane="accents">
+          {/* wafers: throughput flow (sun) */}
+          <g data-scan-layer="wafers">
+            <path
+              d={waferPath}
+              pathLength="1"
+              class="sf__wafer-path"
+            />
+          </g>
+
+          {/* subfab: utility lines (sage) */}
+          <g data-scan-layer="subfab">
+            {subfabPaths.map((d) => (
+              <path d={d} pathLength="1" class="sf__subfab-line" />
+            ))}
+          </g>
+
+          {/* dr: resilience element (clay) */}
+          <g data-scan-layer="dr">
+            <path d={drRectPath} pathLength="1" class="sf__dr-rect" />
+            <line
+              x1={DR_X1 - 20} y1={DR_MID_Y}
+              x2={DR_X1} y2={DR_MID_Y}
+              class="sf__dr-tick"
+            />
+          </g>
+        </g>
+
+        {/* ── Axis 6: chromatic aberration — clay offset (+3,+3) ────────── */}
+        {/* mix-blend-mode:screen, opacity driven by JS cursor speed */}
+        <g class="sf__chroma sf__chroma--clay" transform="translate(3, 3)" aria-hidden="true">
+          <path d={waferPath} pathLength="1" class="sf__chroma-path" />
+          {subfabPaths.map((d) => (
+            <path d={d} pathLength="1" class="sf__chroma-path" />
+          ))}
+          <path d={drRectPath} pathLength="1" class="sf__chroma-path" />
+        </g>
+
+        {/* ── Axis 6: chromatic aberration — sage offset (-2.5,-2.5) ──── */}
+        <g class="sf__chroma sf__chroma--sage" transform="translate(-2.5, -2.5)" aria-hidden="true">
+          <path d={waferPath} pathLength="1" class="sf__chroma-path" />
+          {subfabPaths.map((d) => (
+            <path d={d} pathLength="1" class="sf__chroma-path" />
+          ))}
+          <path d={drRectPath} pathLength="1" class="sf__chroma-path" />
+        </g>
+
+      </svg>
+    </div>
+
+    {/* Scan beam — JS-driven top position and opacity */}
+    <div class="sf__beam" aria-hidden="true"></div>
+
+    {/* Axis 5: depth-fog gradient overlay */}
+    <div class="sf__fog" aria-hidden="true"></div>
+  </figure>
+
+  {/* Scrim — ensures foreground text stays readable */}
+  <div class="sf__scrim" aria-hidden="true"></div>
+
+  {/* Screen-reader-only figcaption — semantic description for AT */}
+  <p class="sf__figcaption">
+    {t(`scan.figcaption.${variant}`, locale)}
+  </p>
+
+  {/* Tri-accent legend — real DOM text (DESIGN.md hard rule) */}
+  <dl class="sf__legend" aria-label="legend">
+    <div class="sf__legend-item">
+      <dt class="sf__legend-swatch sf__legend-swatch--clay" aria-hidden="true"></dt>
+      <dd class="sf__legend-label sf__legend-label--clay">
+        {t('comp.c.crc.legend.clay', locale)}
+      </dd>
+    </div>
+    <div class="sf__legend-item">
+      <dt class="sf__legend-swatch sf__legend-swatch--sun" aria-hidden="true"></dt>
+      <dd class="sf__legend-label sf__legend-label--sun">
+        {t('comp.c.crc.legend.sun', locale)}
+      </dd>
+    </div>
+    <div class="sf__legend-item">
+      <dt class="sf__legend-swatch sf__legend-swatch--sage" aria-hidden="true"></dt>
+      <dd class="sf__legend-label sf__legend-label--sage">
+        {t('comp.c.crc.legend.sage', locale)}
+      </dd>
+    </div>
+  </dl>
+
+</div>
+
+{/* ── Motion init — lazy, cleanup on pagehide ──────────────────────────── */}
+<script>
+  import { initScanField } from '../scripts/motion/scan-field';
+  import { initCleanroomFly } from '../scripts/motion/cleanroom-fly';
+  import { prefersReducedMotion } from '../scripts/theme-motion';
+  import { getLenis } from '../scripts/motion/smooth-scroll';
+  import { getVariant } from '../lib/scan/variants';
+
+  function init(): void {
+    if (prefersReducedMotion()) return;
+
+    // ── Find this page's scan-field root (any variant) ────────────────────
+    const root = document.querySelector<HTMLElement>('[data-scan-field]');
+    if (!root) return;
+
+    const variantId = root.dataset.variant ?? 'technology';
+    const variantCfg = getVariant(variantId);
+
+    // ── Degradation gates — fall back to SVG animation ────────────────────
+    type NavConn = { saveData?: boolean };
+    const conn = (navigator as unknown as { connection?: NavConn }).connection;
+    if (conn?.saveData) {
+      const cleanup = initScanField();
+      window.addEventListener('pagehide', cleanup, { once: true });
+      return;
+    }
+
+    if (window.matchMedia('(max-width: 48rem)').matches) {
+      const cleanup = initScanField();
+      window.addEventListener('pagehide', cleanup, { once: true });
+      return;
+    }
+
+    const testCanvas = document.createElement('canvas');
+    if (typeof testCanvas.getContext !== 'function') {
+      const cleanup = initScanField();
+      window.addEventListener('pagehide', cleanup, { once: true });
+      return;
+    }
+
+    // ── All gates passed → canvas fly-through ─────────────────────────────
+    // position:fixed fills the viewport; prepended to body so page content renders on top.
+    const flyCanvas = document.createElement('canvas');
+    flyCanvas.setAttribute('aria-hidden', 'true');
+    flyCanvas.style.cssText = [
+      'position:fixed', 'inset:0', 'width:100%', 'height:100%',
+      'pointer-events:none', 'z-index:0', 'display:block',
+    ].join(';');
+
+    // HOME special-case: canvas masked/faded behind the ember-WebGL hero viewport.
+    // A vertical gradient mask hides the fly-through in the top ~90 vh and fades it
+    // in below, so the ember hero stays the star above the fold.
+    if (variantId === 'home') {
+      flyCanvas.style.webkitMaskImage =
+        'linear-gradient(to bottom, transparent 0vh, transparent 88vh, black 108vh)';
+      flyCanvas.style.maskImage =
+        'linear-gradient(to bottom, transparent 0vh, transparent 88vh, black 108vh)';
+    }
+
+    document.body.prepend(flyCanvas);
+
+    // Hide the SVG fallback figure (scrim + legend remain for readability / a11y)
+    const svgFigure = root.querySelector<HTMLElement>('.sf__figure');
+    if (svgFigure) svgFigure.style.visibility = 'hidden';
+
+    // Init engine lazily after first paint
+    const doInit = (): void => {
+      const handle = initCleanroomFly(flyCanvas, variantCfg.flyOpts ?? {});
+
+      // Scroll: feed engine with scroll progress over the section
+      function updateScroll(): void {
+        const rect = root!.getBoundingClientRect();
+        const h    = root!.clientHeight || window.innerHeight;
+        const p = Math.max(0, Math.min(1, -rect.top / (h * 0.55)));
+        handle.setScroll(p);
+      }
+      window.addEventListener('scroll', updateScroll, { passive: true });
+      updateScroll();
+
+      const lenis = getLenis();
+      if (lenis) lenis.on('scroll', updateScroll);
+
+      window.addEventListener('pagehide', () => {
+        handle.destroy();
+        flyCanvas.remove();
+        window.removeEventListener('scroll', updateScroll);
+      }, { once: true });
+    };
+
+    if (typeof requestIdleCallback !== 'undefined') {
+      requestIdleCallback(doInit, { timeout: 800 });
+    } else {
+      setTimeout(doInit, 150);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+</script>
+
+<style>
+  /* ── Outer wrapper: full-bleed, behind all content ────────────────────── */
+  .sf {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  /* ── Figure: positions SVG + beam + fog layers ──────────────────────── */
+  .sf__figure {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    /* Axis 5: edge mask — more field visible, fade pushed to outer edges */
+    mask-image: radial-gradient(
+      ellipse 96% 94% at 50% 38%,
+      black 55%,
+      rgba(0, 0, 0, 0.82) 74%,
+      rgba(0, 0, 0, 0.45) 90%,
+      transparent 100%
+    );
+  }
+
+  /* ── Perspective wrapper — tighter perspective for deeper depth feel ─── */
+  .sf__perspective {
+    position: absolute;
+    inset: 0;
+    perspective: 900px;
+    perspective-origin: 50% 38%;
+  }
+
+  /* ── Main SVG — fills container, slice preserves visual density ─────── */
+  .sf__svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    transform: rotateX(8deg) rotateY(-2.5deg);
+    transform-origin: 50% 38%;
+    opacity: 0.62;
+  }
+
+  /* Mobile: drop perspective tilt, reduce opacity */
+  @media (max-width: 48rem) {
+    .sf__perspective {
+      perspective: none;
+    }
+    .sf__svg {
+      transform: none;
+      opacity: 0.42;
+    }
+  }
+
+  /* ── Axis 5: Depth fog — softer fades, more field visible mid-scene ─── */
+  .sf__fog {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(
+        to bottom,
+        var(--bg-deep) 0%,
+        transparent 9%,
+        transparent 76%,
+        color-mix(in srgb, var(--bg-deep) 42%, transparent) 90%,
+        var(--bg-deep) 100%
+      ),
+      linear-gradient(
+        to right,
+        color-mix(in srgb, var(--bg-deep) 34%, transparent) 0%,
+        transparent 7%,
+        transparent 93%,
+        color-mix(in srgb, var(--bg-deep) 34%, transparent) 100%
+      );
+    pointer-events: none;
+  }
+
+  /* ── Scan beam — brighter, wider glow, trailing clay halo ───────────── */
+  .sf__beam {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 3px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--sun) 20%,
+      var(--clay) 80%,
+      transparent 100%
+    );
+    /* Leading edge (sun) glow above + trailing clay fade below */
+    box-shadow:
+      0 -10px 24px 6px color-mix(in srgb, var(--sun) 55%, transparent),
+      0 8px 28px 8px color-mix(in srgb, var(--clay) 40%, transparent);
+    mix-blend-mode: screen;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* ── Scrim — lighter base + heavier content-column band ─────────────── */
+  /* Gutters (< 8% / > 92% width) see field at full intensity.            */
+  /* Content column (~8–92%) gets ~50% coverage so prose stays readable.   */
+  .sf__scrim {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(
+        to right,
+        transparent 0%,
+        color-mix(in srgb, var(--bg-deep) 28%, transparent) 8%,
+        color-mix(in srgb, var(--bg-deep) 28%, transparent) 92%,
+        transparent 100%
+      ),
+      color-mix(in srgb, var(--bg-deep) 22%, transparent);
+    pointer-events: none;
+  }
+
+  /* ── sr-only figcaption ─────────────────────────────────────────────── */
+  .sf__figcaption {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* ── Tri-accent legend — bottom-left, floats over scrim ────────────── */
+  .sf__legend {
+    position: absolute;
+    bottom: 2rem;
+    left: var(--gutter);
+    display: flex;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0.55rem 0.85rem;
+    border: 1px solid var(--border);
+    background: color-mix(in srgb, var(--surface) 72%, transparent);
+    backdrop-filter: blur(4px);
+    pointer-events: auto; /* accessible to AT */
+  }
+  .sf__legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+  .sf__legend-swatch {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    flex-shrink: 0;
+    margin: 0;
+  }
+  .sf__legend-swatch--clay { background: var(--clay); }
+  .sf__legend-swatch--sun  { background: var(--sun);  }
+  .sf__legend-swatch--sage { background: var(--sage); }
+  .sf__legend-label {
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.06em;
+    margin: 0;
+  }
+  /* Accent colors pass AA on --surface (clay ~3.4:1 large, sun ~10.5:1, sage ~5:1) */
+  .sf__legend-label--clay { color: var(--clay); }
+  .sf__legend-label--sun  { color: var(--sun);  }
+  .sf__legend-label--sage { color: var(--sage); }
+
+  /* ── SVG element styles ─────────────────────────────────────────────── */
+
+  /* Structural density lines (pipe/duct/truss overhead) */
+  .sf__struct-line {
+    fill: none;
+    stroke: var(--ink-faint);
+    stroke-width: 0.8;
+    opacity: 0.55;
+  }
+  .sf__struct-col {
+    fill: none;
+    stroke: var(--ink-faint);
+    stroke-width: 0.5;
+    opacity: 0.4;
+  }
+
+  /* FFU ceiling tiles */
+  .sf__ffu-tile {
+    fill: none;
+    stroke: var(--ink-faint);
+    stroke-width: 0.6;
+    opacity: 0.72;
+  }
+
+  /* Laminar-flow arrows (sage) */
+  .sf__laminar line,
+  .sf__laminar polyline {
+    fill: none;
+    stroke: var(--sage);
+    stroke-width: 2;
+    opacity: 0.7;
+  }
+
+  /* Bay outline */
+  .sf__bay {
+    fill: none;
+    stroke: var(--ink-faint);
+    stroke-width: 1;
+    opacity: 0.65;
+  }
+
+  /* Raised-floor tiles */
+  .sf__floor-tile {
+    fill: none;
+    stroke: var(--ink-faint);
+    stroke-width: 0.6;
+    opacity: 0.58;
+  }
+
+  /* Tool box faces — brighter stroke, slightly filled for 3D read */
+  .sf__tool-top {
+    fill: color-mix(in srgb, var(--ink) 8%, transparent);
+    stroke: var(--ink);
+    stroke-width: 1.2;
+  }
+  .sf__tool-left {
+    fill: color-mix(in srgb, var(--ink) 5%, transparent);
+    stroke: var(--ink);
+    stroke-width: 1.2;
+    opacity: 0.85;
+  }
+  .sf__tool-right {
+    fill: color-mix(in srgb, var(--ink) 10%, transparent);
+    stroke: var(--ink);
+    stroke-width: 1.2;
+    opacity: 0.72;
+  }
+  .sf__tool-label {
+    font-family: var(--font-mono);
+    font-size: 8px;
+    fill: var(--ink-faint);
+    letter-spacing: 0.08em;
+    pointer-events: none;
+    opacity: 0.85;
+  }
+
+  /* Detail line art (type-specific) — brighter for instrument read */
+  .sf__detail line,
+  .sf__detail path,
+  .sf__detail polyline {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 1;
+    opacity: 0.75;
+  }
+  .sf__detail polygon,
+  .sf__detail ellipse {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 1;
+    opacity: 0.65;
+  }
+
+  /* Wafer throughput path (sun) — wider dash-march, clearly visible */
+  .sf__wafer-path {
+    fill: none;
+    stroke: var(--sun);
+    stroke-width: 2.5;
+    opacity: 0.88;
+    stroke-dasharray: 8 5;
+  }
+
+  /* Sub-fab utility lines (sage) */
+  .sf__subfab-line {
+    fill: none;
+    stroke: var(--sage);
+    stroke-width: 1.5;
+    opacity: 0.72;
+  }
+
+  /* DR redundancy rect (clay) */
+  .sf__dr-rect {
+    fill: color-mix(in srgb, var(--clay) 8%, transparent);
+    stroke: var(--clay);
+    stroke-width: 2;
+    stroke-dasharray: 6 3;
+    opacity: 0.88;
+  }
+  .sf__dr-tick {
+    stroke: var(--clay);
+    stroke-width: 1.5;
+    opacity: 0.65;
+  }
+
+  /* ── Axis 6: Chromatic aberration layers — stronger base + wider stroke ─ */
+  .sf__chroma {
+    mix-blend-mode: screen;
+    opacity: 0.38; /* JS modulates upward on pointer move */
+  }
+  .sf__chroma--clay .sf__chroma-path {
+    fill: none;
+    stroke: var(--clay);
+    stroke-width: 2.5;
+    stroke-dasharray: 8 5;
+  }
+  .sf__chroma--sage .sf__chroma-path {
+    fill: none;
+    stroke: var(--sage);
+    stroke-width: 2.5;
+    stroke-dasharray: 8 5;
+  }
+
+  /* Dimension ticks — engineering annotation at bay wall / column joints */
+  .sf__dim-tick {
+    fill: none;
+    stroke: var(--ink-faint);
+    stroke-width: 0.6;
+    opacity: 0.3;
+  }
+
+  /* Truss cross-braces — X diagonals in overhead structural zone */
+  .sf__truss-brace {
+    fill: none;
+    stroke: var(--ink-faint);
+    stroke-width: 0.4;
+    opacity: 0.22;
+    stroke-dasharray: 4 4;
+  }
+
+  /* ── Mobile: strip heavy layers ─────────────────────────────────────── */
+  @media (max-width: 48rem) {
+    .sf__detail      { display: none; }
+    .sf__chroma      { display: none; }
+    .sf__struct-col  { display: none; }
+    .sf__dim-tick    { display: none; }
+    .sf__truss-brace { display: none; }
+    .sf__legend      { display: none; } /* too crowded on mobile */
+  }
+
+  /* ── Reduced-motion: always show final static scene ─────────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    .sf__beam    { display: none !important; }
+    .sf__chroma  { display: none !important; }
+    .sf__wafer-path,
+    .sf__subfab-line,
+    .sf__dr-rect,
+    .sf__ffu-tile,
+    .sf__laminar line,
+    .sf__laminar polyline {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+</style>

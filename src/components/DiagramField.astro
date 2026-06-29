@@ -1,0 +1,383 @@
+---
+/**
+ * DiagramField.astro — Generalized wrapper for inline-SVG engineering diagrams.
+ * Generalizes the CleanroomCutaway (.fab__figure) bordered-figure scaffold.
+ *
+ * Slots: default = the inline <svg aria-hidden focusable="false"> layer tree.
+ *
+ * Contrast: --ink-faint ONLY on aria-hidden decoration (grid/hatch/dim lines).
+ *           Readable text: --ink (labels/balloons) or --ink-muted (secondary).
+ *           Never --ink-faint on any readable <text> (DESIGN.md §Contrast line 35).
+ */
+import { t, type Locale } from '../i18n/utils';
+
+export type Accent = 'clay' | 'sun' | 'sage';
+export interface LegendItem { accent: Accent; labelKey: string }
+export interface BomItem { n: number; labelKey: string; accent?: Accent }
+
+interface Props {
+  id: string;
+  locale: Locale;
+  figcaptionKey: string;
+  legend: LegendItem[];
+  bom: BomItem[];
+  dominantAccent: Accent;
+  viewBox?: string;
+  numeral?: string;
+  sectionHeadingId?: string;
+}
+
+const {
+  id,
+  locale,
+  figcaptionKey,
+  legend,
+  bom,
+  dominantAccent,
+  viewBox = '0 0 1440 900',
+  numeral,
+  sectionHeadingId,
+} = Astro.props;
+---
+
+<figure
+  class="dg"
+  data-diagram-id={id}
+  data-dominant-accent={dominantAccent}
+  aria-labelledby={sectionHeadingId}
+>
+
+  {/* ── Ghost section numeral (signature motif, aria-hidden) ─────────────── */}
+  {numeral && <span class="dg__numeral" aria-hidden="true">{numeral}</span>}
+
+  {/* ── sr-only figcaption — full scene description for AT ──────────────── */}
+  <figcaption class="dg__figcaption">
+    {t(figcaptionKey, locale)}
+  </figcaption>
+
+  {/* ── Figure well: bordered, bg-deep, clipped ─────────────────────────── */}
+  <div class="dg__figure">
+
+    {/* ── Perspective stage ──────────────────────────────────────────────── */}
+    <div class="dg__stage">
+      {/* SVG slot — inline geometry authored by diagram-solutions.astro */}
+      <svg
+        class="dg__svg"
+        viewBox={viewBox}
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <slot />
+      </svg>
+    </div>
+
+    {/* ── Scan beam (JS-driven opacity, aria-hidden) ────────────────────── */}
+    <div class="dg__beam" aria-hidden="true"></div>
+
+    {/* ── Edge fog (radial mask supplement) ────────────────────────────── */}
+    <div class="dg__fog" aria-hidden="true"></div>
+  </div>
+
+  {/* ── BOM — AT-navigable parts manifest (dual channel with SVG text) ───── */}
+  <ol class="dg__bom" aria-label="Bill of materials">
+    {bom.map((item) => (
+      <li class:list={['dg__bom-item', item.accent && `dg__bom-item--${item.accent}`]}>
+        <span class="dg__bom-num" aria-hidden="true">{item.n}</span>
+        <span class="dg__bom-label">{t(item.labelKey, locale)}</span>
+      </li>
+    ))}
+  </ol>
+
+  {/* ── Tri-accent legend (real DOM text — color never sole encoding) ─────── */}
+  <dl class="dg__legend" aria-label="Legend">
+    {legend.map((item) => (
+      <div class="dg__legend-item">
+        <dt class:list={['dg__legend-swatch', `dg__legend-swatch--${item.accent}`]} aria-hidden="true"></dt>
+        <dd class:list={['dg__legend-label', `dg__legend-label--${item.accent}`]}>
+          {t(item.labelKey, locale)}
+        </dd>
+      </div>
+    ))}
+  </dl>
+
+</figure>
+
+{/* ── Motion init — lazy, cleanup on pagehide ──────────────────────────── */}
+<script>
+  import { initDiagramExplode } from '../scripts/motion/diagram';
+  import { prefersReducedMotion } from '../scripts/theme-motion';
+
+  function init(): void {
+    if (prefersReducedMotion()) return;
+    const cleanup = initDiagramExplode();
+    window.addEventListener('pagehide', cleanup, { once: true });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+</script>
+
+<style>
+  /* ── Outer figure wrapper ──────────────────────────────────────────────── */
+  .dg {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-block: 2.5rem;
+    margin: 0;
+  }
+
+  /* ── Ghost numeral (signature motif, aria-hidden) ────────────────────── */
+  .dg__numeral {
+    position: absolute;
+    right: 0;
+    top: -1.5rem;
+    font-family: var(--font-display, serif);
+    font-size: clamp(4rem, 10vw, 8rem);
+    font-weight: 900;
+    line-height: 1;
+    color: var(--ink-faint);
+    pointer-events: none;
+    user-select: none;
+    opacity: 0.12;
+    z-index: 0;
+  }
+
+  /* ── sr-only figcaption ─────────────────────────────────────────────── */
+  .dg__figcaption {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* ── Figure well ─────────────────────────────────────────────────────── */
+  .dg__figure {
+    position: relative;
+    border: 1px solid var(--border-strong);
+    background: var(--bg-deep);
+    overflow: hidden;
+    /* Radial mask fades the edges like CleanroomCutaway */
+    mask-image: radial-gradient(
+      ellipse 95% 92% at 50% 40%,
+      black 52%,
+      rgba(0,0,0,0.85) 72%,
+      rgba(0,0,0,0.5) 88%,
+      transparent 100%
+    );
+  }
+
+  /* ── Perspective stage ───────────────────────────────────────────────── */
+  .dg__stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1440 / 900;
+    perspective: 1400px;
+    perspective-origin: 50% 42%;
+  }
+
+  /* ── SVG layer ───────────────────────────────────────────────────────── */
+  .dg__svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    transform: rotateX(5deg) rotateY(-1.5deg);
+    transform-origin: 50% 42%;
+  }
+
+  /* ── Scan beam ───────────────────────────────────────────────────────── */
+  .dg__beam {
+    position: absolute;
+    left: 0; right: 0; bottom: 30%;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--sun) 25%,
+      var(--clay) 75%,
+      transparent 100%
+    );
+    box-shadow:
+      0 -8px 20px 4px color-mix(in srgb, var(--sun) 45%, transparent),
+      0 6px 20px 6px color-mix(in srgb, var(--clay) 35%, transparent);
+    mix-blend-mode: screen;
+    opacity: 0;
+    pointer-events: none;
+    transition: none;
+  }
+
+  /* ── Edge fog ───────────────────────────────────────────────────────── */
+  .dg__fog {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to bottom, var(--bg-deep) 0%, transparent 8%, transparent 85%, var(--bg-deep) 100%),
+      linear-gradient(to right, color-mix(in srgb, var(--bg-deep) 30%, transparent) 0%, transparent 6%, transparent 94%, color-mix(in srgb, var(--bg-deep) 30%, transparent) 100%);
+    pointer-events: none;
+  }
+
+  /* ── BOM list ────────────────────────────────────────────────────────── */
+  .dg__bom {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+    margin: 0;
+    padding: 0.65rem 0.9rem;
+    list-style: none;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    counter-reset: bom;
+  }
+
+  .dg__bom-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .dg__bom-num {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--ink-muted);
+    min-width: 1.2em;
+    text-align: right;
+  }
+
+  .dg__bom-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.04em;
+    color: var(--ink-muted);
+  }
+
+  /* Accent overrides for BOM items (color + paired text = never color-only) */
+  .dg__bom-item--sun  .dg__bom-label { color: var(--sun);  }
+  .dg__bom-item--clay .dg__bom-label { color: var(--clay); }
+  .dg__bom-item--sage .dg__bom-label { color: var(--sage); }
+
+  /* ── Legend ─────────────────────────────────────────────────────────── */
+  .dg__legend {
+    display: flex;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0.5rem 0.85rem;
+    border: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .dg__legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .dg__legend-swatch {
+    width: 9px;
+    height: 9px;
+    border-radius: 2px;
+    flex-shrink: 0;
+    margin: 0;
+  }
+
+  .dg__legend-swatch--clay { background: var(--clay); }
+  .dg__legend-swatch--sun  { background: var(--sun);  }
+  .dg__legend-swatch--sage { background: var(--sage); }
+
+  .dg__legend-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.06em;
+    margin: 0;
+  }
+
+  /* Accent colors pass AA on --surface (sun ~10.5:1, sage ~5:1, clay ~3.4:1 large) */
+  .dg__legend-label--clay { color: var(--clay); }
+  .dg__legend-label--sun  { color: var(--sun);  }
+  .dg__legend-label--sage { color: var(--sage); }
+
+  /* ── Mobile: flatten perspective, hide detail layers ────────────────── */
+  @media (max-width: 48rem) {
+    .dg__stage {
+      perspective: none;
+    }
+    .dg__svg {
+      transform: none;
+    }
+    /* Detail-only layers stripped by diagram-solutions.astro via CSS class */
+    .dg__detail-only {
+      display: none;
+    }
+    .dg__legend {
+      display: none; /* BOM list still provides AT channel */
+    }
+  }
+
+  /* ── Reduced-motion: final exploded state, no animation ─────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    .dg__beam { display: none !important; }
+    [data-part] { transition: none !important; }
+  }
+
+  /* ══ Shared SVG element classes (available to all DiagramField consumers) ══ */
+
+  :global(.dg__grid-line) {
+    fill: none; stroke: var(--ink-faint); stroke-width: 0.5; opacity: 0.14;
+  }
+  :global(.dg__centerline) {
+    fill: none; stroke: var(--ink-faint); stroke-width: 1;
+    stroke-dasharray: 16 4 2 4; opacity: 0.45;
+  }
+  :global(.dg__tool-top)      { fill: color-mix(in srgb,var(--ink) 5%,transparent); stroke: var(--ink); stroke-width: 1.4; }
+  :global(.dg__tool-top--sun) { fill: color-mix(in srgb,var(--sun) 10%,transparent); stroke: var(--sun); stroke-width: 1.4; }
+  :global(.dg__tool-left)     { fill: color-mix(in srgb,var(--ink) 3%,transparent); stroke: var(--ink); stroke-width: 1.4; opacity: 0.75; }
+  :global(.dg__tool-left--clay){ fill: color-mix(in srgb,var(--clay) 8%,transparent); stroke: var(--ink); stroke-width: 1.4; opacity: 0.75; }
+  :global(.dg__tool-right)     { fill: color-mix(in srgb,var(--ink) 7%,transparent); stroke: var(--ink); stroke-width: 1.4; opacity: 0.65; }
+  :global(.dg__tool-right--sage){ fill: color-mix(in srgb,var(--sage) 8%,transparent); stroke: var(--ink); stroke-width: 1.4; opacity: 0.65; }
+  :global(.dg__tool-hatch)    { fill: url(#dg-hatch45) !important; opacity: 0.6; }
+  :global(.dg__tool-label)    { font-family: var(--font-mono); font-size: 12px; fill: var(--ink-muted); letter-spacing: 0.07em; pointer-events: none; }
+  :global(.dg__tool-label--sun)  { fill: var(--sun);  }
+  :global(.dg__tool-label--clay) { fill: var(--clay); }
+  :global(.dg__tool-label--sage) { fill: var(--sage); }
+  :global(.dg__wafer-disc)    { fill: color-mix(in srgb,var(--sun) 12%,transparent); stroke: var(--sun); stroke-width: 1.5; opacity: 0.85; }
+  :global(.dg__perf-dot)      { fill: none; stroke: var(--ink-faint); stroke-width: 0.8; opacity: 0.55; }
+  :global(.dg__detail-line)   { fill: none; stroke: var(--ink); stroke-width: 0.8; opacity: 0.5; }
+  :global(.dg__leader)        { fill: none; stroke: var(--ink-faint); stroke-width: 0.75; opacity: 0.65; }
+  :global(.dg__leader--sun)   { stroke: var(--sun); opacity: 0.55; }
+  :global(.dg__leader-dot)    { fill: var(--ink-muted); stroke: none; }
+  :global(.dg__leader-dot--sun){ fill: var(--sun); }
+  :global(.dg__balloon)       { fill: var(--bg-deep); stroke: var(--ink-muted); stroke-width: 1; }
+  :global(.dg__balloon-num)   { font-family: var(--font-mono); font-size: 11px; fill: var(--ink); font-weight: 600; letter-spacing: 0; pointer-events: none; }
+  :global(.dg__dim-line)      { fill: none; stroke: var(--ink-faint); stroke-width: 0.75; opacity: 0.6; }
+  :global(.dg__dim-line--clay){ stroke: var(--clay); opacity: 0.55; }
+  :global(.dg__dim-line--sage){ stroke: var(--sage); opacity: 0.45; }
+  :global(.dg__dim-tick)      { fill: none; stroke: var(--ink-faint); stroke-width: 0.75; opacity: 0.5; }
+  :global(.dg__dim-val)       { font-family: var(--font-mono); font-size: 11px; fill: var(--ink-muted); letter-spacing: 0.05em; pointer-events: none; }
+  :global(.dg__dim-val--sun)  { fill: var(--sun);  }
+  :global(.dg__dim-val--clay) { fill: var(--ink);  }
+  :global(.dg__dim-val--sage) { fill: var(--sage); }
+  :global(.dg__dim-caption)   { font-family: var(--font-mono); font-size: 9px; fill: var(--ink-muted); letter-spacing: 0.06em; pointer-events: none; }
+  :global(.dg__dim-caption--sun)  { fill: var(--sun);       }
+  :global(.dg__dim-caption--clay) { fill: var(--ink-muted); }
+  :global(.dg__dim-caption--sage) { fill: var(--sage);      }
+  :global(.dg__flow-path)     { fill: none; stroke: var(--sun); stroke-width: 3; stroke-dasharray: 10 5; opacity: 0.88; }
+  :global(.dg__flow-path--sage){ stroke: var(--sage); }
+  :global(.dg__flow-path--clay){ stroke: var(--clay); }
+  :global(.dg__disclaimer)    { font-family: var(--font-mono); font-size: 8px; fill: var(--ink-faint); letter-spacing: 0.08em; opacity: 0.45; }
+  :global([data-part])        { will-change: transform; }
+  @media (max-width: 48rem) {
+    :global(.dg-layer-mobile-hide) { display: none; }
+  }
+</style>

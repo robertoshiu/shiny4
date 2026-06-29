@@ -5,6 +5,7 @@ import SectionHeader from '../components/SectionHeader.astro';
 import TeamFunctionCard from '../components/TeamFunctionCard.astro';
 import JobCard from '../components/JobCard.astro';
 import EngageCTA from '../components/EngageCTA.astro';
+import DiagramStationPlan from '../components/DiagramStationPlan.astro';
 import CTAButton from '../components/CTAButton.astro';
 import { getCollection } from 'astro:content';
 import { t, localized, withBase } from '../i18n/utils';
@@ -188,6 +189,8 @@ const norms = [
     />
   </Fragment>
 
+  <div class="careers-scan-wrapper">
+
   <!-- 01 前沿技術，真實場景 -->
   <section class="section" id="why-shinylogic" aria-labelledby="heading-01">
     <SectionHeader index="01" zh={t('careers.section01.zh', locale)} en={t('careers.section01.en', locale)} />
@@ -233,6 +236,12 @@ const norms = [
         />
       ))}
     </div>
+  </section>
+
+  <!-- 02b 值班站配置平面圖 -->
+  <section class="section" id="station-section" aria-labelledby="heading-station">
+    <SectionHeader index="02" zh={t('diagram.station.section.zh', locale)} en={t('diagram.station.section.en', locale)} />
+    <DiagramStationPlan locale={locale} />
   </section>
 
   <!-- 03 四階段組建，逐步到位 -->
@@ -366,6 +375,7 @@ const norms = [
   </section>
 
   <EngageCTA locale={locale} />
+  </div>{/* end .careers-scan-wrapper */}
 </PageLayout>
 
 <script>
@@ -395,7 +405,6 @@ const norms = [
 
   import {
     bootMotion,
-    revealOnEnter,
     prefersReducedMotion,
   } from '../scripts/theme-motion';
   import { initCursor } from '../scripts/motion/cursor';
@@ -642,6 +651,12 @@ const norms = [
 </script>
 
 <style>
+  /* ── Careers scan wrapper — stacking context for SVG fallback ── */
+  .careers-scan-wrapper {
+    position: relative;
+    isolation: isolate;
+  }
+
   /* ── 01 Tech Domain cards ── */
   .tech-domains {
     display: grid;

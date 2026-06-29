@@ -6,6 +6,7 @@ import LayerStack from '../components/LayerStack.astro';
 import ComplianceBadges from '../components/ComplianceBadges.astro';
 import PhaseTimeline from '../components/PhaseTimeline.astro';
 import EngageCTA from '../components/EngageCTA.astro';
+import DiagramFabSection from '../components/DiagramFabSection.astro';
 import { t, withBase } from '../i18n/utils';
 import type { Locale } from '../i18n/utils';
 
@@ -41,6 +42,8 @@ const { locale } = Astro.props;
     />
   </Fragment>
 
+  <div class="about-scan-wrapper">
+
   <!-- 01 使命與定位 -->
   <section class="section" id="mission" aria-labelledby="heading-01">
     <SectionHeader index="01" zh={t('about.section01.zh', locale)} en={t('about.section01.en', locale)} />
@@ -64,6 +67,12 @@ const { locale } = Astro.props;
       <p class="compliance-label">{t('about.section02.complianceLabel', locale)}</p>
       <ComplianceBadges locale={locale} />
     </div>
+  </section>
+
+  <!-- 02b 廠務氣流剖面圖 -->
+  <section class="section" id="fab-section" aria-labelledby="heading-fab">
+    <SectionHeader index="02" zh={t('diagram.fab.section.zh', locale)} en={t('diagram.fab.section.en', locale)} />
+    <DiagramFabSection locale={locale} />
   </section>
 
   <!-- 03 治理與責任
@@ -185,6 +194,7 @@ const { locale } = Astro.props;
 
   <!-- 07 ENGAGE -->
   <EngageCTA locale={locale} />
+  </div>{/* end .about-scan-wrapper */}
 </PageLayout>
 
 <script>
@@ -444,6 +454,12 @@ const { locale } = Astro.props;
 </script>
 
 <style>
+  /* ── About scan wrapper — stacking context for SVG fallback ── */
+  .about-scan-wrapper {
+    position: relative;
+    isolation: isolate;
+  }
+
   /* ── Prose block (mission section) ── */
   .prose {
     max-width: 64ch;

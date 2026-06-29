@@ -1,0 +1,670 @@
+---
+/**
+ * diagram-solutions.astro — Inline-SVG exploded-assembly pilot for Solutions page.
+ *
+ * 8-part generic semiconductor process tool, exploded along a single vertical axis
+ * (iso-z) for the chamber column and a lateral axis for the front-end (EFEM/loadport/FOUP).
+ * Original generic schematic — NOT based on any specific vendor CAD.
+ *
+ * Build-time geometry: all isoBox/rhombus calls run in Astro frontmatter (no runtime math).
+ * Text: all via t(key, locale) — one geometry, three locales swap strings only.
+ * Motion: handled by DiagramField.astro's <script> → scripts/motion/diagram.ts.
+ */
+import DiagramField from './DiagramField.astro';
+import { t, type Locale } from '../i18n/utils';
+import { isoBox } from '../lib/diagram/primitives';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+
+// ── Isometric constants (same as CleanroomCutaway / ScanField) ──────────────
+const HTW = 65;
+const HTH = 32;
+
+// ── Part geometry (assembled positions in SVG space) ─────────────────────────
+// All parts drawn at their ASSEMBLED (nested) positions.
+// explode transform is applied via data-ex-dx/dy attrs; JS scrubs from 0 to full.
+// Default SVG transform="translate(exDx, exDy)" = final EXPLODED state (no-JS / reduced-motion).
+
+// Chamber column — all centered at sx=855
+const CX = 855;
+
+// Pedestal / exhaust base  (bom 8, datum — never moves)
+const PED = isoBox(CX, 575, 0, 0, 55);
+
+// Chamber body (bom 5) — shows section-cut (hatch on left face)
+const CHBODY = isoBox(CX, 505, 0, 0, 125);
+
+// ESC + wafer (bom 4, sun accent) — very flat disc
+const ESC_SY = 480;
+const ESC = isoBox(CX, ESC_SY, 0, 0, 14);
+// Wafer disc: ellipse on top face, rx≈54, ry≈27 (2:1 dimetric ratio)
+const WAFER_CX = CX;
+const WAFER_CY = ESC_SY + HTH; // mid-height of top rhombus
+
+// Gas showerhead (bom 6) — thin disc with dot perforations
+const SHOWER_SY = 440;
+const SHOWER = isoBox(CX, SHOWER_SY, 0, 0, 12);
+
+// Lid / dome (bom 7)
+const LID = isoBox(CX, 308, 0, 0, 78);
+
+// Front-end column (assembled at ground level, left of chamber)
+const EFEM = isoBox(660, 558, 0, 0, 82);   // bom 3, sage
+const LPORT = isoBox(490, 568, 0, 0, 68);  // bom 2
+const FOUP = isoBox(320, 578, 0, 0, 82);   // bom 1, clay
+
+// ── Explode deltas (screen-px from assembled to exploded) ───────────────────
+// Positive x = right; negative y = up. Chamber parts lift up; front-end pulls left-down.
+const EX = {
+  ped:    { dx: 0,    dy: 0   },  // datum
+  chBody: { dx: 0,    dy: -100 }, // even iso-z step from ped
+  esc:    { dx: 0,    dy: -160 }, // sun — floats high
+  shower: { dx: 0,    dy: -245 },
+  lid:    { dx: 0,    dy: -305 }, // even iso-z spacing ~130px visual gap
+  efem:   { dx: -90,  dy: 44  }, // sage — iso-x increment (-90,44)
+  lport:  { dx: -180, dy: 88  }, // 2× iso-x increment
+  foup:   { dx: -270, dy: 132 }, // clay — 3× iso-x increment
+};
+
+// ── Sparse warm grid ─────────────────────────────────────────────────────────
+const GRID_STEP = 96;
+const gridLines: { x1: number; y1: number; x2: number; y2: number }[] = [];
+for (let x = 48; x < 1440; x += GRID_STEP) {
+  gridLines.push({ x1: x, y1: 0, x2: x, y2: 900 });
+}
+for (let y = 48; y < 900; y += GRID_STEP) {
+  gridLines.push({ x1: 0, y1: y, x2: 1440, y2: y });
+}
+
+// ── Phantom centerlines (mark assembled seat of each vertically exploded part) ─
+// Vertical centerline for the chamber column: from lid exploded top to pedestal bottom
+const CL_X = CX; // x = 855 (chamber column center)
+const CL_TOP_Y = 308 + EX.lid.dy;      // ≈ 33 (lid exploded top)
+const CL_BOT_Y = 575 + 55 + 64 + 12;  // ≈ 706 (pedestal bottom)
+
+// ── Sun flow path (assembled baseline, front-end → chamber → ESC) ───────────
+// Connects FOUP center → load port center → EFEM center → chamber input
+const FOUP_CX = FOUP.cx; const FOUP_CY = FOUP.cy + 82; // bottom of foup
+const LP_CX = LPORT.cx; const LP_CY = LPORT.cy + 68;
+const EFEM_CX = EFEM.cx; const EFEM_CY = EFEM.cy + 82;
+const CH_CY = ESC.cy + 14;
+const FLOW_D = `M ${FOUP_CX} ${FOUP_CY} L ${LP_CX} ${LP_CY} L ${EFEM_CX} ${EFEM_CY} L ${CX} ${CH_CY}`;
+
+// ── Dimension lines (3 accent-semantic + 1 neutral) ──────────────────────────
+// SUN: throughput span under the front-end row (assembled level ≈ y = 770)
+const DIM_SUN_Y = 780;
+const DIM_SUN_X1 = FOUP.cx - HTW;  // leftmost point of FOUP
+const DIM_SUN_X2 = CX + HTW;       // rightmost point of chamber
+
+// CLAY: vertical bracket around chamber column
+const DIM_CLAY_X = CX + HTW + 70;
+const DIM_CLAY_Y1 = LID.cy; // top of lid in assembled state
+const DIM_CLAY_Y2 = PED.cy + 55; // bottom of pedestal
+
+// SAGE: horizontal span under everything
+const DIM_SAGE_Y = 860;
+const DIM_SAGE_X1 = FOUP.cx - HTW;
+const DIM_SAGE_X2 = CX + HTW;
+
+// Neutral: Ø300 wafer diameter across ESC ellipse (not accent-colored)
+const DIM_WAFER_Y = ESC.cy + 14 + 24;
+const DIM_WAFER_X1 = WAFER_CX - 54;
+const DIM_WAFER_X2 = WAFER_CX + 54;
+
+// ── BOM legend / bom arrays for DiagramField ─────────────────────────────────
+const legend = [
+  { accent: 'sun'  as const, labelKey: 'comp.c.crc.legend.sun'  },
+  { accent: 'clay' as const, labelKey: 'comp.c.crc.legend.clay' },
+  { accent: 'sage' as const, labelKey: 'comp.c.crc.legend.sage' },
+];
+
+const bom = [
+  { n: 1, labelKey: 'diagram.tool.bom.1', accent: 'clay' as const },
+  { n: 2, labelKey: 'diagram.tool.bom.2' },
+  { n: 3, labelKey: 'diagram.tool.bom.3', accent: 'sage' as const },
+  { n: 4, labelKey: 'diagram.tool.bom.4', accent: 'sun'  as const },
+  { n: 5, labelKey: 'diagram.tool.bom.5' },
+  { n: 6, labelKey: 'diagram.tool.bom.6' },
+  { n: 7, labelKey: 'diagram.tool.bom.7' },
+  { n: 8, labelKey: 'diagram.tool.bom.8' },
+];
+
+// Showerhead perforation dots (on top face near center)
+const PERF_DOTS: { cx: number; cy: number }[] = [];
+for (let col = -2; col <= 2; col++) {
+  for (let row = 0; row <= 1; row++) {
+    PERF_DOTS.push({
+      cx: CX + col * 14 + (row === 1 ? 7 : 0),
+      cy: SHOWER_SY + HTH + row * 10,
+    });
+  }
+}
+---
+
+<DiagramField
+  id="tool-exploded"
+  locale={locale}
+  figcaptionKey="diagram.tool.figcaption"
+  legend={legend}
+  bom={bom}
+  dominantAccent="sun"
+  viewBox="0 0 1440 900"
+  numeral="02"
+>
+  {/* ── defs ─────────────────────────────────────────────────────────────── */}
+  <defs>
+    {/* 45° hatch for chamber-body section cut */}
+    <pattern id="dg-hatch45" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="7" stroke="var(--ink-faint)" stroke-width="1" opacity="0.5"/>
+    </pattern>
+  </defs>
+
+  {/* ── grid (--ink-faint, aria-hidden) ──────────────────────────────────── */}
+  <g data-diagram-layer="grid" aria-hidden="true" class="dg-layer-mobile-hide">
+    {gridLines.map((l) => (
+      <line x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} class="dg__grid-line" />
+    ))}
+  </g>
+
+  {/* ── phantom centerlines (mark assembled seat of each exploded part) ─── */}
+  <g data-diagram-layer="centerlines" aria-hidden="true" class="dg-layer-mobile-hide">
+    {/* Vertical — chamber column iso-z stack */}
+    <path
+      d={`M ${CL_X} ${CL_TOP_Y} L ${CL_X} ${CL_BOT_Y}`}
+      data-centerline
+      class="dg__centerline"
+    />
+    {/* Horizontal — ground-row assembly seat: FOUP → LP → EFEM → chamber */}
+    <path
+      d={`M ${FOUP.cx - HTW} 600 L ${CX + HTW} 600`}
+      data-centerline
+      class="dg__centerline"
+    />
+  </g>
+
+  {/* ── PARTS ─────────────────────────────────────────────────────────────── */}
+  <g data-diagram-layer="parts">
+
+    {/* ── Bom 8: Pedestal / exhaust base (datum) ────────────────────────── */}
+    <g
+      data-part
+      data-part-id="pedestal"
+      data-ex-dx={EX.ped.dx}
+      data-ex-dy={EX.ped.dy}
+      transform={`translate(${EX.ped.dx},${EX.ped.dy})`}
+    >
+      <polygon points={PED.top}   class="dg__tool-top"   />
+      <polygon points={PED.left}  class="dg__tool-left"  />
+      <polygon points={PED.right} class="dg__tool-right" />
+      <text x={PED.cx} y={PED.cy + 35} class="dg__tool-label" text-anchor="middle">{t('diagram.tool.bom.8', locale)}</text>
+      {/* Balloon */}
+      <line x1={PED.cx + HTW} y1={PED.cy + 28} x2={PED.cx + 335} y2={PED.cy + 28} class="dg__leader" />
+      <circle cx={PED.cx + HTW} cy={PED.cy + 28} r="3" class="dg__leader-dot" />
+      <circle cx={PED.cx + 352} cy={PED.cy + 28} r="14" class="dg__balloon" />
+      <text x={PED.cx + 352} y={PED.cy + 33} class="dg__balloon-num" text-anchor="middle">8</text>
+    </g>
+
+    {/* ── Bom 5: Chamber body (section cut — hatch on left face) ──────────── */}
+    <g
+      data-part
+      data-part-id="chamber-body"
+      data-ex-dx={EX.chBody.dx}
+      data-ex-dy={EX.chBody.dy}
+      transform={`translate(${EX.chBody.dx},${EX.chBody.dy})`}
+    >
+      <polygon points={CHBODY.top}   class="dg__tool-top"   />
+      {/* Left face: section cut — hatch fill */}
+      <polygon points={CHBODY.left}  class="dg__tool-left dg__tool-hatch dg-layer-mobile-hide" />
+      <polygon points={CHBODY.right} class="dg__tool-right" />
+      <text x={CHBODY.cx} y={CHBODY.cy + 65} class="dg__tool-label" text-anchor="middle">{t('diagram.tool.bom.5', locale)}</text>
+      {/* Balloon */}
+      <line x1={CHBODY.cx + HTW} y1={CHBODY.cy + 60} x2={CHBODY.cx + 335} y2={CHBODY.cy + 60} class="dg__leader" />
+      <circle cx={CHBODY.cx + HTW} cy={CHBODY.cy + 60} r="3" class="dg__leader-dot" />
+      <circle cx={CHBODY.cx + 352} cy={CHBODY.cy + 60} r="14" class="dg__balloon" />
+      <text x={CHBODY.cx + 352} y={CHBODY.cy + 65} class="dg__balloon-num" text-anchor="middle">5</text>
+    </g>
+
+    {/* ── Bom 4: ESC + wafer (SUN accent — throughput heart) ───────────────── */}
+    <g
+      data-part
+      data-part-id="esc-wafer"
+      data-ex-dx={EX.esc.dx}
+      data-ex-dy={EX.esc.dy}
+      transform={`translate(${EX.esc.dx},${EX.esc.dy})`}
+    >
+      <polygon points={ESC.top}   class="dg__tool-top dg__tool-top--sun" />
+      <polygon points={ESC.left}  class="dg__tool-left"  />
+      <polygon points={ESC.right} class="dg__tool-right" />
+      {/* Wafer disc on top face */}
+      <ellipse cx={WAFER_CX} cy={WAFER_CY} rx="54" ry="27" class="dg__wafer-disc" />
+      <text x={ESC.cx} y={ESC.cy + 9} class="dg__tool-label dg__tool-label--sun" text-anchor="middle">{t('diagram.tool.bom.4', locale)}</text>
+      {/* Balloon */}
+      <line x1={ESC.cx + HTW} y1={ESC.cy + 6} x2={ESC.cx + 335} y2={ESC.cy + 6} class="dg__leader dg__leader--sun" />
+      <circle cx={ESC.cx + HTW} cy={ESC.cy + 6} r="3" class="dg__leader-dot dg__leader-dot--sun" />
+      <circle cx={ESC.cx + 352} cy={ESC.cy + 6} r="14" class="dg__balloon" />
+      <text x={ESC.cx + 352} y={ESC.cy + 11} class="dg__balloon-num" text-anchor="middle">4</text>
+    </g>
+
+    {/* ── Bom 6: Gas showerhead (perforated disc) ───────────────────────── */}
+    <g
+      data-part
+      data-part-id="showerhead"
+      data-ex-dx={EX.shower.dx}
+      data-ex-dy={EX.shower.dy}
+      transform={`translate(${EX.shower.dx},${EX.shower.dy})`}
+    >
+      <polygon points={SHOWER.top}   class="dg__tool-top"   />
+      <polygon points={SHOWER.left}  class="dg__tool-left"  />
+      <polygon points={SHOWER.right} class="dg__tool-right" />
+      {/* Perforation dots on top face */}
+      {PERF_DOTS.map((d) => (
+        <circle cx={d.cx} cy={d.cy} r="2.5" class="dg__perf-dot" />
+      ))}
+      <text x={SHOWER.cx} y={SHOWER.cy + 8} class="dg__tool-label" text-anchor="middle">{t('diagram.tool.bom.6', locale)}</text>
+      {/* Balloon */}
+      <line x1={SHOWER.cx + HTW} y1={SHOWER.cy + 5} x2={SHOWER.cx + 335} y2={SHOWER.cy + 5} class="dg__leader" />
+      <circle cx={SHOWER.cx + HTW} cy={SHOWER.cy + 5} r="3" class="dg__leader-dot" />
+      <circle cx={SHOWER.cx + 352} cy={SHOWER.cy + 5} r="14" class="dg__balloon" />
+      <text x={SHOWER.cx + 352} y={SHOWER.cy + 10} class="dg__balloon-num" text-anchor="middle">6</text>
+    </g>
+
+    {/* ── Bom 7: Chamber lid / dome ─────────────────────────────────────── */}
+    <g
+      data-part
+      data-part-id="lid"
+      data-ex-dx={EX.lid.dx}
+      data-ex-dy={EX.lid.dy}
+      transform={`translate(${EX.lid.dx},${EX.lid.dy})`}
+    >
+      <polygon points={LID.top}   class="dg__tool-top"   />
+      <polygon points={LID.left}  class="dg__tool-left"  />
+      <polygon points={LID.right} class="dg__tool-right" />
+      <text x={LID.cx} y={LID.cy + 42} class="dg__tool-label" text-anchor="middle">{t('diagram.tool.bom.7', locale)}</text>
+      {/* Balloon */}
+      <line x1={LID.cx + HTW} y1={LID.cy + 38} x2={LID.cx + 335} y2={LID.cy + 38} class="dg__leader" />
+      <circle cx={LID.cx + HTW} cy={LID.cy + 38} r="3" class="dg__leader-dot" />
+      <circle cx={LID.cx + 352} cy={LID.cy + 38} r="14" class="dg__balloon" />
+      <text x={LID.cx + 352} y={LID.cy + 43} class="dg__balloon-num" text-anchor="middle">7</text>
+    </g>
+
+    {/* ── Bom 3: EFEM mini-environment (SAGE accent — coverage) ──────────── */}
+    <g
+      data-part
+      data-part-id="efem"
+      data-ex-dx={EX.efem.dx}
+      data-ex-dy={EX.efem.dy}
+      transform={`translate(${EX.efem.dx},${EX.efem.dy})`}
+    >
+      <polygon points={EFEM.top}   class="dg__tool-top"   />
+      <polygon points={EFEM.left}  class="dg__tool-left"  />
+      <polygon points={EFEM.right} class="dg__tool-right dg__tool-right--sage" />
+      {/* EFEM: SCARA robot arm suggestion (simple lines inside) */}
+      <line
+        x1={EFEM.cx - 20} y1={EFEM.cy - 50}
+        x2={EFEM.cx + 35} y2={EFEM.cy - 30}
+        class="dg__detail-line"
+      />
+      <line
+        x1={EFEM.cx + 35} y1={EFEM.cy - 30}
+        x2={EFEM.cx + 10} y2={EFEM.cy - 10}
+        class="dg__detail-line"
+      />
+      <text x={EFEM.cx} y={EFEM.cy + 45} class="dg__tool-label dg__tool-label--sage" text-anchor="middle">{t('diagram.tool.bom.3', locale)}</text>
+      {/* Balloon */}
+      <line x1={EFEM.cx} y1={EFEM.cy - 10} x2={EFEM.cx + 5} y2={EFEM.cy - 60} class="dg__leader" />
+      <circle cx={EFEM.cx} cy={EFEM.cy - 10} r="3" class="dg__leader-dot" />
+      <circle cx={EFEM.cx + 8} cy={EFEM.cy - 74} r="14" class="dg__balloon" />
+      <text x={EFEM.cx + 8} y={EFEM.cy - 69} class="dg__balloon-num" text-anchor="middle">3</text>
+    </g>
+
+    {/* ── Bom 2: Load port ────────────────────────────────────────────────── */}
+    <g
+      data-part
+      data-part-id="loadport"
+      data-ex-dx={EX.lport.dx}
+      data-ex-dy={EX.lport.dy}
+      transform={`translate(${EX.lport.dx},${EX.lport.dy})`}
+    >
+      <polygon points={LPORT.top}   class="dg__tool-top"   />
+      <polygon points={LPORT.left}  class="dg__tool-left"  />
+      <polygon points={LPORT.right} class="dg__tool-right" />
+      {/* Kinematic dock suggestion */}
+      <line
+        x1={LPORT.cx - HTW + 12} y1={LPORT.cy + 20}
+        x2={LPORT.cx + HTW - 12} y2={LPORT.cy + 20}
+        class="dg__detail-line"
+      />
+      <text x={LPORT.cx} y={LPORT.cy + 40} class="dg__tool-label" text-anchor="middle">{t('diagram.tool.bom.2', locale)}</text>
+      {/* Balloon */}
+      <line x1={LPORT.cx} y1={LPORT.cy - 5} x2={LPORT.cx} y2={LPORT.cy - 58} class="dg__leader" />
+      <circle cx={LPORT.cx} cy={LPORT.cy - 5} r="3" class="dg__leader-dot" />
+      <circle cx={LPORT.cx + 2} cy={LPORT.cy - 72} r="14" class="dg__balloon" />
+      <text x={LPORT.cx + 2} y={LPORT.cy - 67} class="dg__balloon-num" text-anchor="middle">2</text>
+    </g>
+
+    {/* ── Bom 1: FOUP pod (CLAY accent — resilience/lot-integrity) ──────── */}
+    <g
+      data-part
+      data-part-id="foup"
+      data-ex-dx={EX.foup.dx}
+      data-ex-dy={EX.foup.dy}
+      transform={`translate(${EX.foup.dx},${EX.foup.dy})`}
+    >
+      <polygon points={FOUP.top}   class="dg__tool-top"   />
+      <polygon points={FOUP.left}  class="dg__tool-left dg__tool-left--clay"  />
+      <polygon points={FOUP.right} class="dg__tool-right" />
+      {/* FOUP wafer slot lines */}
+      <line x1={FOUP.cx - HTW + 8} y1={FOUP.cy + 22} x2={FOUP.cx - 5} y2={FOUP.cy + 40} class="dg__detail-line" />
+      <line x1={FOUP.cx - HTW + 8} y1={FOUP.cy + 38} x2={FOUP.cx - 5} y2={FOUP.cy + 56} class="dg__detail-line" />
+      <line x1={FOUP.cx - HTW + 8} y1={FOUP.cy + 54} x2={FOUP.cx - 5} y2={FOUP.cy + 72} class="dg__detail-line" />
+      <text x={FOUP.cx} y={FOUP.cy + 48} class="dg__tool-label dg__tool-label--clay" text-anchor="middle">{t('diagram.tool.bom.1', locale)}</text>
+      {/* Balloon */}
+      <line x1={FOUP.cx} y1={FOUP.cy} x2={FOUP.cx + 5} y2={FOUP.cy - 55} class="dg__leader" />
+      <circle cx={FOUP.cx} cy={FOUP.cy} r="3" class="dg__leader-dot" />
+      <circle cx={FOUP.cx + 8} cy={FOUP.cy - 68} r="14" class="dg__balloon" />
+      <text x={FOUP.cx + 8} y={FOUP.cy - 63} class="dg__balloon-num" text-anchor="middle">1</text>
+    </g>
+
+  </g>{/* end parts */}
+
+  {/* ── Dimension lines (semantic: sun throughput, clay DR, sage coverage) ── */}
+  <g data-diagram-layer="dimensions" aria-hidden="true" class="dg-layer-mobile-hide">
+
+    {/* SUN — throughput span (below front-end row) */}
+    <line x1={DIM_SUN_X1} y1={DIM_SUN_Y} x2={DIM_SUN_X2} y2={DIM_SUN_Y} class="dg__dim-line" />
+    <line x1={DIM_SUN_X1} y1={DIM_SUN_Y - 10} x2={DIM_SUN_X1} y2={DIM_SUN_Y + 10} class="dg__dim-tick" />
+    <line x1={DIM_SUN_X2} y1={DIM_SUN_Y - 10} x2={DIM_SUN_X2} y2={DIM_SUN_Y + 10} class="dg__dim-tick" />
+    <text
+      x={(DIM_SUN_X1 + DIM_SUN_X2) / 2}
+      y={DIM_SUN_Y + 22}
+      class="dg__dim-val dg__dim-val--sun"
+      text-anchor="middle"
+    >≥ 95%</text>
+    <text
+      x={(DIM_SUN_X1 + DIM_SUN_X2) / 2}
+      y={DIM_SUN_Y + 36}
+      class="dg__dim-caption dg__dim-caption--sun"
+      text-anchor="middle"
+    >{t('diagram.tool.dim.throughput', locale)}</text>
+
+    {/* CLAY — DR bracket around chamber column (right side) */}
+    <line x1={DIM_CLAY_X} y1={DIM_CLAY_Y1} x2={DIM_CLAY_X} y2={DIM_CLAY_Y2} class="dg__dim-line dg__dim-line--clay" stroke-dasharray="6 3" />
+    <line x1={DIM_CLAY_X - 8} y1={DIM_CLAY_Y1} x2={DIM_CLAY_X + 8} y2={DIM_CLAY_Y1} class="dg__dim-tick" />
+    <line x1={DIM_CLAY_X - 8} y1={DIM_CLAY_Y2} x2={DIM_CLAY_X + 8} y2={DIM_CLAY_Y2} class="dg__dim-tick" />
+    <text
+      x={DIM_CLAY_X + 20}
+      y={(DIM_CLAY_Y1 + DIM_CLAY_Y2) / 2 + 4}
+      class="dg__dim-val dg__dim-val--clay"
+      text-anchor="start"
+    >≤ 4hr</text>
+    <text
+      x={DIM_CLAY_X + 20}
+      y={(DIM_CLAY_Y1 + DIM_CLAY_Y2) / 2 + 18}
+      class="dg__dim-caption dg__dim-caption--clay"
+      text-anchor="start"
+    >{t('diagram.tool.dim.dr', locale)}</text>
+
+    {/* SAGE — full coverage span (bottom of diagram) */}
+    <line x1={DIM_SAGE_X1} y1={DIM_SAGE_Y} x2={DIM_SAGE_X2} y2={DIM_SAGE_Y} class="dg__dim-line dg__dim-line--sage" />
+    <line x1={DIM_SAGE_X1} y1={DIM_SAGE_Y - 10} x2={DIM_SAGE_X1} y2={DIM_SAGE_Y + 10} class="dg__dim-tick" />
+    <line x1={DIM_SAGE_X2} y1={DIM_SAGE_Y - 10} x2={DIM_SAGE_X2} y2={DIM_SAGE_Y + 10} class="dg__dim-tick" />
+    <text
+      x={(DIM_SAGE_X1 + DIM_SAGE_X2) / 2}
+      y={DIM_SAGE_Y + 22}
+      class="dg__dim-val dg__dim-val--sage"
+      text-anchor="middle"
+    >100%</text>
+    <text
+      x={(DIM_SAGE_X1 + DIM_SAGE_X2) / 2}
+      y={DIM_SAGE_Y + 36}
+      class="dg__dim-caption dg__dim-caption--sage"
+      text-anchor="middle"
+    >{t('diagram.tool.dim.coverage', locale)}</text>
+
+    {/* Neutral Ø300 wafer diameter */}
+    <line x1={DIM_WAFER_X1} y1={DIM_WAFER_Y} x2={DIM_WAFER_X2} y2={DIM_WAFER_Y} class="dg__dim-line" />
+    <line x1={DIM_WAFER_X1} y1={DIM_WAFER_Y - 8} x2={DIM_WAFER_X1} y2={DIM_WAFER_Y + 8} class="dg__dim-tick" />
+    <line x1={DIM_WAFER_X2} y1={DIM_WAFER_Y - 8} x2={DIM_WAFER_X2} y2={DIM_WAFER_Y + 8} class="dg__dim-tick" />
+    <text
+      x={(DIM_WAFER_X1 + DIM_WAFER_X2) / 2}
+      y={DIM_WAFER_Y + 18}
+      class="dg__dim-val"
+      text-anchor="middle"
+    >Ø300</text>
+
+  </g>
+
+  {/* ── Sun wafer-flow path (semantic throughput — dominant accent) ─────── */}
+  <g data-diagram-layer="flow">
+    <path
+      d={FLOW_D}
+      data-flow
+      pathLength="1"
+      class="dg__flow-path"
+    />
+  </g>
+
+  {/* ── Originality disclaimer (schematic label, --ink-muted, aria-hidden) ─ */}
+  <text
+    x="720"
+    y="888"
+    class="dg__disclaimer"
+    text-anchor="middle"
+    aria-hidden="true"
+  >{t('diagram.tool.disclaimer', locale)}</text>
+
+</DiagramField>
+
+<style>
+  /* ── SVG element styles (scoped to this component's output) ─────────── */
+
+  /* Sparse warm grid */
+  :global(.dg__grid-line) {
+    fill: none;
+    stroke: var(--ink-faint);
+    stroke-width: 0.5;
+    opacity: 0.14;
+  }
+
+  /* Phantom dash-dot centerline */
+  :global(.dg__centerline) {
+    fill: none;
+    stroke: var(--ink-faint);
+    stroke-width: 1;
+    stroke-dasharray: 16 4 2 4;
+    opacity: 0.45;
+  }
+
+  /* Part box faces — neutral ink structure */
+  :global(.dg__tool-top) {
+    fill: color-mix(in srgb, var(--ink) 5%, transparent);
+    stroke: var(--ink);
+    stroke-width: 1.4;
+  }
+  :global(.dg__tool-top--sun) {
+    fill: color-mix(in srgb, var(--sun) 10%, transparent);
+    stroke: var(--sun);
+    stroke-width: 1.4;
+  }
+  :global(.dg__tool-left) {
+    fill: color-mix(in srgb, var(--ink) 3%, transparent);
+    stroke: var(--ink);
+    stroke-width: 1.4;
+    opacity: 0.75;
+  }
+  :global(.dg__tool-left--clay) {
+    fill: color-mix(in srgb, var(--clay) 8%, transparent);
+    stroke: var(--ink);
+    stroke-width: 1.4;
+    opacity: 0.75;
+  }
+  :global(.dg__tool-right) {
+    fill: color-mix(in srgb, var(--ink) 7%, transparent);
+    stroke: var(--ink);
+    stroke-width: 1.4;
+    opacity: 0.65;
+  }
+  :global(.dg__tool-right--sage) {
+    fill: color-mix(in srgb, var(--sage) 8%, transparent);
+    stroke: var(--ink);
+    stroke-width: 1.4;
+    opacity: 0.65;
+  }
+
+  /* Section-cut hatch fill (chamber body left face only) */
+  :global(.dg__tool-hatch) {
+    fill: url(#dg-hatch45) !important;
+    opacity: 0.6;
+  }
+
+  /* Part name labels — --ink-muted (DESIGN.md rule: NOT ink-faint); 12px for legibility */
+  :global(.dg__tool-label) {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    fill: var(--ink-muted);
+    letter-spacing: 0.07em;
+    pointer-events: none;
+  }
+  :global(.dg__tool-label--sun)  { fill: var(--sun);  }
+  :global(.dg__tool-label--clay) { fill: var(--clay); }
+  :global(.dg__tool-label--sage) { fill: var(--sage); }
+
+  /* Wafer disc (sun accent) */
+  :global(.dg__wafer-disc) {
+    fill: color-mix(in srgb, var(--sun) 12%, transparent);
+    stroke: var(--sun);
+    stroke-width: 1.5;
+    opacity: 0.85;
+  }
+
+  /* Showerhead perforation dots */
+  :global(.dg__perf-dot) {
+    fill: none;
+    stroke: var(--ink-faint);
+    stroke-width: 0.8;
+    opacity: 0.55;
+  }
+
+  /* Detail lines inside parts (SCARA arm, wafer slots, kinematic dock) */
+  :global(.dg__detail-line) {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 0.8;
+    opacity: 0.5;
+  }
+
+  /* Leader lines (ISO: 0.75 stroke, --ink-faint stem, dot at part end) */
+  :global(.dg__leader) {
+    fill: none;
+    stroke: var(--ink-faint);
+    stroke-width: 0.75;
+    opacity: 0.65;
+  }
+  :global(.dg__leader--sun) {
+    stroke: var(--sun);
+    opacity: 0.55;
+  }
+
+  :global(.dg__leader-dot) {
+    fill: var(--ink-muted);
+    stroke: none;
+  }
+  :global(.dg__leader-dot--sun) {
+    fill: var(--sun);
+  }
+
+  /* BOM balloon circles (neutral — not an accent element) */
+  :global(.dg__balloon) {
+    fill: var(--bg-deep);
+    stroke: var(--ink-muted);
+    stroke-width: 1;
+  }
+
+  /* BOM balloon numbers — --ink (cream, readable) ≠ --ink-faint */
+  :global(.dg__balloon-num) {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    fill: var(--ink);
+    font-weight: 600;
+    letter-spacing: 0;
+    pointer-events: none;
+  }
+
+  /* Dimension lines (aria-hidden structure — ink-faint ok) */
+  :global(.dg__dim-line) {
+    fill: none;
+    stroke: var(--ink-faint);
+    stroke-width: 0.75;
+    opacity: 0.6;
+  }
+  :global(.dg__dim-line--clay) {
+    stroke: var(--clay);
+    opacity: 0.55;
+  }
+  :global(.dg__dim-line--sage) {
+    stroke: var(--sage);
+    opacity: 0.45;
+  }
+
+  :global(.dg__dim-tick) {
+    fill: none;
+    stroke: var(--ink-faint);
+    stroke-width: 0.75;
+    opacity: 0.5;
+  }
+
+  /* Dimension values — --ink-muted (≥ 4.5:1 on --bg-deep) NOT --ink-faint */
+  :global(.dg__dim-val) {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    fill: var(--ink-muted);
+    letter-spacing: 0.05em;
+    pointer-events: none;
+  }
+  :global(.dg__dim-val--sun)  { fill: var(--sun);  }  /* ~12:1 — AAA ✓ */
+  :global(.dg__dim-val--clay) { fill: var(--ink);  }  /* clay 3.4:1 fails 11px normal text → --ink 16:1; clay encoding on dim LINE */
+  :global(.dg__dim-val--sage) { fill: var(--sage); }  /* ~5:1 — AA ✓ */
+
+  /* Dim captions: 9px, no opacity — opacity on low-contrast accents (clay) fails AA */
+  :global(.dg__dim-caption) {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    fill: var(--ink-muted);
+    letter-spacing: 0.06em;
+    pointer-events: none;
+  }
+  :global(.dg__dim-caption--sun)  { fill: var(--sun);       } /* ~12:1 — AAA ✓ */
+  :global(.dg__dim-caption--clay) { fill: var(--ink-muted); } /* clay 3.4:1 fails 9px → use --ink-muted 5.5:1 ✓ */
+  :global(.dg__dim-caption--sage) { fill: var(--sage);      } /* ~5:1 — AA ✓ */
+
+  /* Sun wafer-flow path — dominant accent throughput route FOUP→LP→EFEM→chamber */
+  :global(.dg__flow-path) {
+    fill: none;
+    stroke: var(--sun);
+    stroke-width: 3;
+    stroke-dasharray: 10 5;
+    opacity: 0.88;
+  }
+
+  /* Disclaimer */
+  :global(.dg__disclaimer) {
+    font-family: var(--font-mono);
+    font-size: 8px;
+    fill: var(--ink-faint);
+    letter-spacing: 0.08em;
+    opacity: 0.45;
+  }
+
+  /* Mobile: hide heavy detail layers */
+  @media (max-width: 48rem) {
+    :global(.dg-layer-mobile-hide) {
+      display: none;
+    }
+  }
+
+  /* will-change on parts for GPU-composited transform (7 elements) */
+  :global([data-part]) {
+    will-change: transform;
+  }
+</style>
