@@ -142,11 +142,13 @@ export function initSectionEnter(): () => void {
 // ─── SIGNAL TRAVEL (Layer Stack L1→L6) ───────────────────────────────────────
 
 /**
- * Inject and animate a glowing signal pulse that travels down the L1→L6 stack.
- * The pulse is a gold→clay gradient capsule that descends the connector line.
- * Each layer dot "lights up" (scale + glow) as the pulse passes.
+ * Inject and animate a glowing signal pulse that travels the L1→L6 stack.
+ * Direction follows the user's scroll: 'down' = gold→clay tip leads downward;
+ * 'up' = gold tip leads upward, dots light in reverse order.
  *
+ * Firing is interaction-driven and cooldown-throttled (≥2500ms between fires).
  * Auto-finds [data-signal-travel] or uses the provided container.
+ * Under reduced-motion: the prefersReducedMotion() guard at the top returns early.
  */
 export function initSignalTravel(containerEl?: HTMLElement | null): () => void {
   const stack = containerEl
@@ -178,52 +180,57 @@ export function initSignalTravel(containerEl?: HTMLElement | null): () => void {
   stack.style.position = 'relative';
   stack.prepend(pulse);
 
-  let fired = false;
-  const io = new IntersectionObserver(
-    (entries) => {
-      for (const e of entries) {
-        if (!e.isIntersecting || fired) continue;
-        fired = true;
-        fireSignal();
-        // Repeat every 6s for continuous ambiance
-        const interval = setInterval(fireSignal, 6000);
-        cleanupFns.push(() => clearInterval(interval));
-      }
-    },
-    { threshold: 0.2 },
-  );
-  io.observe(stack);
+  // Direction-aware cooldown state
+  let lastFiredDir: 'down' | 'up' | null = null;
+  let lastFireTime = 0;
+  let isInView = false;
+  const COOLDOWN = 2500;
 
-  const cleanupFns: Array<() => void> = [
-    () => { io.disconnect(); pulse.remove(); },
-  ];
-
-  function fireSignal() {
+  function fireSignal(dir: 'down' | 'up'): void {
     if (prefersReducedMotion()) return;
-    const stackH = stack!.offsetHeight;
+    lastFiredDir = dir;
+    lastFireTime = Date.now();
 
-    // Reset pulse position
-    pulse.style.opacity = '1';
+    const stackH    = stack!.offsetHeight;
+    const stackRect = stack!.getBoundingClientRect();
+
+    // Configure pulse anchor and gradient for direction
+    if (dir === 'down') {
+      // Gold tip leads downward — anchor to top, grow down
+      pulse.style.background = 'linear-gradient(180deg, #E9C46A 0%, #E07A5F 100%)';
+      pulse.style.top    = '0';
+      pulse.style.bottom = 'auto';
+    } else {
+      // Gold tip leads upward — anchor to bottom, grow up
+      pulse.style.background = 'linear-gradient(0deg, #E9C46A 0%, #E07A5F 100%)';
+      pulse.style.bottom = '0';
+      pulse.style.top    = 'auto';
+    }
     pulse.style.height  = '0';
-    pulse.style.top     = '0';
+    pulse.style.opacity = '0';
 
-    // 1. Draw the pulse line down (height grows)
+    // 1. Fade in, then grow the pulse line
     const tl = createTimeline({ defaults: { ease: 'out(2)' } });
 
     tl.add(pulse, { opacity: [0, 1], duration: 120 }, 0)
-      .add(pulse, {
-        height: [0, stackH],
-        duration: 900,
-        ease: 'inOut(2)',
-      }, 120);
+      .add(pulse, { height: [0, stackH], duration: 900, ease: 'inOut(2)' }, 120);
 
-    // 2. As pulse travels, light up each dot in sequence
-    dotEls.forEach((dot, i) => {
-      const dotTop    = dot.getBoundingClientRect().top - stack!.getBoundingClientRect().top;
-      const arrivalT  = Math.round(120 + (dotTop / stackH) * 900);
+    // 2. Light up each dot as the pulse front reaches it
+    //    'down': arrival based on distance from stack top (top dot first)
+    //    'up':   arrival based on distance from stack bottom (bottom dot first)
+    dotEls.forEach((dot) => {
+      const dotRect = dot.getBoundingClientRect();
+      let arrivalT: number;
+      if (dir === 'down') {
+        const dotTop = dotRect.top - stackRect.top;
+        arrivalT = Math.round(120 + (dotTop / stackH) * 900);
+      } else {
+        const dotBottom = stackRect.bottom - dotRect.bottom;
+        arrivalT = Math.round(120 + (dotBottom / stackH) * 900);
+      }
       tl.add(dot, {
-        scale:  [1, 1.8, 1],
-        opacity:[1, 1,   1],
+        scale:   [1, 1.8, 1],
+        opacity: [1, 1,   1],
         duration: 320,
         ease: spring({ stiffness: 400, damping: 18, mass: 0.6 }),
       }, arrivalT);
@@ -233,7 +240,38 @@ export function initSignalTravel(containerEl?: HTMLElement | null): () => void {
     tl.add(pulse, { opacity: [1, 0], duration: 300, ease: 'in(2)' }, 1020);
   }
 
-  return () => cleanupFns.forEach((fn) => fn());
+  // Lenis scroll handler — fires when direction changes + cooldown allows
+  function onLenisScroll({ direction }: { direction: number }): void {
+    if (!isInView || direction === 0) return;
+    if (Date.now() - lastFireTime < COOLDOWN) return;
+    const newDir = direction === -1 ? 'up' : 'down';
+    if (newDir === lastFiredDir) return;
+    fireSignal(newDir);
+  }
+
+  // IntersectionObserver: fire 'down' once on first entry; subscribe/unsubscribe Lenis
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting && !isInView) {
+          isInView = true;
+          if (lastFiredDir === null) fireSignal('down');
+          getLenis()?.on('scroll', onLenisScroll);
+        } else if (!e.isIntersecting && isInView) {
+          isInView = false;
+          getLenis()?.off('scroll', onLenisScroll);
+        }
+      }
+    },
+    { threshold: 0.2 },
+  );
+  io.observe(stack);
+
+  return () => {
+    io.disconnect();
+    pulse.remove();
+    getLenis()?.off('scroll', onLenisScroll);
+  };
 }
 
 // ─── COUNT-UP WITH SPRING OVERSHOOT ──────────────────────────────────────────

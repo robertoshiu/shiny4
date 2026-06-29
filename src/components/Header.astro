@@ -75,8 +75,10 @@ const { locale } = Astro.props;
     burger.setAttribute('aria-expanded', String(open));
     if (open) {
       drawer.hidden = false;
+      drawer.classList.add('is-open');
       document.body.style.overflow = 'hidden';
     } else {
+      drawer.classList.remove('is-open');
       drawer.hidden = true;
       document.body.style.overflow = '';
     }
@@ -202,5 +204,99 @@ const { locale } = Astro.props;
     .drawer {
       display: none;
     }
+  }
+
+  /* ── Item 2: Shader-grade mobile menu open (< 768px only) ──────────────── */
+
+  /* position:relative lets the ::before sweep be contained */
+  .drawer {
+    position: relative;
+  }
+
+  /* Signal-lock: desaturate→full chroma over 260ms on open */
+  .drawer.is-open {
+    animation: drawer-saturate 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes drawer-saturate {
+    from { filter: saturate(0.4); }
+    to   { filter: saturate(1);   }
+  }
+
+  /* Gold sweep bar — thin horizontal bar descends top→bottom once on open */
+  .drawer.is-open::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(233, 196, 106, 0.75) 50%,
+      transparent 100%
+    );
+    pointer-events: none;
+    z-index: 10;
+    animation: drawer-sweep 360ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  @keyframes drawer-sweep {
+    0%   { top: 0;    opacity: 1;   }
+    85%  { opacity: 0.5; }
+    100% { top: 100%; opacity: 0;   }
+  }
+
+  /* Stagger: nav links + footer items slide up and fade in */
+  :global(#mobile-drawer.is-open .nav__list li),
+  :global(#mobile-drawer.is-open .drawer__footer > *) {
+    animation: drawer-item-in 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  :global(#mobile-drawer.is-open .nav__list li:nth-child(1)) { animation-delay:  60ms; }
+  :global(#mobile-drawer.is-open .nav__list li:nth-child(2)) { animation-delay: 100ms; }
+  :global(#mobile-drawer.is-open .nav__list li:nth-child(3)) { animation-delay: 140ms; }
+  :global(#mobile-drawer.is-open .nav__list li:nth-child(4)) { animation-delay: 180ms; }
+  :global(#mobile-drawer.is-open .nav__list li:nth-child(5)) { animation-delay: 220ms; }
+  :global(#mobile-drawer.is-open .drawer__footer > *:nth-child(1)) { animation-delay: 260ms; }
+  :global(#mobile-drawer.is-open .drawer__footer > *:nth-child(2)) { animation-delay: 300ms; }
+
+  @keyframes drawer-item-in {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* Reduced-motion: instant final state, no animation */
+  @media (prefers-reduced-motion: reduce) {
+    .drawer.is-open {
+      animation: none;
+      filter: saturate(1);
+    }
+    .drawer.is-open::before {
+      animation: none;
+      opacity: 0;
+    }
+    :global(#mobile-drawer.is-open .nav__list li),
+    :global(#mobile-drawer.is-open .drawer__footer > *) {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  html.reduced-motion .drawer.is-open {
+    animation: none;
+    filter: saturate(1);
+  }
+  html.reduced-motion .drawer.is-open::before {
+    animation: none;
+    opacity: 0;
+  }
+  :global(html.reduced-motion #mobile-drawer.is-open .nav__list li),
+  :global(html.reduced-motion #mobile-drawer.is-open .drawer__footer > *) {
+    animation: none;
+    opacity: 1;
+    transform: none;
   }
 </style>

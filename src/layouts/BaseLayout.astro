@@ -113,6 +113,7 @@ const hrefZhHans = new URL(siblingUrl(pathname, 'zh-Hans'), Astro.site).href;
     </script>
   </head>
   <body>
+    <div class="heat-scrim" aria-hidden="true"></div>
     <SkipLink locale={locale} />
     <Header locale={locale} transition:persist />
     <slot />
