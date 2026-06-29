@@ -9,6 +9,7 @@ const items = [
   { key: 'nav.about', href: '/about/' },
   { key: 'nav.solutions', href: '/solutions/' },
   { key: 'nav.technology', href: '/technology/' },
+  { key: 'nav.experience', href: '/experience/', featured: true },
   { key: 'nav.methodology', href: '/methodology/' },
   { key: 'nav.careers', href: '/careers/' },
 ];
@@ -21,6 +22,7 @@ const items = [
         <li>
           <a class="nav__link" href={withBase(it.href)}>
             {t(it.key, locale)}
+            {'featured' in it && <span class="nav__dot" aria-hidden="true"></span>}
           </a>
         </li>
       ))
@@ -56,6 +58,16 @@ const items = [
   .nav__link:hover::after,
   .nav__link:focus-visible::after {
     width: 100%;
+  }
+  .nav__dot {
+    display: inline-block;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--sun);
+    margin-inline-start: 0.35em;
+    vertical-align: middle;
+    flex-shrink: 0;
   }
   @media (max-width: 767px) {
     .nav__list {
