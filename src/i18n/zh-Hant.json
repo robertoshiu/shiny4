@@ -688,5 +688,14 @@
 
   "audio.label": "音效",
   "aria.audioToggle": "切換環境音效",
-  "holdScan.aria": "顯示標準詳情（點擊，或按住掃描）"
+  "holdScan.aria": "顯示標準詳情（點擊，或按住掃描）",
+
+  "page.experience.title": "廠區導覽 — 顯藝科技 SHINYLOGIC",
+  "experience.title": "廠區導覽",
+  "experience.eyebrow": "沉浸式體驗",
+  "experience.lead": "從 L1 輸入層到 L6 備援層，穿越晶圓廠六層架構的全程導覽 — 每一層以確定規格、明確 SLA 與工業級設計交付，從機台訊號到跨區域韌性，逐層確認交付深度。",
+  "experience.scrollHint": "向下捲動以穿越廠區",
+  "experience.cta": "探索解決方案 →",
+  "experience.ctaLine": "準備深入了解？探索 IT/OT+AI 全棧解決方案 — 六層架構、明確 SLA、工業級交付。",
+  "experience.metaDescription": "廠區導覽：沉浸式穿越 L1–L6 六層架構，從設備輸入訊號到跨區域備援層，逐層感受顯藝科技 IT/OT+AI 全棧交付深度。"
 }

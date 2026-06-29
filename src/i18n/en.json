@@ -688,5 +688,14 @@
 
   "audio.label": "SOUND",
   "aria.audioToggle": "Toggle ambient sound",
-  "holdScan.aria": "Show standard detail (click, or hold to scan)"
+  "holdScan.aria": "Show standard detail (click, or hold to scan)",
+
+  "page.experience.title": "The Fab Walkthrough — SHINYLOGIC",
+  "experience.title": "The Fab Walkthrough",
+  "experience.eyebrow": "IMMERSIVE EXPERIENCE",
+  "experience.lead": "Walk the six-layer fab architecture from L1 input tools to L6 cross-region resilience — each layer delivered with defined specifications, clear SLAs, and industrial-grade design, from equipment signals to operational continuity.",
+  "experience.scrollHint": "Scroll to travel the fab",
+  "experience.cta": "Explore solutions →",
+  "experience.ctaLine": "Ready to go deeper? Explore the full IT/OT+AI solution stack — six layers, defined SLAs, industrial-grade delivery.",
+  "experience.metaDescription": "The Fab Walkthrough — an immersive tour of the six-layer fab architecture from L1 input tools to L6 cross-region resilience, exploring SHINYLOGIC's full IT/OT+AI stack delivery depth."
 }

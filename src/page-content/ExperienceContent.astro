@@ -1,0 +1,263 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import SubHero from '../components/SubHero.astro';
+import { getCollection } from 'astro:content';
+import { t, localized, siblingUrl } from '../i18n/utils';
+import type { Locale } from '../i18n/utils';
+
+interface Props {
+  locale?: Locale;
+}
+const { locale = 'zh-Hant' } = Astro.props;
+
+/* ── Data: L1–L6 sorted by order ──────────────────────────────────────────── */
+const allLayers = await getCollection('layers');
+const layers = allLayers.sort((a, b) => a.data.order - b.data.order);
+
+/* ── Accent mapping: L1–L4 = sla (gold), L5 = gov (sage), L6 = dr (clay) ── */
+function chapterAccent(i: number): 'sla' | 'gov' | 'dr' {
+  if (i <= 3) return 'sla';
+  if (i === 4) return 'gov';
+  return 'dr';
+}
+---
+
+<PageLayout
+  title={t('page.experience.title', locale)}
+  description={t('experience.metaDescription', locale)}
+  locale={locale}
+>
+  <!-- Hero slot: SubHero with eyebrow / title / scroll-hint / lead -->
+  <Fragment slot="hero">
+    <SubHero
+      locale={locale}
+      eyebrow={t('experience.eyebrow', locale)}
+      zhTitle={t('experience.title', locale)}
+      enLabel={t('experience.scrollHint', locale)}
+      lede={t('experience.lead', locale)}
+    />
+  </Fragment>
+
+  <!-- ── Walkthrough: L1–L6 chapters ──────────────────────────────────────── -->
+  <!--
+    DOM contract for Stage 4b:
+      [data-experience]     — root hook for the scroll engine
+      [data-chapter="i"]    — per-chapter hook (0-indexed)
+      chapter--{accent}     — accent class sets --energy; Stage 4b reads it
+  -->
+  <section class="experience" data-experience aria-label={t('experience.title', locale)}>
+    <ol class="experience__chapters">
+      {layers.map((layer, i) => {
+        const accent = chapterAccent(i);
+        return (
+          <li
+            class={`experience__chapter chapter--${accent}`}
+            data-chapter={i}
+          >
+            {/* Ghost numeral — aria-hidden; visual beat only */}
+            <span class="experience__num" aria-hidden="true">{layer.data.num}</span>
+
+            <div class="experience__body">
+              <h2 class="experience__name">
+                {localized(layer.data, 'zhName', locale) as string}
+              </h2>
+              <p class="experience__en">
+                {localized(layer.data, 'enLabel', locale) as string}
+              </p>
+              <p class="experience__scope">
+                {localized(layer.data, 'scope', locale) as string}
+              </p>
+            </div>
+          </li>
+        );
+      })}
+    </ol>
+  </section>
+
+  <!-- ── Closing CTA ──────────────────────────────────────────────────────── -->
+  <section class="experience-cta" aria-labelledby="experience-cta-heading">
+    <p id="experience-cta-heading" class="experience-cta__line">
+      {t('experience.ctaLine', locale)}
+    </p>
+    <a
+      class="experience-cta__btn"
+      href={siblingUrl('/solutions/', locale)}
+    >
+      {t('experience.cta', locale)}
+    </a>
+  </section>
+</PageLayout>
+
+<style>
+  /* ── Walkthrough section ─────────────────────────────────────────────────── */
+  .experience {
+    background: var(--bg);
+  }
+
+  .experience__chapters {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Each chapter: a tall deliberate beat — floats on air, no card box */
+  .experience__chapter {
+    min-height: 70svh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: clamp(5rem, 12vw, 9rem) var(--gutter);
+    position: relative;
+    /* Alternating deep / base ground to lightly differentiate beats */
+    background: transparent;
+    border-top: 1px solid var(--border);
+  }
+  .experience__chapter:first-child {
+    border-top: none;
+  }
+
+  /* Thin accent rule — centered, from --energy */
+  .experience__chapter::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: clamp(3rem, 8vw, 6rem);
+    height: 2px;
+    background: var(--energy);
+  }
+  .experience__chapter:first-child::before {
+    /* First chapter has no border-top, so no rule — let the SubHero lead in */
+    display: none;
+  }
+
+  /* Ghost numeral — giant, faint, accent-coloured ─────────────────────────── */
+  .experience__num {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: clamp(5rem, 18vw, 13rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--energy);
+    opacity: 0.10;
+    user-select: none;
+    margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
+    /* Stage 4b hook: will receive translateY from scroll engine */
+  }
+
+  /* Body content — layered below the ghost numeral ─────────────────────────── */
+  .experience__body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    max-width: 60ch;
+  }
+
+  /* Layer name — large display type ──────────────────────────────────────── */
+  .experience__name {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 6vw, 4rem);
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.08;
+    margin: 0;
+    font-variation-settings: 'opsz' 72;
+  }
+
+  /* EN / technical label — mono, accent colour, spaced caps ──────────────── */
+  .experience__en {
+    font-family: var(--font-mono);
+    font-size: clamp(0.72rem, 1.4vw, 0.88rem);
+    letter-spacing: 0.2em;
+    color: var(--energy);
+    margin: 0;
+    text-transform: uppercase;
+  }
+
+  /* Scope description — secondary prose ──────────────────────────────────── */
+  .experience__scope {
+    font-size: clamp(0.9rem, 1.8vw, 1rem);
+    color: var(--ink-muted);
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  /* Hover: faint energy glow on background — calm, no translation ─────────── */
+  @media (hover: hover) {
+    .experience__chapter {
+      transition: background var(--dur-quick) var(--ease-out);
+    }
+    .experience__chapter:hover {
+      background: color-mix(in srgb, var(--energy) 3%, transparent);
+    }
+  }
+
+  /* ── Closing CTA block ───────────────────────────────────────────────────── */
+  .experience-cta {
+    max-width: var(--maxw);
+    margin-inline: auto;
+    padding: clamp(5rem, 12vw, 9rem) var(--gutter);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    text-align: center;
+    border-top: 1px solid var(--border);
+  }
+
+  .experience-cta__line {
+    font-size: clamp(1rem, 2.5vw, 1.25rem);
+    color: var(--ink-muted);
+    max-width: 52ch;
+    line-height: 1.65;
+    margin: 0;
+  }
+
+  /* CTA button — replicates .cta--clay without importing CTAButton to keep
+     the dependency light; same design tokens, same WCAG dark-ink-on-clay rule */
+  .experience-cta__btn {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0.75rem 1.75rem;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 0.95rem;
+    border-radius: 2px;
+    text-decoration: none;
+    background: var(--clay);
+    color: var(--bg);           /* dark ink on clay — WCAG AA ✓ */
+    border: 1px solid var(--clay);
+    transition:
+      background var(--dur-quick) var(--ease-out),
+      border-color var(--dur-quick) var(--ease-out),
+      transform var(--dur-quick) var(--ease-out);
+  }
+  .experience-cta__btn:hover {
+    background: var(--clay-deep);
+    border-color: var(--clay-deep);
+    transform: translateY(-1px);
+  }
+  /* Sun focus ring: double-ring pattern matching .cta--clay in CTAButton.astro */
+  .experience-cta__btn:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px var(--bg),
+      0 0 0 4px var(--sun);
+  }
+
+  /* ── Reduced-motion: strip hover transitions ─────────────────────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    .experience__chapter {
+      transition: none;
+    }
+    .experience-cta__btn {
+      transition: none;
+    }
+  }
+</style>

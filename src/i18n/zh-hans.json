@@ -688,5 +688,14 @@
 
   "audio.label": "音效",
   "aria.audioToggle": "切换环境音效",
-  "holdScan.aria": "显示标准详情（点击，或按住扫描）"
+  "holdScan.aria": "显示标准详情（点击，或按住扫描）",
+
+  "page.experience.title": "厂区导览 — 显艺科技 SHINYLOGIC",
+  "experience.title": "厂区导览",
+  "experience.eyebrow": "沉浸式体验",
+  "experience.lead": "从 L1 输入层到 L6 备援层，穿越晶圆厂六层架构的全程导览 — 每一层以确定规格、明确 SLA 与工业级设计交付，从机台信号到跨区域韧性，逐层确认交付深度。",
+  "experience.scrollHint": "向下滚动以穿越厂区",
+  "experience.cta": "探索解决方案 →",
+  "experience.ctaLine": "准备深入了解？探索 IT/OT+AI 全栈解决方案 — 六层架构、明确 SLA、工业级交付。",
+  "experience.metaDescription": "厂区导览：沉浸式穿越 L1–L6 六层架构，从设备输入信号到跨区域备援层，逐层感受显艺科技 IT/OT+AI 全栈交付深度。"
 }
