@@ -644,11 +644,8 @@ const templateItems = [
     }
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+  // astro:page-load fires on initial load AND after every View Transition nav.
+  document.addEventListener('astro:page-load', init);
 </script>
 
 <style>

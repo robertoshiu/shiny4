@@ -2,6 +2,7 @@
 import '../styles/tokens.css';
 import '../styles/fonts.css';
 import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
 import SkipLink from '../components/SkipLink.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
@@ -65,6 +66,8 @@ const hrefZhHans = new URL(siblingUrl(pathname, 'zh-Hans'), Astro.site).href;
         href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap"
       />
     </noscript>
+    <!-- Astro View Transitions: cross-page "flyover" continuity. -->
+    <ClientRouter />
     <!-- Pre-paint: reduced-motion + lang-persist redirect (root only). -->
     <script is:inline>
       (function () {
@@ -111,55 +114,94 @@ const hrefZhHans = new URL(siblingUrl(pathname, 'zh-Hans'), Astro.site).href;
   </head>
   <body>
     <SkipLink locale={locale} />
-    <Header locale={locale} />
+    <Header locale={locale} transition:persist />
     <slot />
-    <Footer locale={locale} />
+    <Footer locale={locale} transition:persist />
     <script>
       import '../scripts/lang-persist';
     </script>
 
     <!--
-      MOTION ENGINE — loaded as a single entry point that:
-        1. Boots the page-load cinematic sequence (HUD brackets → hero → nav)
-        2. Initialises Lenis smooth scroll (no-op under reduced-motion)
-        3. Wires up the custom HUD cursor (no-op on touch)
-        4. Wires up magnetic buttons + link underline stroke-draw
-        5. Registers scroll-fx: parallax, section-enter stagger, count-up
-        6. Auto-mounts dot-field canvases for [data-dot-field] sections
+      MOTION ENGINE — runs on every astro:page-load (initial + View Transition navs).
+      Before each re-init the previous run is torn down (idempotent cycle):
+        1. destroySmoothScroll() — destroys Lenis singleton + RAF loop
+        2. Per-module cleanup fns — cursor RAF, magnetic listeners, scroll-fx IOs,
+           text-reveal IOs, dot-field canvases
+      Then re-inits:
+        1. bootMotion()     — HUD brackets (guarded) + hero elements + nav (first boot only)
+        2. initSmoothScroll() — Lenis (no-op under reduced-motion)
+        3. initCursor()     — HUD cursor (guarded; no-op on touch / under-cursor already exists)
+        4. initMagnetic()   — magnetic pull on [data-magnetic]
+        5. initLinkUnderlines() — gold stroke-draw underlines
+        6. initScrollFx()   — parallax, section-enter, signal-travel, count-up
+        7. revealAll()      — split-text spring reveal for [data-reveal] headings
+        8. mountDotField()  — ember dot-field canvases for [data-dot-field]
+        9. initAmbientAudio() — idempotent (only first call builds audio graph)
       All effects gate themselves on prefersReducedMotion() internally.
     -->
     <script>
       import { bootMotion } from '../scripts/theme-motion';
-      import { initSmoothScroll } from '../scripts/motion/smooth-scroll';
+      import { initSmoothScroll, destroySmoothScroll } from '../scripts/motion/smooth-scroll';
       import { initCursor } from '../scripts/motion/cursor';
       import { initMagnetic, initLinkUnderlines } from '../scripts/motion/magnetic';
       import { initAll as initScrollFx } from '../scripts/motion/scroll-fx';
       import { mount as mountDotField } from '../scripts/motion/dot-field';
       import { revealAll } from '../scripts/motion/text-reveal';
+      import { initAmbientAudio } from '../scripts/motion/ambient-audio';
 
-      // Run boot sequence immediately (sets initial hidden states, kicks off tl)
-      bootMotion();
+      // Per-run cleanup function references (reset each astro:page-load)
+      let _cursorCleanup:   (() => void) | null = null;
+      let _magneticCleanup: (() => void) | null = null;
+      let _scrollFxCleanup: (() => void) | null = null;
+      let _revealCleanup:   (() => void) | null = null;
+      let _dotCleanups:     Array<() => void>   = [];
 
-      // Lenis smooth scroll — self-disables under reduced-motion
-      initSmoothScroll();
+      function teardown(): void {
+        // Lenis + RAF loop
+        destroySmoothScroll();
+        // Per-module cleanups
+        _cursorCleanup?.();   _cursorCleanup   = null;
+        _magneticCleanup?.(); _magneticCleanup = null;
+        _scrollFxCleanup?.(); _scrollFxCleanup = null;
+        _revealCleanup?.();   _revealCleanup   = null;
+        _dotCleanups.forEach((fn) => fn()); _dotCleanups = [];
+      }
 
-      // Custom HUD cursor — self-disables on touch / coarse pointer
-      initCursor();
+      function init(): void {
+        teardown();
 
-      // Magnetic buttons + link underlines
-      initMagnetic();
-      initLinkUnderlines();
+        // Boot: HUD brackets + hero animation (nav skipped on re-boots)
+        bootMotion();
 
-      // Scroll effects: parallax + section-enter + signal-travel + count-up
-      initScrollFx();
+        // Lenis smooth scroll (no-op under reduced-motion)
+        initSmoothScroll();
 
-      // Text split-reveal for [data-reveal] headings
-      revealAll('[data-reveal]');
+        // HUD cursor (guarded — no double-init if per-page script also calls it)
+        _cursorCleanup = initCursor();
 
-      // Auto-mount dot-field canvases
-      document.querySelectorAll<HTMLElement>('[data-dot-field]').forEach((el) => {
-        mountDotField(el);
-      });
+        // Magnetic pull + gold link underlines
+        _magneticCleanup = initMagnetic();
+        initLinkUnderlines();
+
+        // Scroll effects: parallax, section-enter stagger, signal-travel, count-up
+        _scrollFxCleanup = initScrollFx();
+
+        // Split-text spring reveal for [data-reveal] headings
+        _revealCleanup = revealAll('[data-reveal]');
+
+        // Ember dot-field canvases for [data-dot-field] sections
+        document.querySelectorAll<HTMLElement>('[data-dot-field]').forEach((el) => {
+          _dotCleanups.push(mountDotField(el));
+        });
+
+        // Ambient audio: idempotent — first call builds audio graph;
+        // subsequent calls only re-bind the footer toggle button defensively.
+        // AudioContext is never torn down across navigations.
+        initAmbientAudio();
+      }
+
+      // astro:page-load fires on initial load AND after every View Transition.
+      document.addEventListener('astro:page-load', init);
     </script>
   </body>
 </html>

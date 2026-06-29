@@ -374,6 +374,18 @@ const drRectPath = `M ${DR_X1} ${DR_Y1} L ${DR_X2} ${DR_Y1} L ${DR_X2} ${DR_Y2} 
   import { getLenis } from '../scripts/motion/smooth-scroll';
   import { getVariant } from '../lib/scan/variants';
 
+  function registerTeardown(fn: () => void) {
+    let torn = false;
+    const teardown = () => {
+      if (torn) return; torn = true;
+      document.removeEventListener('astro:before-swap', teardown);
+      window.removeEventListener('pagehide', teardown);
+      fn();
+    };
+    document.addEventListener('astro:before-swap', teardown);
+    window.addEventListener('pagehide', teardown);
+  }
+
   function init(): void {
     if (prefersReducedMotion()) return;
 
@@ -389,20 +401,20 @@ const drRectPath = `M ${DR_X1} ${DR_Y1} L ${DR_X2} ${DR_Y1} L ${DR_X2} ${DR_Y2} 
     const conn = (navigator as unknown as { connection?: NavConn }).connection;
     if (conn?.saveData) {
       const cleanup = initScanField();
-      window.addEventListener('pagehide', cleanup, { once: true });
+      registerTeardown(cleanup);
       return;
     }
 
     if (window.matchMedia('(max-width: 48rem)').matches) {
       const cleanup = initScanField();
-      window.addEventListener('pagehide', cleanup, { once: true });
+      registerTeardown(cleanup);
       return;
     }
 
     const testCanvas = document.createElement('canvas');
     if (typeof testCanvas.getContext !== 'function') {
       const cleanup = initScanField();
-      window.addEventListener('pagehide', cleanup, { once: true });
+      registerTeardown(cleanup);
       return;
     }
 
@@ -448,11 +460,7 @@ const drRectPath = `M ${DR_X1} ${DR_Y1} L ${DR_X2} ${DR_Y1} L ${DR_X2} ${DR_Y2} 
       const lenis = getLenis();
       if (lenis) lenis.on('scroll', updateScroll);
 
-      window.addEventListener('pagehide', () => {
-        handle.destroy();
-        flyCanvas.remove();
-        window.removeEventListener('scroll', updateScroll);
-      }, { once: true });
+      registerTeardown(() => { handle.destroy(); flyCanvas.remove(); window.removeEventListener('scroll', updateScroll); });
     };
 
     if (typeof requestIdleCallback !== 'undefined') {
@@ -462,11 +470,8 @@ const drRectPath = `M ${DR_X1} ${DR_Y1} L ${DR_X2} ${DR_Y1} L ${DR_X2} ${DR_Y2} 
     }
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+  // astro:page-load fires on initial load AND after every View Transition nav.
+  document.addEventListener('astro:page-load', init);
 </script>
 
 <style>

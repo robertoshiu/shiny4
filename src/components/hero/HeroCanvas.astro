@@ -5,7 +5,8 @@
   HeroCanvas — WebGL particle-system mount point.
   Sits above HeroPoster (z-index 1, starts opacity:0, fades in on first frame).
   initHero() is called after first paint via requestIdleCallback / setTimeout.
-  Destroyed on pagehide (Astro SPA nav) to release the WebGL context.
+  Re-mounts on astro:page-load; destroyed on astro:before-swap / pagehide to
+  release the WebGL context across View-Transition navigation.
   Under prefers-reduced-motion, initHero() returns a no-op early; poster stays.
 -->
 <canvas id="hero-canvas" class="hero-canvas" aria-hidden="true" tabindex="-1"></canvas>
@@ -14,18 +15,25 @@
   import { initHero } from '../../scripts/hero-webgl';
   import { prefersReducedMotion } from '../../scripts/theme-motion';
 
-  const canvas = document.getElementById('hero-canvas') as HTMLCanvasElement | null;
+  let handle: { destroy(): void } | null = null;
 
-  if (canvas && !prefersReducedMotion()) {
+  function teardown() {
+    if (handle) { handle.destroy(); handle = null; }
+  }
+
+  function mount() {
+    if (prefersReducedMotion()) return;
+    if (handle) return; // already mounted on this page
+    const canvas = document.getElementById('hero-canvas') as HTMLCanvasElement | null;
+    if (!canvas) return; // hero not present on this page
+
     const start = () => {
-      const handle = initHero(canvas);
-      // Fade canvas in once the GPU is rendering (next micro-task)
+      if (handle) return;
+      if (!canvas.isConnected) return; // navigated away before idle fired
+      handle = initHero(canvas);
       requestAnimationFrame(() => canvas.classList.add('is-active'));
-      // Clean up on Astro view-transitions / browser back-forward
-      window.addEventListener('pagehide', () => handle.destroy(), { once: true });
     };
 
-    // Lazy-init after first paint so hero text renders without blocking
     if ('requestIdleCallback' in window) {
       (window as unknown as { requestIdleCallback: (cb: () => void, o?: object) => void })
         .requestIdleCallback(start, { timeout: 1800 });
@@ -33,6 +41,12 @@
       setTimeout(start, 160);
     }
   }
+
+  // Re-mount on every page-load (initial + View Transition nav); release the
+  // WebGL context before each swap and on real page exit.
+  document.addEventListener('astro:page-load', mount);
+  document.addEventListener('astro:before-swap', teardown);
+  window.addEventListener('pagehide', teardown);
 </script>
 
 <style>

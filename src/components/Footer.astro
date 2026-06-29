@@ -45,6 +45,19 @@ const { locale } = Astro.props;
         <p class="site-footer__h">{t('footer.lang', locale)}</p>
         <LanguageToggle locale={locale} />
       </div>
+      <div class="site-footer__audio">
+        <p class="site-footer__h">AUDIO</p>
+        <button
+          id="ambient-audio-toggle"
+          class="ambient-audio-toggle"
+          type="button"
+          aria-pressed="false"
+          aria-label={t('aria.audioToggle', locale)}
+        >
+          <span class="ambient-audio-toggle__dot" aria-hidden="true"></span>
+          <span>{t('audio.label', locale)}</span>
+        </button>
+      </div>
     </div>
   </div>
   <div class="site-footer__legal">
@@ -109,6 +122,12 @@ const { locale } = Astro.props;
     margin: 0 0 0.3rem;
   }
   .site-footer__lang {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .site-footer__audio {
     margin-top: 1rem;
     display: flex;
     flex-direction: column;

@@ -23,10 +23,13 @@ export function initSmoothScroll(): Lenis | null {
   if (lenis) return lenis;
 
   lenis = new Lenis({
-    duration: 1.1,
+    // Phase-0 pacing: slower, more deliberate / "documented walkthrough" feel.
+    // Before: duration 1.1, wheelMultiplier 0.9
+    // After:  duration 1.6, wheelMultiplier 0.65
+    duration: 1.6,
     easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
     smoothWheel: true,
-    wheelMultiplier: 0.9,
+    wheelMultiplier: 0.65,
     touchMultiplier: 1.8,
     // Prevent Lenis from hijacking hash-link jumps.
     anchors: true,

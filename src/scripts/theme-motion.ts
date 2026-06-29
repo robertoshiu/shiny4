@@ -25,6 +25,16 @@
 
 import { animate, stagger, spring, createTimeline } from 'animejs';
 
+// Track boot invocations so that persisted elements (Header) are not
+// re-hidden and re-animated on every View Transition navigation.
+let _bootCount = 0;
+
+// Guard: prevent double-execution within the same astro:page-load dispatch.
+// Both BaseLayout and per-page scripts call bootMotion(); the flag ensures
+// only the first call per event dispatch actually runs the timeline.
+// Reset via queueMicrotask so the next page-load can boot cleanly.
+let _booting = false;
+
 export function prefersReducedMotion(): boolean {
   if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
     return false;
@@ -134,10 +144,21 @@ function injectHudBrackets(): HTMLElement | null {
 // ─── BOOT TIMELINE ───────────────────────────────────────────────────────────
 
 /**
- * Cinematic boot sequence. Call once on DOMContentLoaded.
+ * Cinematic boot sequence. Called on every astro:page-load (initial + VT navs).
  * Under reduced-motion: renders all targets to their final state immediately.
+ * On the first call: full boot including nav fade-in.
+ * On subsequent calls: nav is persisted (transition:persist) so skip hiding it.
  */
 export function bootMotion(): void {
+  // Prevent double-execution when both BaseLayout and a per-page script call
+  // bootMotion() in the same astro:page-load event dispatch.
+  if (_booting) return;
+  _booting = true;
+  queueMicrotask(() => { _booting = false; });
+
+  const isFirstBoot = _bootCount === 0;
+  _bootCount++;
+
   // ── Reduced-motion: skip timeline, force final states ──
   if (prefersReducedMotion()) {
     // Ensure everything is visible
@@ -184,7 +205,8 @@ export function bootMotion(): void {
   if (heroLead)    { heroLead.style.opacity = '0';    }
   heroChips.forEach((c) => { c.style.opacity = '0'; c.style.transform = 'translateY(16px)'; });
   heroActions.forEach((a) => { a.style.opacity = '0'; a.style.transform = 'translateY(12px)'; });
-  if (nav) { nav.style.opacity = '0'; }
+  // Only hide nav on first boot; it is transition:persist'd on subsequent navs.
+  if (nav && isFirstBoot) { nav.style.opacity = '0'; }
 
   // ── Build timeline ──
   const tl = createTimeline({ defaults: { ease: 'out(3)' } });
@@ -199,8 +221,8 @@ export function bootMotion(): void {
     }, 0);
   }
 
-  // 80ms — Nav fades in
-  if (nav) {
+  // 80ms — Nav fades in (first boot only; persisted on subsequent navs)
+  if (nav && isFirstBoot) {
     tl.add(nav, { opacity: [0, 1], duration: 400 }, 80);
   }
 

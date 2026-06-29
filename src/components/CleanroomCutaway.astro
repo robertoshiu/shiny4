@@ -336,14 +336,19 @@ const DR_MID_Y = (DR_Y1 + DR_Y2) / 2;
   function init(): void {
     if (prefersReducedMotion()) return;
     const cleanup = initCleanroomScan();
-    window.addEventListener('pagehide', cleanup, { once: true });
+    let _torn = false;
+    const teardown = () => {
+      if (_torn) return; _torn = true;
+      document.removeEventListener('astro:before-swap', teardown);
+      window.removeEventListener('pagehide', teardown);
+      cleanup();
+    };
+    document.addEventListener('astro:before-swap', teardown);
+    window.addEventListener('pagehide', teardown);
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+  // astro:page-load fires on initial load AND after every View Transition nav.
+  document.addEventListener('astro:page-load', init);
 </script>
 
 <style>

@@ -684,5 +684,8 @@
   "diagram.netzone.dim.clay.cap": "DR RPO",
   "diagram.netzone.dim.sage.cap": "Monitoring Coverage",
   "diagram.netzone.disclaimer": "Schematic topology · based on public zone/DMZ principles · original drawing",
-  "diagram.netzone.figcaption": "OT/IT security network-topology schematic (orthogonal topology plan, based on public zone/DMZ principles, original drawing): a left OT zone (PLC, SCADA/HMI, OT historian collector, OT firewall) connects through a central DMZ buffer (unidirectional data diode, reverse proxy/jump host, message broker, DMZ firewall) to a right IT zone (Lakehouse/EDA, AI/RAG platform, identity & access); gold is the primary data link (one-way uplink), clay is the DR replication link, sage is full-domain SOC monitoring coverage; dotted lines are trust boundaries and the DMZ is shown with section poche."
+  "diagram.netzone.figcaption": "OT/IT security network-topology schematic (orthogonal topology plan, based on public zone/DMZ principles, original drawing): a left OT zone (PLC, SCADA/HMI, OT historian collector, OT firewall) connects through a central DMZ buffer (unidirectional data diode, reverse proxy/jump host, message broker, DMZ firewall) to a right IT zone (Lakehouse/EDA, AI/RAG platform, identity & access); gold is the primary data link (one-way uplink), clay is the DR replication link, sage is full-domain SOC monitoring coverage; dotted lines are trust boundaries and the DMZ is shown with section poche.",
+
+  "audio.label": "SOUND",
+  "aria.audioToggle": "Toggle ambient sound"
 }

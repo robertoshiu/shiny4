@@ -684,5 +684,8 @@
   "diagram.netzone.dim.clay.cap": "DR RPO",
   "diagram.netzone.dim.sage.cap": "监控覆盖",
   "diagram.netzone.disclaimer": "示意拓扑 · 基于公开区域／DMZ 原则 · 原创绘制",
-  "diagram.netzone.figcaption": "OT／IT 安全网络拓扑示意图（正交拓扑平面，基于公开区域／DMZ 原则，原创绘制）：左侧 OT 区（PLC、SCADA／HMI、OT 历史数据采集、OT 防火墙）经中央 DMZ 缓冲区（数据二极体单向闸、反向代理、消息代理、DMZ 防火墙）连至右侧 IT 区（数据湖仓、AI/RAG 平台、身份与访问）；金色为主数据链路，陶土为异地备援复写链路，沙绿为 SOC 全域监控覆盖。"
+  "diagram.netzone.figcaption": "OT／IT 安全网络拓扑示意图（正交拓扑平面，基于公开区域／DMZ 原则，原创绘制）：左侧 OT 区（PLC、SCADA／HMI、OT 历史数据采集、OT 防火墙）经中央 DMZ 缓冲区（数据二极体单向闸、反向代理、消息代理、DMZ 防火墙）连至右侧 IT 区（数据湖仓、AI/RAG 平台、身份与访问）；金色为主数据链路，陶土为异地备援复写链路，沙绿为 SOC 全域监控覆盖。",
+
+  "audio.label": "音效",
+  "aria.audioToggle": "切换环境音效"
 }

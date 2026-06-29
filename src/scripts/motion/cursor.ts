@@ -29,6 +29,12 @@ export function initCursor(): () => void {
   // Only show on fine-pointer devices (mouse/trackpad), not touch.
   if (!window.matchMedia('(pointer: fine)').matches) return () => {};
 
+  // Guard against double-init within the same page load.
+  // The BaseLayout teardown removes #hud-cursor before re-calling initCursor(),
+  // so this check only blocks a second call without a preceding teardown (e.g.
+  // if a per-page script also calls initCursor() after BaseLayout already did).
+  if (document.getElementById('hud-cursor')) return () => {};
+
   const reduced = prefersReducedMotion();
 
   // Create cursor elements
