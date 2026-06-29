@@ -123,28 +123,28 @@ const chips = [
     <SlaStrip locale={locale} />
   </section>
 
-  <!-- 04 FAB300 4-phase / 8-gate teaser -->
-  <section class="section" id="phases" aria-labelledby="heading-04">
-    <SectionHeader
-      index="04"
-      zh={t('home.section04.zh', locale)}
-      en={t('home.section04.en', locale)}
-    />
-    <PhaseTimeline locale={locale} />
-  </section>
-
-  <!-- 05 By the Numbers — dot-field canvas injected by page script -->
+  <!-- 04 By the Numbers — dot-field canvas injected by page script -->
   <!--
     section--numbers: position:relative + isolation:isolate creates a stacking
     context so the z:-1 dot-field wrapper is contained within this section.
   -->
-  <section class="section section--numbers chapter--sla" id="numbers" aria-labelledby="heading-05">
+  <section class="section section--numbers chapter--sla" id="numbers" aria-labelledby="heading-04">
     <SectionHeader
-      index="05"
+      index="04"
       zh={t('home.section05.zh', locale)}
       en={t('home.section05.en', locale)}
     />
     <ByTheNumbers locale={locale} />
+  </section>
+
+  <!-- 05 FAB300 4-phase / 8-gate teaser -->
+  <section class="section" id="phases" aria-labelledby="heading-05">
+    <SectionHeader
+      index="05"
+      zh={t('home.section04.zh', locale)}
+      en={t('home.section04.en', locale)}
+    />
+    <PhaseTimeline locale={locale} />
   </section>
 
   <!-- 06 Compliance cluster + NVIDIA Blackwell / GB300 ecosystem signal -->
