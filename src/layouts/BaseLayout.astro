@@ -148,22 +148,25 @@ const hrefZhHans = new URL(siblingUrl(pathname, 'zh-Hans'), Astro.site).href;
       import { mount as mountDotField } from '../scripts/motion/dot-field';
       import { revealAll } from '../scripts/motion/text-reveal';
       import { initAmbientAudio } from '../scripts/motion/ambient-audio';
+      import { initHoldToScan } from '../scripts/motion/hold-to-scan';
 
       // Per-run cleanup function references (reset each astro:page-load)
-      let _cursorCleanup:   (() => void) | null = null;
-      let _magneticCleanup: (() => void) | null = null;
-      let _scrollFxCleanup: (() => void) | null = null;
-      let _revealCleanup:   (() => void) | null = null;
-      let _dotCleanups:     Array<() => void>   = [];
+      let _cursorCleanup:      (() => void) | null = null;
+      let _magneticCleanup:    (() => void) | null = null;
+      let _scrollFxCleanup:    (() => void) | null = null;
+      let _revealCleanup:      (() => void) | null = null;
+      let _holdToScanCleanup:  (() => void) | null = null;
+      let _dotCleanups:        Array<() => void>   = [];
 
       function teardown(): void {
         // Lenis + RAF loop
         destroySmoothScroll();
         // Per-module cleanups
-        _cursorCleanup?.();   _cursorCleanup   = null;
-        _magneticCleanup?.(); _magneticCleanup = null;
-        _scrollFxCleanup?.(); _scrollFxCleanup = null;
-        _revealCleanup?.();   _revealCleanup   = null;
+        _cursorCleanup?.();      _cursorCleanup     = null;
+        _magneticCleanup?.();    _magneticCleanup   = null;
+        _scrollFxCleanup?.();    _scrollFxCleanup   = null;
+        _revealCleanup?.();      _revealCleanup     = null;
+        _holdToScanCleanup?.();  _holdToScanCleanup = null;
         _dotCleanups.forEach((fn) => fn()); _dotCleanups = [];
       }
 
@@ -188,6 +191,9 @@ const hrefZhHans = new URL(siblingUrl(pathname, 'zh-Hans'), Astro.site).href;
 
         // Split-text spring reveal for [data-reveal] headings
         _revealCleanup = revealAll('[data-reveal]');
+
+        // Hold-to-scan progressive disclosure for [data-hold-scan] compliance badges
+        _holdToScanCleanup = initHoldToScan();
 
         // Ember dot-field canvases for [data-dot-field] sections
         document.querySelectorAll<HTMLElement>('[data-dot-field]').forEach((el) => {

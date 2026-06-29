@@ -687,5 +687,6 @@
   "diagram.netzone.figcaption": "OT／IT 資安網路拓樸示意圖（正交拓樸平面，基於公開區域／DMZ 原則，原創繪製）：左側 OT 區（PLC、SCADA／HMI、OT 歷史資料採集、OT 防火牆）經中央 DMZ 緩衝區（資料二極體單向閘、反向代理、訊息代理、DMZ 防火牆）連至右側 IT 區（資料湖倉、AI/RAG 平台、身分與存取）；金色為主資料鏈路，陶土為異地備援複寫鏈路，沙綠為 SOC 全域監控覆蓋。",
 
   "audio.label": "音效",
-  "aria.audioToggle": "切換環境音效"
+  "aria.audioToggle": "切換環境音效",
+  "holdScan.aria": "顯示標準詳情（點擊，或按住掃描）"
 }
