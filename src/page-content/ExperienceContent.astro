@@ -46,6 +46,8 @@ function chapterAccent(i: number): 'sla' | 'gov' | 'dr' {
       chapter--{accent}     — accent class sets --energy; Stage 4b reads it
   -->
   <section class="experience" data-experience aria-label={t('experience.title', locale)}>
+    <!-- Stage 4b: fixed canvas backdrop — aria-hidden, z-index:-1, behind transparent chapters -->
+    <canvas id="experience-canvas" class="experience__canvas" aria-hidden="true" tabindex="-1"></canvas>
     <ol class="experience__chapters">
       {layers.map((layer, i) => {
         const accent = chapterAccent(i);
@@ -88,10 +90,162 @@ function chapterAccent(i: number): 'sla' | 'gov' | 'dr' {
   </section>
 </PageLayout>
 
+<!-- ── Stage 4b: scroll-driven cleanroom fly-through engine ──────────────── -->
+<!--
+  Lifecycle mirrors HeroCanvas.astro exactly:
+    astro:page-load  → mount()  (lazy via requestIdleCallback / setTimeout fallback)
+    astro:before-swap → teardown()  (View-Transition safety)
+    pagehide         → teardown()  (real page exit)
+
+  Gates:
+    prefersReducedMotion() → no-op; canvas stays opacity:0; all chapters opaque (CSS).
+    max-width: 48rem       → no-op; mobile gets static walkthrough; all chapters opaque (CSS).
+    canvas not in DOM      → no-op (not on this page).
+    handle already set     → no-op (already mounted).
+-->
+<script>
+  import { initCleanroomFly } from '../scripts/motion/cleanroom-fly';
+  import { prefersReducedMotion } from '../scripts/theme-motion';
+  import { getLenis } from '../scripts/motion/smooth-scroll';
+
+  let handle: { destroy(): void; setScroll(p: number): void } | null = null;
+  let scrollUnsubscribe: (() => void) | null = null;
+  let sectionIO: IntersectionObserver | null = null;
+  let chapterIO: IntersectionObserver | null = null;
+
+  /** Compute scroll progress over the [data-experience] section and push to engine. */
+  function updateProgress(): void {
+    const sec = document.querySelector<HTMLElement>('[data-experience]');
+    if (!sec || !handle) return;
+    const rect  = sec.getBoundingClientRect();
+    const total = rect.height - window.innerHeight;
+    const p     = Math.max(0, Math.min(1, -rect.top / Math.max(total, 1)));
+    handle.setScroll(p);
+  }
+
+  function mount(): void {
+    // Accessible path: canvas stays opacity:0; chapters remain fully opaque via CSS.
+    if (prefersReducedMotion()) return;
+    // Mobile path: static walkthrough; chapters fully opaque via CSS.
+    if (window.matchMedia('(max-width: 48rem)').matches) return;
+
+    const canvas = document.getElementById('experience-canvas') as HTMLCanvasElement | null;
+    if (!canvas) return;   // not on this page
+    if (handle) return;    // already mounted
+
+    const start = (): void => {
+      if (handle) return;
+      if (!canvas.isConnected) return; // navigated away before idle fired
+
+      // Init engine (engine also self-gates DPR / save-data / visibility)
+      handle = initCleanroomFly(canvas);
+
+      // ── Scroll driver ──────────────────────────────────────────────────────
+      // Prefer Lenis (initialized by BaseLayout); fall back to native scroll.
+      const lenis = getLenis();
+      if (lenis) {
+        lenis.on('scroll', updateProgress);
+        // Use getLenis()?.off at teardown time so it's safe after lenis.destroy().
+        scrollUnsubscribe = () => getLenis()?.off('scroll', updateProgress);
+      } else {
+        window.addEventListener('scroll', updateProgress, { passive: true });
+        scrollUnsubscribe = () => window.removeEventListener('scroll', updateProgress);
+      }
+
+      // ── Section activation IO ──────────────────────────────────────────────
+      // Canvas fades in when the experience section enters the viewport,
+      // fades out when it exits (past the CTA / into the footer).
+      const sec = document.querySelector('[data-experience]');
+      if (sec) {
+        sectionIO = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              canvas.classList.toggle('is-active', entry.isIntersecting);
+            }
+          },
+          { threshold: 0 },
+        );
+        sectionIO.observe(sec);
+      }
+
+      // ── Chapter focus IO ───────────────────────────────────────────────────
+      // Dims chapters at 0.6 opacity; adds .is-active (opacity:1) to whichever
+      // chapter is currently centred in the viewport (rootMargin ±45% = centre 10%).
+      const chapters = document.querySelectorAll('[data-chapter]');
+      chapterIO = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            entry.target.classList.toggle('is-active', entry.isIntersecting);
+          }
+        },
+        { rootMargin: '-45% 0px -45% 0px', threshold: 0 },
+      );
+      for (const ch of chapters) chapterIO.observe(ch);
+
+      // Seed initial scroll progress so the fly position is correct on first paint.
+      requestAnimationFrame(() => updateProgress());
+    };
+
+    // Lazy start via requestIdleCallback (timeout 1800ms; setTimeout 160ms fallback).
+    if ('requestIdleCallback' in window) {
+      (window as unknown as { requestIdleCallback: (cb: () => void, o?: object) => void })
+        .requestIdleCallback(start, { timeout: 1800 });
+    } else {
+      setTimeout(start, 160);
+    }
+  }
+
+  function teardown(): void {
+    handle?.destroy();
+    handle = null;
+    scrollUnsubscribe?.();
+    scrollUnsubscribe = null;
+    sectionIO?.disconnect();
+    sectionIO = null;
+    chapterIO?.disconnect();
+    chapterIO = null;
+    // Remove activation classes so state is clean for the next mount.
+    const canvas = document.getElementById('experience-canvas');
+    if (canvas) canvas.classList.remove('is-active');
+    document.querySelectorAll('[data-chapter]').forEach((ch) =>
+      ch.classList.remove('is-active'),
+    );
+  }
+
+  // Re-mount on every page-load (initial + View-Transition nav);
+  // release engine before each swap and on real page exit.
+  document.addEventListener('astro:page-load', mount);
+  document.addEventListener('astro:before-swap', teardown);
+  window.addEventListener('pagehide', teardown);
+</script>
+
 <style>
+  /* ── Canvas backdrop (Stage 4b) ──────────────────────────────────────────── */
+  /*
+    position:fixed keeps the canvas viewport-anchored as you scroll through the
+    section. z-index:-1 places it below normal-flow content (chapter text) but
+    above the root/body background — so the wireframe shows through the
+    transparent section+chapters without covering any readable text.
+  */
+  .experience__canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+    display: block;
+    opacity: 0;
+    transition: opacity var(--dur-slow) var(--ease-out);
+  }
+  .experience__canvas.is-active {
+    opacity: 1;
+  }
+
   /* ── Walkthrough section ─────────────────────────────────────────────────── */
   .experience {
-    background: var(--bg);
+    /* transparent so the fixed canvas at z-index:-1 shows through */
+    background: transparent;
   }
 
   .experience__chapters {
@@ -113,9 +267,17 @@ function chapterAccent(i: number): 'sla' | 'gov' | 'dr' {
     /* Alternating deep / base ground to lightly differentiate beats */
     background: transparent;
     border-top: 1px solid var(--border);
+    /* Stage 4b: dims non-centred chapters; .is-active is added by JS to the
+       chapter currently in the centre viewport band.
+       Under reduced-motion / mobile this is overridden to 1 (see below). */
+    opacity: 0.6;
+    transition: opacity var(--dur-base) var(--ease-out);
   }
   .experience__chapter:first-child {
     border-top: none;
+  }
+  .experience__chapter.is-active {
+    opacity: 1;
   }
 
   /* Thin accent rule — centered, from --energy */
@@ -190,7 +352,10 @@ function chapterAccent(i: number): 'sla' | 'gov' | 'dr' {
   /* Hover: faint energy glow on background — calm, no translation ─────────── */
   @media (hover: hover) {
     .experience__chapter {
-      transition: background var(--dur-quick) var(--ease-out);
+      /* Include opacity so the chapter dim still animates on hover/desktop. */
+      transition:
+        background var(--dur-quick) var(--ease-out),
+        opacity var(--dur-base) var(--ease-out);
     }
     .experience__chapter:hover {
       background: color-mix(in srgb, var(--energy) 3%, transparent);
@@ -251,13 +416,30 @@ function chapterAccent(i: number): 'sla' | 'gov' | 'dr' {
       0 0 0 4px var(--sun);
   }
 
-  /* ── Reduced-motion: strip hover transitions ─────────────────────────────── */
+  /* ── Reduced-motion: strip all transitions; keep chapters fully opaque ────── */
+  /* mount() returns early under reduced-motion so .is-active is never added.
+     The base opacity:0.6 on .experience__chapter would otherwise dim all chapters,
+     so we force opacity:1 here. The canvas stays opacity:0 (no JS activation). */
   @media (prefers-reduced-motion: reduce) {
     .experience__chapter {
       transition: none;
+      opacity: 1 !important;
     }
     .experience-cta__btn {
       transition: none;
     }
+  }
+
+  /* ── Mobile (≤ 48rem): static walkthrough — chapters fully opaque ─────────── */
+  /* mount() returns early on mobile so .is-active is never added; same fix. */
+  @media (max-width: 48rem) {
+    .experience__chapter {
+      opacity: 1;
+    }
+  }
+
+  /* ── html.reduced-motion class: belt-and-suspenders for JS-driven toggle ──── */
+  html.reduced-motion .experience__chapter {
+    opacity: 1;
   }
 </style>
