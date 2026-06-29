@@ -17,7 +17,7 @@ const { index, zh, en } = Astro.props;
 <style>
   .section-header {
     position: relative;
-    margin-bottom: clamp(2rem, 5vw, 3.5rem);
+    margin-bottom: clamp(2.5rem, 6vw, 4.5rem);
   }
   .section-header__numeral {
     position: absolute;
@@ -34,7 +34,7 @@ const { index, zh, en } = Astro.props;
     font-family: var(--font-mono);
     font-size: 0.78rem;
     letter-spacing: 0.18em;
-    color: var(--sun);
+    color: var(--energy, var(--sun));
     margin: 0 0 0.5rem;
   }
   .section-header__zh {
@@ -46,6 +46,6 @@ const { index, zh, en } = Astro.props;
     width: 56px;
     height: 2px;
     margin-top: 1rem;
-    background: var(--sun);
+    background: var(--energy, var(--sun));
   }
 </style>

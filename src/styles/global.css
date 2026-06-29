@@ -72,7 +72,7 @@ canvas[aria-hidden] {
 .section {
   max-width: var(--maxw);
   margin-inline: auto;
-  padding: clamp(4rem, 10vw, 8rem) var(--gutter);
+  padding: clamp(5.5rem, 13vw, 11rem) var(--gutter);
 }
 
 /* Label / kicker / mono-nav utility.

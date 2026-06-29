@@ -52,13 +52,7 @@ const slas = (await getCollection('slas')).sort((a, b) => a.data.order - b.data.
   .sla-strip {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-    /* Direction C: restrained elevation */
-    box-shadow:
-      0 2px 8px rgba(0, 0, 0, 0.3),
-      0 8px 32px rgba(0, 0, 0, 0.25);
+    gap: clamp(1.25rem, 3vw, 2.5rem);
   }
   @media (min-width: 768px) {
     .sla-strip {
@@ -66,7 +60,6 @@ const slas = (await getCollection('slas')).sort((a, b) => a.data.order - b.data.
     }
   }
   .sla {
-    background: var(--surface);
     padding: clamp(1.5rem, 4vw, 2.5rem);
     display: flex;
     flex-direction: column;
