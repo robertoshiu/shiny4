@@ -17,7 +17,7 @@
  *   Under Save-Data / no-JS: same — final state shown, no JS transforms.
  */
 
-import { createTimeline, createDrawable, stagger } from 'animejs';
+import { createTimeline, createDrawable, stagger, cubicBezier } from 'animejs';
 import { prefersReducedMotion } from '../theme-motion';
 import { getLenis } from './smooth-scroll';
 
@@ -82,7 +82,7 @@ export function initDiagramExplode(): () => void {
 
             drawPaths.forEach((p) => createDrawable(p, 0, 0));
 
-            const tl = createTimeline({ defaults: { ease: 'cubicBezier(0.22, 1, 0.36, 1)' } });
+            const tl = createTimeline({ defaults: { ease: cubicBezier(0.22, 1, 0.36, 1) } });
             tl.add(
               drawPaths,
               {

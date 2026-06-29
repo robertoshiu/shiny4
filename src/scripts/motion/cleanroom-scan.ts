@@ -18,7 +18,7 @@
  *   Under prefers-reduced-motion: returns no-op; markup shows final state.
  */
 
-import { createTimeline, createDrawable, stagger } from 'animejs';
+import { createTimeline, createDrawable, stagger, cubicBezier } from 'animejs';
 import { prefersReducedMotion } from '../theme-motion';
 
 // Save-Data detection (same idiom as dot-field.ts)
@@ -65,7 +65,7 @@ export function initCleanroomScan(): () => void {
           // CSS clip-path 'inset(top right bottom left)':
           // start: inset(0 0 100% 0)  → full clip from bottom (nothing visible)
           // end:   inset(0 0 0% 0)    → no clip (full diagram visible)
-          const tl = createTimeline({ defaults: { ease: 'cubicBezier(0.22, 1, 0.36, 1)' } });
+          const tl = createTimeline({ defaults: { ease: cubicBezier(0.22, 1, 0.36, 1) } });
 
           tl.add(inked, {
             clipPath: ['inset(0 0 100% 0)', 'inset(0 0 0% 0)'],
@@ -99,7 +99,7 @@ export function initCleanroomScan(): () => void {
                 draw: ['0 0', '0 1'],
                 delay: stagger(40),
                 duration: 600,
-                ease: 'cubicBezier(0.22, 1, 0.36, 1)',
+                ease: cubicBezier(0.22, 1, 0.36, 1),
               },
               240,
             );
