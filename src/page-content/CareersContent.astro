@@ -7,6 +7,7 @@ import JobCard from '../components/JobCard.astro';
 import EngageCTA from '../components/EngageCTA.astro';
 import DiagramStationPlan from '../components/DiagramStationPlan.astro';
 import CTAButton from '../components/CTAButton.astro';
+import ImmersiveStage from '../components/ImmersiveStage.astro';
 import { getCollection } from 'astro:content';
 import { t, localized, withBase } from '../i18n/utils';
 import type { Locale } from '../i18n/utils';
@@ -189,7 +190,10 @@ const norms = [
     />
   </Fragment>
 
-  <div class="careers-scan-wrapper">
+  <!-- Immersive backdrop: position:fixed canvas at z-index:-1, behind all content -->
+  <ImmersiveStage accent="sun" />
+
+  <div class="careers-scan-wrapper" data-immersive>
 
   <!-- 01 前沿技術，真實場景 -->
   <section class="section" id="why-shinylogic" aria-labelledby="heading-01">

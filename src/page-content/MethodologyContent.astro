@@ -9,6 +9,7 @@ import ComplianceBadges from '../components/ComplianceBadges.astro';
 import RiskCard from '../components/RiskCard.astro';
 import EngageCTA from '../components/EngageCTA.astro';
 import DiagramGateProcess from '../components/DiagramGateProcess.astro';
+import ImmersiveStage from '../components/ImmersiveStage.astro';
 import { getCollection } from 'astro:content';
 import { t, localized, withBase } from '../i18n/utils';
 import type { Locale } from '../i18n/utils';
@@ -98,7 +99,10 @@ const templateItems = [
     />
   </Fragment>
 
-  <div class="methodology-scan-wrapper">
+  <!-- Immersive backdrop: position:fixed canvas at z-index:-1, behind all content -->
+  <ImmersiveStage accent="sage" />
+
+  <div class="methodology-scan-wrapper" data-immersive>
 
   <!-- FIG.01: 四階八閘交付流程 P&ID ─────────────────────── -->
   <section class="section" id="gate-section" aria-labelledby="heading-gate">
@@ -673,7 +677,7 @@ const templateItems = [
    * which would bleed through to the page root stacking context).
    */
   .section--deep {
-    background: var(--bg-deep);
+    background: transparent;
     position: relative;
     isolation: isolate;
     overflow: hidden;

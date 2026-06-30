@@ -15,6 +15,7 @@ import InquiryTypeCard from '../components/InquiryTypeCard.astro';
 import CTAButton from '../components/CTAButton.astro';
 import HudCoordinate from '../components/HudCoordinate.astro';
 import DiagramNetZone from '../components/DiagramNetZone.astro';
+import ImmersiveStage from '../components/ImmersiveStage.astro';
 import { getCollection } from 'astro:content';
 import { t, localized } from '../i18n/utils';
 import type { Locale } from '../i18n/utils';
@@ -49,7 +50,10 @@ const inquiryTypes = (await getCollection('inquiryTypes')).sort(
     />
   </Fragment>
 
-  <div class="contact-scan-wrapper">
+  <!-- Immersive backdrop: position:fixed canvas at z-index:-1, behind all content -->
+  <ImmersiveStage accent="clay" />
+
+  <div class="contact-scan-wrapper" data-immersive>
 
   <!-- ── ENGAGE.00 四步交付流程 ─────────────────────────────────── -->
   <section class="section" id="process" aria-labelledby="heading-00">
