@@ -114,6 +114,9 @@ const hrefZhHans = new URL(siblingUrl(pathname, 'zh-Hans'), Astro.site).href;
   </head>
   <body>
     <div class="heat-scrim" aria-hidden="true"></div>
+    <div class="tile-curtain" aria-hidden="true" transition:persist>
+      {Array.from({length: 24}).map(() => <span class="tile-curtain__tile" />)}
+    </div>
     <SkipLink locale={locale} />
     <Header locale={locale} transition:persist />
     <slot />
@@ -141,7 +144,7 @@ const hrefZhHans = new URL(siblingUrl(pathname, 'zh-Hans'), Astro.site).href;
       All effects gate themselves on prefersReducedMotion() internally.
     -->
     <script>
-      import { bootMotion } from '../scripts/theme-motion';
+      import { bootMotion, prefersReducedMotion } from '../scripts/theme-motion';
       import { initSmoothScroll, destroySmoothScroll } from '../scripts/motion/smooth-scroll';
       import { initCursor } from '../scripts/motion/cursor';
       import { initMagnetic, initLinkUnderlines } from '../scripts/motion/magnetic';
@@ -209,6 +212,29 @@ const hrefZhHans = new URL(siblingUrl(pathname, 'zh-Hans'), Astro.site).href;
 
       // astro:page-load fires on initial load AND after every View Transition.
       document.addEventListener('astro:page-load', init);
+
+      // ── Tile curtain reveal ──────────────────────────────────────────────
+      // Runs independently of init/teardown so it always fires first-thing
+      // on every page-load (initial + VT navs). Sequence:
+      //   1. Instantly covers viewport with a 6×4 warm-dark tile grid
+      //   2. Next rAF: transitions tiles out in a staggered wave (~640ms)
+      //   3. After 900ms: cleans up the is-revealing class
+      function playTileReveal(): void {
+        if (prefersReducedMotion()) return;
+        if (window.matchMedia('(max-width: 48rem)').matches) return;
+        const curtain = document.querySelector('.tile-curtain');
+        if (!curtain) return;
+        curtain.classList.remove('is-revealing');
+        curtain.classList.add('is-covering');          // instant cover, no transition
+        // Force a reflow so the covering state paints before we switch to revealing
+        void (curtain as HTMLElement).offsetWidth;
+        requestAnimationFrame(() => {
+          curtain.classList.remove('is-covering');
+          curtain.classList.add('is-revealing');        // staggered tile exit
+        });
+        window.setTimeout(() => curtain.classList.remove('is-revealing'), 900);
+      }
+      document.addEventListener('astro:page-load', playTileReveal);
     </script>
   </body>
 </html>
